@@ -1,0 +1,36 @@
+[submodule "componets/lvgl/lvgl"]
+	path = componets/lvgl/lvgl
+	url = https://github.com/lvgl/lvgl.git
+[submodule "componets/lvgl/lv_demos"]
+	path = componets/lvgl/lv_demos
+	url = https://github.com/lvgl/lv_demos.git
+[submodule "components/lvgl/lv_demos"]
+	path = components/lvgl/lv_demos
+	url = https://github.com/lvgl/lv_demos.git
+[submodule "components/lvgl/lvgl"]
+	path = components/lvgl/lvgl
+	url = https://github.com/lvgl/lvgl.git
+[submodule "components/esp32-camera"]
+	path = components/esp32-camera
+	url = https://github.com/espressif/esp32-camera.git
+[submodule "components/lvgl/lv_lib/lv_lib_png"]
+	path = components/lvgl/lv_lib/lv_lib_png
+	url = https://github.com/lvgl/lv_lib_png.git
+[submodule "components/lvgl/lv_lib/lv_lib_bmp"]
+	path = components/lvgl/lv_lib/lv_lib_bmp
+	url = https://github.com/lvgl/lv_lib_bmp.git
+[submodule "components/lvgl/lv_lib/lv_lib_split_jpg"]
+	path = components/lvgl/lv_lib/lv_lib_split_jpg
+	url = https://github.com/lvgl/lv_lib_split_jpg.git
+[submodule "components/lvgl/lv_lib/lv_lib_gif"]
+	path = components/lvgl/lv_lib/lv_lib_gif
+	url = https://github.com/lvgl/lv_lib_gif.git
+[submodule "components/lvgl/lv_lib/lv_lib_freetype"]
+	path = components/lvgl/lv_lib/lv_lib_freetype
+	url = https://github.com/lvgl/lv_lib_freetype.git
+[submodule "examples/lvgl/freetype/main/lib/freetype"]
+	path = examples/lvgl/freetype/main/lib/freetype
+	url = https://gitlab.freedesktop.org/freetype/freetype.git
+[submodule "components/esp-sr"]
+	path = components/esp-sr
+	url = https://github.com/espressif/esp-sr.git

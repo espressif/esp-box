@@ -1,0 +1,13 @@
+idf_component_register(
+    SRC_DIRS
+        "es7210"
+        "es8311"
+        "es8388" 
+    INCLUDE_DIRS
+        "es7210"
+        "es8311"
+        "es8388"
+        "include"
+    REQUIRES
+        bsp
+        i2c_bus)

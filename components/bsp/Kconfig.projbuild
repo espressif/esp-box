@@ -1,0 +1,206 @@
+menu "HMI Board Config"
+
+    choice HMI_BOARD
+        prompt "HMI board"
+        default ESP32_S2_HMI_DEVKIT_BOARD
+        help
+            Select an HMI board to use with the HMI project
+    config ESP32_WROVER_KIT_BOARD
+        bool "ESP32-WROVER-KIT"
+        depends on IDF_TARGET_ESP32
+    config ESP32_S2_KALUGA_BOARD
+        bool "ESP32-S2-Kaluga-1"
+        depends on IDF_TARGET_ESP32S2
+    config ESP32_S2_HMI_DEVKIT_BOARD
+        bool "ESP32-S2-HMI-DevKit-1"
+        depends on IDF_TARGET_ESP32S2
+    config ESP32_S3_HMI_DEVKIT_BOARD
+        bool "ESP32-S3-HMI-DevKit"
+        depends on IDF_TARGET_ESP32S3
+    config ESP32_S3_LCD_CAM_BOARD
+        bool "ESP32-S3 LCD_CAM Board"
+        depends on IDF_TARGET_ESP32S3
+    config ESP32_S3_CUBE_BOARD
+        bool "ESP32-S3 Cube Dev Board"
+        depends on IDF_TARGET_ESP32S3
+    config ESP32_C3_DEVKIT_BOARD
+        bool "ESP32-C3 DevKit Board"
+        depends on IDF_TARGET_ESP32C3
+    config ESP_CUSTOM_BOARD
+        bool "Custom HMI board"
+    endchoice
+
+    choice LCD_INTERFACE
+        prompt "Select LCD interface"
+        depends on ESP_CUSTOM_BOARD
+        default LCD_INTERFACE_I80
+        help
+            Select LCD interface of custom board
+
+    config LCD_INTERFACE_I2C
+        bool "LCD_INTERFACE_I2C"
+    config LCD_INTERFACE_I80
+        bool "LCD_INTERFACE_I80"
+    config LCD_INTERFACE_SPI
+        bool "LCD_INTERFACE_SPI"
+
+    endchoice
+
+    menu "I80 LCD GPIO configuration"
+        depends on LCD_INTERFACE_I80
+        choice LCD_BIT_WIDTH
+            prompt "LCD Data Line Width"
+            default LCD_BIT_WIDTH_8_BIT
+            help
+                Lines of LCD data bus.
+
+            config LCD_BIT_WIDTH_8_BIT
+                bool "8 Bit"
+            config LCD_BIT_WIDTH_16_BIT
+                bool "16 Bit"
+        endchoice
+            config LCD_WR_GPIO
+                int "LCD WR GPIO"
+                range 0 48
+                default 34
+            config LCD_RS_GPIO
+                int "LCD RS GPIO"
+                range 0 48
+                default 33
+            config LCD_D00_GPIO
+                int "LCD D00 GPIO"
+                range 0 48
+                default 16
+            config LCD_D01_GPIO
+                int "LCD D01 GPIO"
+                range 0 48
+                default 15
+            config LCD_D02_GPIO
+                int "LCD D02 GPIO"
+                range 0 48
+                default 14
+            config LCD_D03_GPIO
+                int "LCD D03 GPIO"
+                range 0 48
+                default 13
+            config LCD_D04_GPIO
+                int "LCD D04 GPIO"
+                range 0 48
+                default 12
+            config LCD_D05_GPIO
+                int "LCD D05 GPIO"
+                range 0 48
+                default 11
+            config LCD_D06_GPIO
+                int "LCD D06 GPIO"
+                range 0 48
+                default 10
+            config LCD_D07_GPIO
+                int "LCD D07 GPIO"
+                range 0 48
+                default 9
+            config LCD_D08_GPIO
+                int "LCD D08 GPIO"
+                range 0 48
+                default 8
+                depends on LCD_BIT_WIDTH_16_BIT
+            config LCD_D09_GPIO
+                int "LCD D09 GPIO"
+                range 0 48
+                default 7
+                depends on LCD_BIT_WIDTH_16_BIT
+            config LCD_D10_GPIO
+                int "LCD D10 GPIO"
+                range 0 48
+                default 6
+                depends on LCD_BIT_WIDTH_16_BIT
+            config LCD_D11_GPIO
+                int "LCD D11 GPIO"
+                range 0 48
+                default 5
+                depends on LCD_BIT_WIDTH_16_BIT
+            config LCD_D12_GPIO
+                int "LCD D12 GPIO"
+                range 0 48
+                default 4
+                depends on LCD_BIT_WIDTH_16_BIT
+            config LCD_D13_GPIO
+                int "LCD D13 GPIO"
+                range 0 48
+                default 3
+                depends on LCD_BIT_WIDTH_16_BIT
+            config LCD_D14_GPIO
+                int "LCD D14 GPIO"
+                range 0 48
+                default 2
+                depends on LCD_BIT_WIDTH_16_BIT
+            config LCD_D15_GPIO
+                int "LCD D15 GPIO"
+                range 0 48
+                default 1
+                depends on LCD_BIT_WIDTH_16_BIT
+    endmenu
+
+
+    menu "I2C GPIO configuration"
+        depends on ESP_CUSTOM_BOARD
+        config I2C_SCL_GPIO
+            int "I2C SCL GPIO"
+            range 0 48
+            default 36
+        config I2C_SDA_GPIO
+            int "I2C SDA GPIO"
+            range 0 48
+            default 35
+    endmenu
+
+    menu "SPI GPIO configuration"
+        depends on ESP_CUSTOM_BOARD
+
+        config SPI_CS_GPIO
+            int "SPI CS GPIO"
+            range 0 48
+            default 37
+        config SPI_MISO_GPIO
+            int "SPI MISO GPIO"
+            range 0 48
+            default 40
+        config SPI_MOSI_GPIO
+            int "SPI MOSI GPIO"
+            range 0 48
+            default 38
+        config SPI_SCLK_GPIO
+            int "SPI SCLK GPIO"
+            range 0 48
+            default 39
+    endmenu
+
+    menu "TWAI GPIO configuration"
+        depends on ESP_CUSTOM_BOARD
+        config TWAI_TX_GPIO
+            int "TWAI TX GPIO"
+            range 0 48
+            default 41
+        config TWAI_RX_GPIO
+            int "TWAI RX GPIO"
+            range 0 48
+            default 42
+    endmenu
+
+    menu "Touch Panel Drivers"
+        depends on ESP_CUSTOM_BOARD
+
+        menu "Config Input Value"
+            config TOUCH_PANEL_INVERSE_X
+                bool "Reverse X Axis"
+                default n
+            config TOUCH_PANEL_INVERSE_Y
+                bool "Reverse Y Axis"
+                default n
+            config TOUCH_PANEL_SWAP_XY
+                bool "Swap X and Y Axis"
+                default n
+        endmenu
+
+    endmenu
+endmenu
