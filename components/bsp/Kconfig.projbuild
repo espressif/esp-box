@@ -2,30 +2,12 @@ menu "HMI Board Config"
 
     choice HMI_BOARD
         prompt "HMI board"
-        default ESP32_S2_HMI_DEVKIT_BOARD
+        default ESP32_S3_CUBE_BOARD
         help
             Select an HMI board to use with the HMI project
-    config ESP32_WROVER_KIT_BOARD
-        bool "ESP32-WROVER-KIT"
-        depends on IDF_TARGET_ESP32
-    config ESP32_S2_KALUGA_BOARD
-        bool "ESP32-S2-Kaluga-1"
-        depends on IDF_TARGET_ESP32S2
-    config ESP32_S2_HMI_DEVKIT_BOARD
-        bool "ESP32-S2-HMI-DevKit-1"
-        depends on IDF_TARGET_ESP32S2
-    config ESP32_S3_HMI_DEVKIT_BOARD
-        bool "ESP32-S3-HMI-DevKit"
-        depends on IDF_TARGET_ESP32S3
-    config ESP32_S3_LCD_CAM_BOARD
-        bool "ESP32-S3 LCD_CAM Board"
-        depends on IDF_TARGET_ESP32S3
     config ESP32_S3_CUBE_BOARD
         bool "ESP32-S3 Cube Dev Board"
         depends on IDF_TARGET_ESP32S3
-    config ESP32_C3_DEVKIT_BOARD
-        bool "ESP32-C3 DevKit Board"
-        depends on IDF_TARGET_ESP32C3
     config ESP_CUSTOM_BOARD
         bool "Custom HMI board"
     endchoice
@@ -173,18 +155,6 @@ menu "HMI Board Config"
             int "SPI SCLK GPIO"
             range 0 48
             default 39
-    endmenu
-
-    menu "TWAI GPIO configuration"
-        depends on ESP_CUSTOM_BOARD
-        config TWAI_TX_GPIO
-            int "TWAI TX GPIO"
-            range 0 48
-            default 41
-        config TWAI_RX_GPIO
-            int "TWAI RX GPIO"
-            range 0 48
-            default 42
     endmenu
 
     menu "Touch Panel Drivers"

@@ -38,43 +38,33 @@ extern "C" {
 #endif
 
 /**
- * @brief Initialize I2C bus of dev board.
+ * @brief Initialize I2C bus of dev board
  * 
- * @return
- *    - ESP_OK Success
- *    - Others: Refer to error code `esp_err.h`.
- */
-// esp_err_t bsp_i2c_init(void);
-
-/**
- * @brief 
- * 
- * @param i2c_num 
- * @param clk_speed 
- * @return esp_err_t 
+ * @param i2c_num I2C port num
+ * @param clk_speed I2C clock speed 
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t bsp_i2c_init(i2c_port_t i2c_num, uint32_t clk_speed);
 
 /**
- * @brief 
+ * @brief Prob given address on I2C bus
  * 
- * @return esp_err_t 
- */
-esp_err_t bsp_i2c_probe(void);
-
-/**
- * @brief 
- * 
- * @param addr 
- * @return esp_err_t 
+ * @param addr 7 bit Address to prob
+ * @return
+ *    - ESP_OK: Device found on I2C bus
+ *    - ESP_ERR_INVALID_ARG: Invalid I2C address
+ *    - ESP_ERR_INVALID_STATE: I2C bus not initialized
+ *    - Others: Device not found on I2C bus or error occurred during I2C transmission
  */
 esp_err_t bsp_i2c_probe_addr(uint8_t addr);
 
 /**
- * @brief Add device to I2C bus.
+ * @brief Add device to I2C bus
  * 
- * @param i2c_device_handle 
- * @param dev_addr 
+ * @param i2c_device_handle Handle of I2C device
+ * @param dev_addr 7 bit address of device
  * @return
  *    - ESP_OK Success
  *    - Others: Refer to error code `esp_err.h`.
@@ -82,7 +72,7 @@ esp_err_t bsp_i2c_probe_addr(uint8_t addr);
 esp_err_t bsp_i2c_add_device(i2c_bus_device_handle_t *i2c_device_handle, uint8_t dev_addr);
 
 /**
- * @brief Get handle of I2C bus.
+ * @brief Get handle of I2C bus
  * 
  * @return Handle of i2c bus. NULL if not or failed initialized.
  */

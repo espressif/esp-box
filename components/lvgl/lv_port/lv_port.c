@@ -112,23 +112,24 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
  */
 static void lv_port_disp_init(void)
 {
-    lv_color_t *p_disp_buf = NULL;
-    uint32_t buf_alloc_caps = MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT;
-    size_t disp_buf_width = 320, disp_buf_height = 40;
     static lv_disp_draw_buf_t draw_buf_dsc;
+    size_t disp_buf_height = 40;
 
-    /* Allocate memories from heap */
-    p_disp_buf = heap_caps_malloc(disp_buf_width * disp_buf_height * sizeof(lv_color_t), buf_alloc_caps);
-    ESP_LOGD(TAG, "Try allocate %zu * %zu display buffer", disp_buf_width, disp_buf_height);
+    /* Option 1 : Allocate memories from heap */
+    // lv_color_t *p_disp_buf = NULL;
+    // uint32_t buf_alloc_caps = MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT;
+    // p_disp_buf = heap_caps_malloc(LCD_WIDTH * disp_buf_height * sizeof(lv_color_t), buf_alloc_caps);
+    // ESP_LOGD(TAG, "Try allocate %zu * %zu display buffer", LCD_WIDTH, disp_buf_height);
+    // if (NULL == p_disp_buf) {
+    //     ESP_LOGE(TAG, "No memory for LVGL display buffer");
+    //     esp_system_abort("Memory allocation failed");
+    // }
 
-    /* Check memory allocation result */
-    if (NULL == p_disp_buf) {
-        ESP_LOGE(TAG, "No memory for LVGL display buffer");
-        esp_system_abort("Memory allocation failed");
-    }
+    /* Option 2 : Using static space for display buffer */
+    static lv_color_t p_disp_buf[LCD_WIDTH * 40];
 
     /* Initialize display buffer */
-    lv_disp_draw_buf_init(&draw_buf_dsc, p_disp_buf, NULL, disp_buf_width * disp_buf_height);   /*Initialize the display buffer*/
+    lv_disp_draw_buf_init(&draw_buf_dsc, p_disp_buf, NULL, LCD_WIDTH * disp_buf_height);
 
     /* Register the display in LVGL */
     lv_disp_drv_init(&disp_drv);
@@ -181,12 +182,13 @@ static esp_err_t lv_port_indev_init(void)
 
     /* Initialize your touchpad if you have */
 
-    /*Register a touchpad input device*/
+    /* Register a touchpad input device */
     lv_indev_drv_init(&indev_drv);
     indev_drv.type = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb = touchpad_read;
     indev_touchpad = lv_indev_drv_register(&indev_drv);
 
+    /* Uncomment code below to display a mouse cursor on screen */
     // LV_IMG_DECLARE(mouse_cursor_icon)
     // lv_obj_t * cursor_obj = lv_img_create(lv_scr_act()); /*Create an image object for the cursor */
     // lv_img_set_src(cursor_obj, &mouse_cursor_icon);           /*Set the image source*/
@@ -200,7 +202,7 @@ static esp_err_t lv_port_indev_init(void)
  */
 static esp_err_t lv_port_tick_init(void)
 {
-    static const uint32_t tick_inc_period_ms = 2;
+    static const uint32_t tick_inc_period_ms = 5;
     const esp_timer_create_args_t periodic_timer_args = {
             .callback = lv_tick_inc_cb,
             .name = "",     /* name is optional, but may help identify the timer when debugging */
@@ -234,12 +236,4 @@ esp_err_t lv_port_init(void)
 
     /* Nothing error */
     return ESP_OK;
-}
-
-esp_err_t lv_port_buf_config(size_t buf_width, size_t buf_height, void *p_buffer)
-{
-    lv_port_use_fixed_buffer = true;
-    if (NULL != p_buffer) {
-        //
-    }
 }

@@ -29,19 +29,24 @@ extern "C" {
 #endif
 
 /**
- * @brief 
+ * @brief Init touch panel
  * 
- * @return esp_err_t 
+ * @return
+ *    - ESP_OK: Success
+ *    - ESP_ERR_NOT_SUPPORTED: Unsupported touch panel
+ *    - Others: Fail
  */
 esp_err_t bsp_tp_init(void);
 
 /**
- * @brief 
+ * @brief Read data from touch panel
  * 
- * @param tp_num 
- * @param x 
- * @param y 
- * @return esp_err_t 
+ * @param tp_num Touch point number
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @return
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y);
 

@@ -25,10 +25,13 @@
 #include <string.h>
 #include <sys/time.h>
 #include "app_sr.h"
+#include "bsp_codec.h"
+#include "bsp_i2s.h"
 #include "dl_lib_coefgetter_if.h"
 #include "driver/i2s.h"
 #include "esp_err.h"
 #include "esp_log.h"
+#include "esp_random.h"
 #include "esp_afe_sr_iface.h"
 #include "esp_afe_sr_models.h"
 #include "esp_mn_iface.h"
@@ -37,6 +40,9 @@
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
 
+#define SR_CMD_TIME_OUT     (-2)
+#define SR_CMD_NOT_DETECTED (-1)
+#define SR_CMD_ID_BASE      (0)
 #define I2S_CHANNEL_NUM     (3)
 
 static const char *TAG = "app_sr";
@@ -44,7 +50,7 @@ static const char *TAG = "app_sr";
 static afe_config_t afe_config = {
     .aec_init = false,
     .se_init = true,
-    .vad_init = true,
+    .vad_init = false,
     .wakenet_init = true,
     .vad_mode = 3,
     .wakenet_model = (esp_wn_iface_t *) &WAKENET_MODEL,
@@ -52,13 +58,15 @@ static afe_config_t afe_config = {
     .wakenet_mode = DET_MODE_2CH_90,
     .afe_mode = SR_MODE_LOW_COST,
     .afe_perferred_core = 0,
-    .afe_perferred_priority = configMAX_PRIORITIES - 2,
+    .afe_perferred_priority = 8,
     .afe_ringbuf_size = 50,
-    .alloc_from_psram = true,
-    .agc_mode = 2,
+    .alloc_from_psram = 1,
+    .agc_mode = 2,  /* 1 : -5dB 2: -4dB ... */
 };
 static const esp_afe_sr_iface_t *afe_handle = &esp_afe_sr_2mic;
 
+static FILE *fp = NULL;
+static bool b_record_en = false;
 static volatile int32_t sr_command_id = -1;
 static EventGroupHandle_t sr_event_group_handle = NULL;
 
@@ -91,9 +99,9 @@ static void audio_feed_task(void *pvParam)
 
 static void audio_detect_task(void *pvParam)
 {
-    int detect_flag = 0;
+    bool detect_flag = false;
     const esp_mn_iface_t *multinet = &MULTINET_MODEL;
-    model_iface_data_t *model_data = multinet->create(&MULTINET_COEFF, 6000);
+    model_iface_data_t *model_data = multinet->create((const model_coeff_getter_t *) &MULTINET_COEFF, 5760);
     esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *) pvParam;
 
     /* Allocate buffer for detection */
@@ -108,42 +116,63 @@ static void audio_detect_task(void *pvParam)
         esp_system_abort("Invalid chunk size");
     }
 
-    while (true) {
-        /* Wake word detected if `fetch()` returns none zero value */
-        if (afe_handle->fetch(afe_data, detect_buff) > 0) {
-            ESP_LOGD(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Wakeword detected");
-            detect_flag = 1;
-            xEventGroupSetBits(sr_event_group_handle, SR_EVENT_WAKE_UP);
+    ESP_LOGI(TAG,
+        "Audio detection start. Reset memories :\n"
+        "         Biggest    Free   Total\n"
+        "Internal %8zu%8zu%8zu\n"
+        "SPI RAM  %8zu%8zu%8zu\n",
+        heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL), heap_caps_get_free_size(MALLOC_CAP_INTERNAL), heap_caps_get_total_size(MALLOC_CAP_INTERNAL),
+        heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM), heap_caps_get_free_size(MALLOC_CAP_SPIRAM), heap_caps_get_total_size(MALLOC_CAP_SPIRAM));
 
-            /* Disable wakenet. Detect command(s) with multinet. */
+    while (true) {
+        int ret_val = afe_handle->fetch(afe_data, detect_buff);
+
+        if (AFE_FETCH_WWE_DETECTED == ret_val) {
+            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Wakeword detected");
+            xEventGroupSetBits(sr_event_group_handle, SR_EVENT_WAKE_UP);
+        }
+
+        if (AFE_FETCH_CHANNEL_VERIFIED == ret_val) {
+            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Channel verified");
+            detect_flag = true;
             afe_handle->disable_wakenet(afe_data);
         }
 
-        if (detect_flag == 1) {
+        if (true == detect_flag) {
             sr_command_id = multinet->detect(model_data, detect_buff);
 
-            if(sr_command_id == -2) {
-                ESP_LOGD(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Timeout");
+            /* Save audio data to file */
+            if (b_record_en && (NULL != fp)) {
+                fwrite(detect_buff, 1, afe_chunk_size * sizeof(int16_t), fp);
+            }
 
+            if (SR_CMD_NOT_DETECTED == sr_command_id) {
+                continue;
+            }
+
+            if (SR_CMD_TIME_OUT == sr_command_id) {
+                ESP_LOGW(TAG, LOG_BOLD(LOG_COLOR_BROWN) "Time out");
                 xEventGroupSetBits(sr_event_group_handle, SR_EVENT_TIMEOUT);
-
-                /* Enable wakenet and AEC again */
                 afe_handle->enable_wakenet(afe_data);
-
-                /* Reset detect flag */
-                detect_flag = 0;
+                detect_flag = false;
+                continue;
             }
 
-            if (sr_command_id > -1) {
-                ESP_LOGD(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Command word %2d detected", sr_command_id);
+            if (SR_CMD_ID_BASE <= sr_command_id) {
+                ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Deteted command : %d", sr_command_id);
                 xEventGroupSetBits(sr_event_group_handle, SR_EVENT_WORD_DETECT);
-
-                /* Enable wakenet and AEC again */
                 afe_handle->enable_wakenet(afe_data);
-
-                /* Reset detect flag */
                 detect_flag = 0;
+
+                if (b_record_en && (NULL != fp)) {
+                    ESP_LOGI(TAG, "File saved");
+                    fclose(fp);
+                    fp = NULL;
+                }
+                continue;
             }
+
+            ESP_LOGE(TAG, "Exception unhandled");
         }
     }
 
@@ -154,13 +183,14 @@ static void audio_detect_task(void *pvParam)
     vTaskDelete(NULL);
 }
 
-esp_err_t app_sr_start(void)
+static void sr_init_task(void *pvParam)
 {
-    sr_event_group_handle = xEventGroupCreate();
-    if (NULL == sr_event_group_handle) {
-        ESP_LOGE(TAG, "Failed create event group");
-        return ESP_ERR_NO_MEM;
-    }
+    (void) pvParam;
+
+    ESP_ERROR_CHECK(bsp_i2s_init(I2S_NUM_0, 16000));
+    ESP_ERROR_CHECK(bsp_codec_init(AUDIO_HAL_16K_SAMPLES));
+
+    vTaskDelay(pdMS_TO_TICKS(4000));
 
     esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
 
@@ -170,29 +200,30 @@ esp_err_t app_sr_start(void)
         (const char * const)    "Feed Task",
         (const uint32_t)        4 * 1024,
         (void * const)          afe_data,
-        (UBaseType_t)           configMAX_PRIORITIES - 2,
+        (UBaseType_t)           5,
         (TaskHandle_t * const)  NULL,
-        (const BaseType_t)      0);
+        (const BaseType_t)      1);
     if (pdPASS != ret_val) {
         ESP_LOGE(TAG, "Failed create audio feed task");
-        return ESP_FAIL;
+        return;
     }
-    
+
     /* Create audio detect task. Detect data fetch from buffer */
     ret_val = xTaskCreatePinnedToCore(
         (TaskFunction_t)        audio_detect_task,
         (const char * const)    "Detect Task",
-        (const uint32_t)        6 * 1024,
+        (const uint32_t)        5 * 1024,
         (void * const)          afe_data,
-        (UBaseType_t)           configMAX_PRIORITIES - 2,
+        (UBaseType_t)           5,
         (TaskHandle_t * const)  NULL,
         (const BaseType_t)      1);
     if (pdPASS != ret_val) {
         ESP_LOGE(TAG, "Failed create audio detect task");
-        return ESP_FAIL;
+        return;
     }
 
     /* Create audio detect task. Detect data fetch from buffer */
+    extern void sr_handler_task(void *pvParam);
     ret_val = xTaskCreatePinnedToCore(
         (TaskFunction_t)        sr_handler_task,
         (const char * const)    "SR Handler Task",
@@ -203,6 +234,55 @@ esp_err_t app_sr_start(void)
         (const BaseType_t)      0);
     if (pdPASS != ret_val) {
         ESP_LOGE(TAG, "Failed create audio detect task");
+        return;
+    }
+
+    vTaskDelete(NULL);
+}
+
+esp_err_t app_sr_start(bool record_en)
+{
+    sr_event_group_handle = xEventGroupCreate();
+    if (NULL == sr_event_group_handle) {
+        ESP_LOGE(TAG, "Failed create event group");
+        return ESP_ERR_NO_MEM;
+    }
+
+    /* Create file if record to SD card enabled*/
+    if (record_en) {
+        char file_name[32];
+        b_record_en = true;
+        for (size_t i = 0; i < 100; i++) {
+            sprintf(file_name, "/sdcard/Record_%02d.pcm", i);
+            fp = fopen(file_name, "r");
+            fclose(fp);
+            if (NULL == fp) {
+                break;
+            }
+        }
+
+        fp = fopen(file_name, "w");
+        if (NULL == fp) {
+            ESP_LOGE(TAG, "Failed create file");
+            return ESP_FAIL;
+        } else {
+            ESP_LOGI(TAG, "File created : %s", file_name);
+        }
+
+        ESP_LOGI(TAG, "File created at %s", file_name);
+    }
+
+    /* Create audio detect task. Detect data fetch from buffer */
+    BaseType_t ret_val = xTaskCreatePinnedToCore(
+        (TaskFunction_t)        sr_init_task,
+        (const char * const)    "SR Init Task",
+        (const uint32_t)        4 * 1024,
+        (void * const)          NULL,
+        (UBaseType_t)           1,
+        (TaskHandle_t * const)  NULL,
+        (const BaseType_t)      1);
+    if (pdPASS != ret_val) {
+        ESP_LOGE(TAG, "Failed create sr initialize task");
         return ESP_FAIL;
     }
 

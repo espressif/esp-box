@@ -4,8 +4,19 @@
  * @version 0.1
  * @date 2021-07-20
  * 
- * @copyright Copyright (c) 2021
- * 
+ * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *               http://www.apache.org/licenses/LICENSE-2.0
+
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
  */
 
 #include "bsp_codec.h"
@@ -71,9 +82,12 @@ esp_err_t bsp_codec_adc_init(audio_hal_iface_samples_t sample_rate)
 
     ret_val |= es7210_adc_init(&cfg);
     ret_val |= es7210_adc_config_i2s(cfg.codec_mode, &cfg.i2s_iface);
-    ret_val |= es7210_adc_set_gain(ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2, GAIN_0DB);
-    ret_val |= es7210_adc_set_gain(ES7210_INPUT_MIC3, GAIN_0DB);
+    ret_val |= es7210_adc_set_gain(ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2 | ES7210_INPUT_MIC3, GAIN_0DB);
     ret_val |= es7210_adc_ctrl_state(cfg.codec_mode, AUDIO_HAL_CTRL_START);
+
+    // for (uint8_t i = 0; i <= 0x7f; i++) {
+    //     ESP_LOGI(TAG, "Reg : %02X, Val = %02X", i, es7210_read_reg(i));
+    // }
 
     if (ESP_OK != ret_val) {
         ESP_LOGE(TAG, "Failed initialize codec");

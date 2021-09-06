@@ -83,17 +83,17 @@
 
 static i2c_bus_device_handle_t ft5x06_handle = NULL;
 
-static esp_err_t ft5x06_read_byte(uint8_t reg_addr, uint8_t *data)
+static inline esp_err_t ft5x06_read_byte(uint8_t reg_addr, uint8_t *data)
 {
     return i2c_bus_read_byte(ft5x06_handle, reg_addr, data);
 }
 
-static esp_err_t ft5x06_read_bytes(uint8_t reg_addr, size_t data_len, uint8_t *data)
+static inline esp_err_t ft5x06_read_bytes(uint8_t reg_addr, size_t data_len, uint8_t *data)
 {
     return i2c_bus_read_bytes(ft5x06_handle, reg_addr, data_len, data);
 }
 
-static esp_err_t ft5x06_write_byte(uint8_t reg_addr, uint8_t data)
+static inline esp_err_t ft5x06_write_byte(uint8_t reg_addr, uint8_t data)
 {
     return i2c_bus_write_byte(ft5x06_handle, reg_addr, data);
 }
@@ -101,7 +101,7 @@ static esp_err_t ft5x06_write_byte(uint8_t reg_addr, uint8_t data)
 esp_err_t ft5x06_init(void)
 {
     if (NULL != ft5x06_handle) {
-        return ESP_FAIL;
+        return ESP_ERR_INVALID_STATE;
     }
 
     bsp_i2c_add_device(&ft5x06_handle, FT5x06_ADDR);
@@ -109,6 +109,8 @@ esp_err_t ft5x06_init(void)
     if (NULL == ft5x06_handle) {
         return ESP_FAIL;
     }
+
+    esp_err_t ret_val = ESP_OK;
 
     // Valid touching detect threshold
     i2c_bus_write_byte(ft5x06_handle, FT5x06_ID_G_THGROUP, 70);
@@ -147,19 +149,20 @@ static esp_err_t ft5x06_get_touch_points_num(uint8_t *touch_points_num)
 
 esp_err_t ft5x06_read_pos(uint8_t *touch_points_num, uint16_t *x, uint16_t *y)
 {
+    esp_err_t ret_val = ESP_OK;
     static uint8_t data[4];
 
-    ft5x06_get_touch_points_num(touch_points_num);
+    ret_val |= ft5x06_get_touch_points_num(touch_points_num);
 
     if (0 == *touch_points_num) {
     } else {
-        ft5x06_read_bytes(FT5x06_TOUCH1_XH, 4, data);
+        ret_val |= ft5x06_read_bytes(FT5x06_TOUCH1_XH, 4, data);
 
         *x = ((data[0] & 0x0f) << 8) + data[1];
         *y = ((data[2] & 0x0f) << 8) + data[3];
     }
 
-    return ESP_OK;
+    return ret_val;
 }
 
 esp_err_t fx5x06_read_gesture(ft5x06_gesture_t *gesture)

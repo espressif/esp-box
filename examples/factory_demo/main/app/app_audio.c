@@ -34,7 +34,7 @@ static void audio_task(void *pvParam);
 
 esp_err_t app_audio_start(void)
 {
-    FILE *fp = fopen("/spiffs/wake.wav", "rb");
+    FILE *fp = fopen("/spiffs/audio/wake.wav", "rb");
     if (NULL == fp) {
         ESP_LOGE(TAG, "Audio file does't exist");
         return ESP_ERR_NOT_FOUND;
@@ -117,14 +117,13 @@ esp_err_t audio_record_to_file(size_t time_ms, const char *file_name)
     }
 
     size_t bytes_read;
+    ESP_LOGI(TAG, "Record start");
     esp_err_t ret_val = i2s_read(I2S_NUM_0, audio_buffer, file_size, &bytes_read, portMAX_DELAY);
+    ESP_LOGI(TAG, "Record stop");
 
     fwrite(audio_buffer, 1, file_size, fp);
     fclose(fp);
     ESP_LOGI(TAG, "File saved to %s", file_name);
 
     return ret_val;
-
-
-
 }

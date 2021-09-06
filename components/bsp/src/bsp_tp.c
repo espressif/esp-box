@@ -27,7 +27,6 @@
 #include "i2c_bus.h"
 
 #include "ft5x06.h"
-#include "goodix.h"
 #include "tt21100.h"
 
 static const char *TAG = "bsp_tp";
@@ -48,7 +47,6 @@ typedef struct {
 static tp_dev_t tp_dev_list[] = {
     { "Parade Tech", 0x24, TP_VENDOR_TT },
     { "Focal Tech", 0x38, TP_VENDOR_FT },
-    { "Goodix", 0x14, TP_VENDOR_GT },
 };
 
 static tp_vendor_t tp_vendor = TP_VENDOR_NONE;
@@ -82,11 +80,7 @@ esp_err_t bsp_tp_init(void)
     case TP_VENDOR_FT:
         ret_val |= ft5x06_init();
         break;
-    case TP_VENDOR_GT:
-        ret_val |= goodix_tp_init();
-        break;
     default:
-        ret_val = ESP_OK; // ESP_ERR_NOT_FOUND;
         break;
     }
 
@@ -104,11 +98,8 @@ esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y)
     case TP_VENDOR_FT:
         ret_val |= ft5x06_read_pos(tp_num, x, y);
         break;
-    case TP_VENDOR_GT:
-        ret_val |= goodix_tp_read(tp_num, x, y);
-        break;
     default:
-        return ESP_OK; // ESP_ERR_NOT_FOUND;
+        return ESP_ERR_NOT_FOUND;
         break;
     }
 

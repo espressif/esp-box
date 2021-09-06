@@ -27,7 +27,6 @@
 #define ACK_CHECK_EN   0x1     /*!< I2C master will check ack from slave*/
 
 static const char *TAG= "bsp_i2c";
-
 static i2c_bus_handle_t i2c_bus_handle = NULL;
 
 /* Make sure unused member(s) zero. Especially `clk_flags` */

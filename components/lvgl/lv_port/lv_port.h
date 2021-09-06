@@ -28,9 +28,10 @@ extern "C" {
 #endif
 
 /**
- * @brief 
+ * @brief Init LVGL GUI library
  * 
- * @return esp_err_t 
+ * @return
+ *    - ESP_OK: Success
  */
 esp_err_t lv_port_init(void);
 

@@ -1,0 +1,69 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  ESP_CUBE_PATH: "$CI_PROJECT_DIR"
+  BATCH_BUILD: "1"
+  V: "0"
+  IDF_CI_BUILD: "1"
+
+before_script:
+  # add gitlab ssh key
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - echo -n $GITLAB_KEY > ~/.ssh/id_rsa_base64
+  - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - echo -e "Host gitlab.espressif.cn\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+  - git --version
+  - git submodule update --init --recursive --force
+
+.build_examples_template: &build_examples_template
+  stage: build
+  image: espressif/idf:latest
+  tags:
+    - build
+
+build_demo_cmake:
+  <<: *build_examples_template
+  script:
+    - cd examples/factory_demo
+    - idf.py fullclean
+    - idf.py build
+    - cd ../
+    - cd freetype
+    - idf.py fullclean
+    - idf.py build
+    - cd ../
+    - cd image_display
+    - idf.py fullclean
+    - idf.py build
+    - cd ../
+    - cd lv_demos
+    - idf.py fullclean
+    - idf.py build
+    - cd ../../
+    
+
+push_to_github:
+  stage: deploy
+  only:
+    - master
+    - /^release\/v/
+#  when: on_success
+  image: $CI_DOCKER_REGISTRY/esp32-ci-env
+  variables:
+    GIT_STRATEGY: clone
+  before_script:
+    - echo "skip default before_script"
+  script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo -n $GH_PUSH_KEY > ~/.ssh/id_rsa_base64
+    - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    - git remote remove github &>/dev/null || true
+    - git remote add github git@github.com:espressif/esp-box.git
+    - ${ESP_CUBE_PATH}/tools/ci/push_to_github.sh

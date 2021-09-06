@@ -32,7 +32,7 @@
 #include "driver/sdmmc_host.h"
 #endif /* SOC_SDMMC_HOST_SUPPORTED */
 
-static const char *TAG = "bsp_sdcard";
+static const char *TAG = "bsp_storage";
 const char sd_mount_point[] = "/sdcard";
 const char spiffs_mount_point[] = "/spiffs";
 const char host_mount_point[] = "/host";
@@ -40,7 +40,7 @@ const char host_mount_point[] = "/host";
 /* SD/MMC card information structure */
 static sdmmc_card_t *card;
 
-static esp_err_t bsp_sdcard_init(void)
+static esp_err_t bsp_sdcard_init_default(void)
 {
 	esp_err_t ret_val = ESP_OK;
 
@@ -166,7 +166,7 @@ static esp_err_t bsp_sdcard_deinit(void)
 	return ret_val;
 }
 
-static esp_err_t bsp_spiffs_init(void)
+static esp_err_t bsp_spiffs_init_default(void)
 {
     esp_vfs_spiffs_conf_t conf = {
         .base_path = spiffs_mount_point,
@@ -190,14 +190,43 @@ static esp_err_t bsp_spiffs_init(void)
     return ret_val;
 }
 
-esp_err_t bsp_storage_init(bsp_storage_dev_t dev)
+static esp_err_t bsp_spiffs_init(void *cfg)
+{
+    char **cfg_str = (char **) cfg;
+
+    ESP_LOGI(TAG, "Partation Name : %s", cfg_str[0]);
+    ESP_LOGI(TAG, "Mount Point : %s", cfg_str[1]);
+
+    esp_vfs_spiffs_conf_t conf = {
+        .base_path = cfg_str[1],
+        .partition_label = cfg_str[0],
+        .max_files = 2,
+        .format_if_mount_failed = false,
+    };
+
+    esp_err_t ret_val = esp_vfs_spiffs_register(&conf);
+
+    if (ESP_OK != ret_val) {
+        if (ESP_FAIL == ret_val) {
+            ESP_LOGE(TAG, "Failed to mount or format filesystem");
+        } else if (ESP_ERR_NOT_FOUND == ret_val) {
+            ESP_LOGE(TAG, "Failed to find SPIFFS partition");
+        } else {
+            ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret_val));
+        }
+    }
+
+    return ret_val;
+}
+
+esp_err_t bsp_storage_init_default(bsp_storage_dev_t dev)
 {
     switch (dev) {
     case BSP_STORAGE_SD_CARD:
-        return bsp_sdcard_init();
+        return bsp_sdcard_init_default();
         break;
     case BSP_STORAGE_SPIFFS:
-    return bsp_spiffs_init();
+    return bsp_spiffs_init_default();
         break;
     case BSP_STORAGE_SEMIHOST:
         return esp_vfs_semihost_register(host_mount_point, NULL);
@@ -209,7 +238,20 @@ esp_err_t bsp_storage_init(bsp_storage_dev_t dev)
     return ESP_ERR_NOT_SUPPORTED;
 }
 
-esp_err_t bsp_storage_deinit(bsp_storage_dev_t dev)
+esp_err_t bsp_storage_init(bsp_storage_dev_t dev, void *conf)
+{
+    switch (dev) {
+    case BSP_STORAGE_SPIFFS:
+    return bsp_spiffs_init(conf);
+        break;
+    default:
+        break;
+    }
+
+    return ESP_ERR_NOT_SUPPORTED;
+}
+
+esp_err_t bsp_storage_deinit_default(bsp_storage_dev_t dev)
 {
     switch (dev) {
     case BSP_STORAGE_SD_CARD:

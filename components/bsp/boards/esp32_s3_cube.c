@@ -23,15 +23,17 @@
 #include "esp_log.h"
 #include "bsp_board.h"
 #include "bsp_i2c.h"
-#include "bsp_storage.h"
-#include "mpu6050.h"
 #include "nvs_flash.h"
 
 static const char *TAG = "board";
 
-static IRAM_ATTR void gpio_isr_handler(void *arg)
+__attribute__((weak)) void gpio_isr_handler(void *arg)
 {
-    // gpio_set_level(GPIO_PWR_CTRL, gpio_get_level(GPIO_NUM_1) ? (GPIO_PWR_ON_LEVEL) : (!GPIO_PWR_ON_LEVEL));
+    if (gpio_get_level(GPIO_NUM_1)) {
+        esp_rom_printf(DRAM_STR("Mute Off"));
+    } else {
+        esp_rom_printf(DRAM_STR("Mute On"));
+    }
 }
 
 esp_err_t bsp_board_init(void)

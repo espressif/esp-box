@@ -77,6 +77,8 @@ esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate)
     ret_val |= i2s_driver_install(i2s_num, &i2s_config, 0, NULL);
     ret_val |= i2s_set_pin(i2s_num, &pin_config);
 
+    ret_val |= i2s_stop(I2S_NUM_0);
+
     /* Config I2S channel format of TX and RX */
     i2s_ll_rx_enable_big_endian(&I2S0, true);
     i2s_ll_tx_enable_big_endian(&I2S0, false);
@@ -86,7 +88,7 @@ esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate)
     /* Inverse DSP mode WS signal polarity */
     gpio_hal_iomux_func_sel(GPIO_PIN_MUX_REG[GPIO_I2S_LRCK], PIN_FUNC_GPIO);
     gpio_set_direction(GPIO_I2S_LRCK, GPIO_MODE_OUTPUT);
-    esp_rom_gpio_connect_out_signal(GPIO_I2S_LRCK, i2s_periph_signal[I2S_NUM_0].tx_ws_sig, true, false);
+    esp_rom_gpio_connect_out_signal(GPIO_I2S_LRCK, i2s_periph_signal[I2S_NUM_0].m_tx_ws_sig, true, false);
 
     ret_val |= i2s_start(I2S_NUM_0);
 

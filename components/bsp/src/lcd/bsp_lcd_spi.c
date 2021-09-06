@@ -34,8 +34,6 @@
 #include "freertos/task.h"
 #include "soc/soc_memory_layout.h"
 
-#if LCD_IFACE_SPI
-
 static const char *TAG = "bsp_lcd_spi";
 
 esp_err_t bsp_spi_lcd_init(esp_lcd_panel_io_handle_t *p_io_handle, bsp_lcd_trans_cb_t trans_done_cb)
@@ -94,7 +92,7 @@ esp_err_t bsp_spi_lcd_init(esp_lcd_panel_io_handle_t *p_io_handle, bsp_lcd_trans
         8,  /* TBD */
 #endif
         .on_color_trans_done = trans_done_cb,
-        .user_data = NULL,
+        .user_ctx = NULL,
     };
 
 #if (LCD_BUS_WIDTH == 8)
@@ -114,5 +112,3 @@ esp_err_t bsp_spi_lcd_deinit(void)
 
     return ret_val;
 }
-
-#endif /* LCD_IFACE_SPI */

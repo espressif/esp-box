@@ -4,8 +4,19 @@
  * @version 0.1
  * @date 2021-09-06
  * 
- * @copyright Copyright (c) 2021
- * 
+ * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
+ *
+ *      Licensed under the Apache License, Version 2.0 (the "License");
+ *      you may not use this file except in compliance with the License.
+ *      You may obtain a copy of the License at
+ *
+ *               http://www.apache.org/licenses/LICENSE-2.0
+
+ *      Unless required by applicable law or agreed to in writing, software
+ *      distributed under the License is distributed on an "AS IS" BASIS,
+ *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *      See the License for the specific language governing permissions and
+ *      limitations under the License.
  */
 
 #include "bsp_i2c.h"
@@ -26,7 +37,8 @@ static i2c_bus_device_handle_t tt21100_handle = NULL;
 
 static esp_err_t tt21100_read(uint8_t *data, size_t data_len)
 {
-    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    static uint8_t cmd_buffer[I2C_LINK_RECOMMENDED_SIZE(4)];
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create_static(cmd_buffer, I2C_LINK_RECOMMENDED_SIZE(4));
 
     i2c_master_start(cmd);
     i2c_master_write_byte(cmd, (TT21100_CHIP_ADDR_DEFAULT << 1) | I2C_MASTER_READ, I2C_ACK_CHECK_EN);
@@ -34,7 +46,7 @@ static esp_err_t tt21100_read(uint8_t *data, size_t data_len)
     i2c_master_stop(cmd);
 
     esp_err_t ret_val = i2c_bus_cmd_begin(tt21100_handle, cmd);
-    i2c_cmd_link_delete(cmd);
+    i2c_cmd_link_delete_static(cmd);
 
     return ret_val;
 }

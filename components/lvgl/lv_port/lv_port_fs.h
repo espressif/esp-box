@@ -26,9 +26,11 @@ extern "C" {
 #endif
 
 /**
- * @brief 
+ * @brief Initialize LVGL file system support
  * 
- * @return esp_err_t 
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t lv_port_fs_init(void);
 

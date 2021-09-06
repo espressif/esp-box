@@ -29,23 +29,12 @@
  * 
  */
 
-#if CONFIG_ESP32_S3_HMI_DEVKIT_BOARD
-    #include "bsp_board_esp32s3_hmi_devkit_1.h"
-#elif CONFIG_ESP32_S3_LCD_CAM_BOARD
-    #include "bsp_board_esp32s3_lcd_cam.h"
-#elif CONFIG_ESP32_S2_HMI_DEVKIT_BOARD
-    #include "bsp_board_esp32s2_hmi_devkit_1.h"
-#elif CONFIG_ESP32_S2_KALUGA_BOARD
-    #include "bsp_board_esp32s2_kaluga_1.h"
-#elif CONFIG_ESP32_WROVER_KIT_BOARD
-    #include "bsp_board_esp32_wrover_kit.h"
-#elif CONFIG_ESP32_C3_DEVKIT_BOARD
-    #include "bsp_board_esp32_c3_devkit.h"
-#elif CONFIG_ESP32_S3_CUBE_BOARD
-    #include "bsp_board_esp32_s3_cube.h"
+#if CONFIG_ESP32_S3_CUBE_BOARD
+    #include "esp32_s3_cube.h"
+#elif CONFIG_ESP_CUSTOM_BOARD
+    #include "esp_custom_board.h"
 #else 
-    //CONFIG_ESP_CUSTOM_BOARD
-    // #include ""
+    #error "Please select type of dev board"
 #endif
 
 #ifdef __cplusplus
@@ -54,7 +43,7 @@ extern "C" {
 
 /**
  * @brief Power module of dev board.
- *      This can be expanded in the future use.
+ *      This can be expanded in the future.
  * 
  */
 typedef enum {
@@ -72,23 +61,22 @@ typedef struct {
 typedef bsp_board_t *bsp_board_handle_t;    /*!< Handle to board control object */
 
 /**
- * @brief Borad initialize.
- *   It will call dev board's 
+ * @brief Special config for dev board
  * 
  * @return
- *    - ESP_OK Success
- *    - Others: Refer to error code `esp_err.h`.
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t bsp_board_init(void);
 
 /**
- * @brief Control power of dev board.
+ * @brief Control power of dev board
  * 
- * @param module Refer to `power_module_t`.
- * @param on Turn on or off specified power module. On if true.
+ * @param module Refer to `power_module_t`
+ * @param on Turn on or off specified power module. On if true
  * @return
- *    - ESP_OK Success
- *    - Others: Refer to error code `esp_err.h`.
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t bsp_board_power_ctrl(power_module_t module, bool on);
 

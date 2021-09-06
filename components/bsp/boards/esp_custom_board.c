@@ -2,7 +2,7 @@
  * @file esp_custom_board.c
  * @brief 
  * @version 0.1
- * @date 2021-07-05
+ * @date 2021-10-20
  * 
  * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
  *
@@ -19,23 +19,21 @@
  *      limitations under the License.
  */
 
-#include "esp_err.h"
+#include <stdbool.h>
 #include "bsp_board.h"
+#include "bsp_board_esp_custom.h"
+#include "esp_err.h"
 
-static const char *TAG = "board";
+esp_err_t bsp_board_init(void)
+{
+    /* **************** ADD BOARD INITIAL CODE HERE **************** */
 
-static bsp_board_t bsp_board = {
-    .init = board_init,
-    .pwr_ctrl = board_pwr_ctrl,
-    .enter_low_power = board_enter_low_power,
+    return ESP_ERR_NOT_SUPPORTED;
 }
 
-esp_err_t board_init(void *data)
+esp_err_t bsp_board_power_ctrl(power_module_t module, bool on)
 {
-    (void) data;
-
-    /*!< Place your own initialize code hera */
-    ESP_LOGE(TAG, "Please replace with your own board initialize code.")
+    /* **************** ADD BOARD POWER CONTROL CODE HERE **************** */
 
     return ESP_ERR_NOT_SUPPORTED;
 }

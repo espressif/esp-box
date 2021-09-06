@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "esp_err.h"
 
 #ifdef __cplusplus
@@ -28,19 +29,23 @@ extern "C" {
 #endif
 
 /**
- * @brief 
+ * @brief Init TT21100 touch panel
  * 
- * @return esp_err_t 
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t tt21100_tp_init(void);
 
 /**
- * @brief 
+ * @brief Read touch point from TT21100
  * 
- * @param tp_num 
- * @param x 
- * @param y 
- * @return esp_err_t 
+ * @param tp_num Touch point number
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t tt21100_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y);
 

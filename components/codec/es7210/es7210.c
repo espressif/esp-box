@@ -28,8 +28,8 @@
 #include "es7210.h"
 #include "bsp_i2c.h"
 
-#define  I2S_DSP_MODE_A 0
-#define  MCLK_DIV_FRE   256
+#define I2S_DSP_MODE_A 0
+#define MCLK_DIV_FRE   256
 
 /* ES7210 address*/
 #define ES7210_ADDR                   ES7210_AD1_AD0_00
@@ -55,7 +55,7 @@ struct _coeff_div {
 
 static const char *TAG = "ES7210";
 static i2c_bus_handle_t i2c_handle;
-static es7210_input_mics_t mic_select = ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2 | ES7210_INPUT_MIC3 | ES7210_INPUT_MIC4;         /* Number of microphones */
+static es7210_input_mics_t mic_select = ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2 | ES7210_INPUT_MIC3 | ES7210_INPUT_MIC4;
 
 /* Codec hifi mclk clock divider coefficients
  *           MEMBER      REG
@@ -270,16 +270,17 @@ esp_err_t es7210_adc_init(audio_hal_codec_config_t *codec_cfg)
     ret |= es7210_write_reg(ES7210_CLOCK_OFF_REG01, 0x1f);
     ret |= es7210_write_reg(ES7210_TIME_CONTROL0_REG09, 0x30);      /* Set chip state cycle */
     ret |= es7210_write_reg(ES7210_TIME_CONTROL1_REG0A, 0x30);      /* Set power on state cycle */
-    ret |= es7210_write_reg(ES7210_ADC12_HPF2_REG23, 0x2a);         /* Quick setup */
-    ret |= es7210_write_reg(ES7210_ADC12_HPF1_REG22, 0x0a);
-    ret |= es7210_write_reg(ES7210_ADC34_HPF2_REG20, 0x0a);
-    ret |= es7210_write_reg(ES7210_ADC34_HPF1_REG21, 0x2a);
+    // ret |= es7210_write_reg(ES7210_ADC12_HPF2_REG23, 0x2a);         /* Quick setup */
+    // ret |= es7210_write_reg(ES7210_ADC12_HPF1_REG22, 0x0a);
+    // ret |= es7210_write_reg(ES7210_ADC34_HPF2_REG20, 0x0a);
+    // ret |= es7210_write_reg(ES7210_ADC34_HPF1_REG21, 0x2a);
     /* Set master/slave audio interface */
     audio_hal_codec_i2s_iface_t *i2s_cfg = & (codec_cfg->i2s_iface);
     switch (i2s_cfg->mode) {
         case AUDIO_HAL_MODE_MASTER:    /* MASTER MODE */
             ESP_LOGI(TAG, "ES7210 in Master mode");
-            ret |= es7210_update_reg_bit(ES7210_MODE_CONFIG_REG08, 0x01, 0x01);
+            // ret |= es7210_update_reg_bit(ES7210_MODE_CONFIG_REG08, 0x01, 0x01);
+            ret |= es7210_write_reg(ES7210_MODE_CONFIG_REG08, 0x20);
             /* Select clock source for internal mclk */
             switch (get_es7210_mclk_src()) {
                 case FROM_PAD_PIN:
@@ -295,12 +296,11 @@ esp_err_t es7210_adc_init(audio_hal_codec_config_t *codec_cfg)
             break;
         case AUDIO_HAL_MODE_SLAVE:    /* SLAVE MODE */
             ESP_LOGI(TAG, "ES7210 in Slave mode");
-            ret |= es7210_update_reg_bit(ES7210_MODE_CONFIG_REG08, 0x01, 0x00);
             break;
         default:
-            ret |= es7210_update_reg_bit(ES7210_MODE_CONFIG_REG08, 0x01, 0x00);
+            break;
     }
-    ret |= es7210_write_reg(ES7210_ANALOG_REG40, 0x43);               /* Select power off analog, vdda = 3.3V, close vx20ff, VMID select 5KΩ start */
+    ret |= es7210_write_reg(ES7210_ANALOG_REG40, 0xC3);               /* Select power off analog, vdda = 3.3V, close vx20ff, VMID select 5KΩ start */
     ret |= es7210_write_reg(ES7210_MIC12_BIAS_REG41, 0x70);           /* Select 2.87v */
     ret |= es7210_write_reg(ES7210_MIC34_BIAS_REG42, 0x70);           /* Select 2.87v */
     ret |= es7210_write_reg(ES7210_OSR_REG07, 0x20);
@@ -347,6 +347,7 @@ esp_err_t es7210_config_fmt(audio_hal_iface_format_t fmt)
             break;
     }
     ret |= es7210_write_reg(ES7210_SDP_INTERFACE1_REG11, adc_iface);
+    ret |= es7210_write_reg(ES7210_SDP_INTERFACE2_REG12, 0x01);
     return ret;
 }
 
@@ -388,7 +389,7 @@ esp_err_t es7210_start(uint8_t clock_reg_value)
     esp_err_t ret = ESP_OK;
     ret |= es7210_write_reg(ES7210_CLOCK_OFF_REG01, clock_reg_value);
     ret |= es7210_write_reg(ES7210_POWER_DOWN_REG06, 0x00);
-    ret |= es7210_write_reg(ES7210_ANALOG_REG40, 0x43);
+    // ret |= es7210_write_reg(ES7210_ANALOG_REG40, 0x40);
     ret |= es7210_write_reg(ES7210_MIC1_POWER_REG47, 0x00);
     ret |= es7210_write_reg(ES7210_MIC2_POWER_REG48, 0x00);
     ret |= es7210_write_reg(ES7210_MIC3_POWER_REG49, 0x00);
@@ -406,7 +407,7 @@ esp_err_t es7210_stop(void)
     ret |= es7210_write_reg(ES7210_MIC4_POWER_REG4A, 0xff);
     ret |= es7210_write_reg(ES7210_MIC12_POWER_REG4B,0xff);
     ret |= es7210_write_reg(ES7210_MIC34_POWER_REG4C, 0xff);
-    ret |= es7210_write_reg(ES7210_ANALOG_REG40, 0xc0);
+    // ret |= es7210_write_reg(ES7210_ANALOG_REG40, 0xc0);
     ret |= es7210_write_reg(ES7210_CLOCK_OFF_REG01, 0x7f);
     ret |= es7210_write_reg(ES7210_POWER_DOWN_REG06, 0x07);
     return ret;

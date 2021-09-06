@@ -41,17 +41,12 @@ static esp_lcd_panel_handle_t panel_handle = NULL;
 static void *p_user_data = NULL;
 static bool (*p_on_trans_done_cb)(void *) = NULL;
 static SemaphoreHandle_t bsp_lcd_flush_done_sem = NULL;
-static bool lcd_trans_done_cb(esp_lcd_panel_io_handle_t, void *, void *);
+static bool lcd_trans_done_cb(esp_lcd_panel_io_handle_t, esp_lcd_panel_io_event_data_t *, void *);
 
 esp_err_t bsp_lcd_init(void)
 {
-#if LCD_IFACE_I80
-    bsp_i80_lcd_init(&io_handle, lcd_trans_done_cb);
-#elif LCD_IFACE_SPI
+
     bsp_spi_lcd_init(&io_handle, lcd_trans_done_cb);
-#else
-    #error "Please specify LCD interface type"
-#endif
 
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = GPIO_LCD_RST,
@@ -120,14 +115,7 @@ esp_err_t bsp_lcd_deinit(void)
 
     ret_val |= esp_lcd_panel_del(panel_handle);
     ret_val |= esp_lcd_panel_io_del(io_handle);
-
-#if LCD_IFACE_I80
-    ret_val |= bsp_i80_lcd_deinit();
-#elif LCD_IFACE_SPI
     ret_val |= bsp_spi_lcd_deinit();
-#else
-    #error "Please specify LCD interface type"
-#endif
 
     return ret_val;
 }
@@ -166,7 +154,7 @@ esp_err_t bsp_lcd_set_cb(bool (*trans_done_cb)(void *), void *data)
     return ESP_OK;
 }
 
-static bool lcd_trans_done_cb(esp_lcd_panel_io_handle_t panel_io, void *user_data, void *event_data)
+static bool lcd_trans_done_cb(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *user_data, void *event_data)
 {
     (void) panel_io;
     (void) user_data;

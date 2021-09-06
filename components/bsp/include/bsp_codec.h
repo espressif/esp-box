@@ -29,10 +29,14 @@ extern "C" {
 #endif
 
 /**
- * @brief 
+ * @brief Initialize Codec on dev board
  * 
  * @param sample_rate 
- * @return esp_err_t 
+ * @return 
+ *    - ESP_OK: Success
+ *    - ESP_ERR_NOT_FOUND: Codec not detected on I2C bus
+ *    - ESP_ERR_NOT_SUPPORTED: Unsupported Codec or t
+ *    - Others: Fail
  */
 esp_err_t bsp_codec_init(audio_hal_iface_samples_t sample_rate);
 

@@ -26,6 +26,7 @@ file(GLOB_RECURSE LV_LIB_SOURCES
     lv_lib/lv_lib_png/*.c
     lv_lib/lv_lib_bmp/*.c
     lv_lib/lv_lib_gif/*.c
+    lv_lib/lv_lib_qrcode/*.c
     lv_lib/lv_lib_split_jpg/tjpgd.c
     lv_lib/lv_lib_split_jpg/lv_sjpg.c)
 
@@ -50,10 +51,11 @@ idf_component_register(
         "lv_demos"
         "lv_lib"
         "lv_lib/lv_lib_bmp"
-        "lv_lib/lv_lib_png"
-        "lv_lib/lv_lib_gif"
-        "lv_lib/lv_lib_split_jpg"
         "lv_lib/lv_lib_freetype"
+        "lv_lib/lv_lib_gif"
+        "lv_lib/lv_lib_png"
+        "lv_lib/lv_lib_qrcode"
+        "lv_lib/lv_lib_split_jpg"
         "lv_port"
     REQUIRES
         bsp
