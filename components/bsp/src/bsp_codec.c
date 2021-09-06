@@ -71,7 +71,8 @@ esp_err_t bsp_codec_adc_init(audio_hal_iface_samples_t sample_rate)
 
     ret_val |= es7210_adc_init(&cfg);
     ret_val |= es7210_adc_config_i2s(cfg.codec_mode, &cfg.i2s_iface);
-    ret_val |= es7210_adc_set_gain(GAIN_37_5DB);
+    ret_val |= es7210_adc_set_gain(ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2, GAIN_0DB);
+    ret_val |= es7210_adc_set_gain(ES7210_INPUT_MIC3, GAIN_0DB);
     ret_val |= es7210_adc_ctrl_state(cfg.codec_mode, AUDIO_HAL_CTRL_START);
 
     if (ESP_OK != ret_val) {
@@ -126,7 +127,7 @@ static esp_err_t bsp_codec_init_adc_dac(audio_hal_iface_samples_t sample_rate)
     ret_val |= es8311_codec_init(&cfg);
     ret_val |= es8311_set_bits_per_sample(cfg.i2s_iface.bits);
     ret_val |= es8311_config_fmt(cfg.i2s_iface.fmt);
-    ret_val |= es8311_codec_set_voice_volume(60);
+    ret_val |= es8311_codec_set_voice_volume(30);
     ret_val |= es8311_set_mic_gain(ES8311_MIC_GAIN_30DB);
     ret_val |= es8311_codec_ctrl_state(cfg.codec_mode, AUDIO_HAL_CTRL_START);
 

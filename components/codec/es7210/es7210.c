@@ -28,7 +28,7 @@
 #include "es7210.h"
 #include "bsp_i2c.h"
 
-#define  I2S_DSP_MODE   0
+#define  I2S_DSP_MODE_A 0
 #define  MCLK_DIV_FRE   256
 
 /* ES7210 address*/
@@ -55,7 +55,7 @@ struct _coeff_div {
 
 static const char *TAG = "ES7210";
 static i2c_bus_handle_t i2c_handle;
-static es7210_input_mics_t mic_select = ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2;         /* Number of microphones */
+static es7210_input_mics_t mic_select = ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2 | ES7210_INPUT_MIC3 | ES7210_INPUT_MIC4;         /* Number of microphones */
 
 /* Codec hifi mclk clock divider coefficients
  *           MEMBER      REG
@@ -307,7 +307,7 @@ esp_err_t es7210_adc_init(audio_hal_codec_config_t *codec_cfg)
     ret |= es7210_write_reg(ES7210_MAINCLK_REG02, 0xc1);              /* Set the frequency division coefficient and use dll except clock doubler, and need to set 0xc1 to clear the state */
     ret |= es7210_config_sample(i2s_cfg->samples);
     ret |= es7210_mic_select(mic_select);
-    ret |= es7210_adc_set_gain(GAIN_30DB);
+    ret |= es7210_adc_set_gain_all(GAIN_0DB);
     return ESP_OK;
 }
 
@@ -334,12 +334,12 @@ esp_err_t es7210_config_fmt(audio_hal_iface_format_t fmt)
             adc_iface |= 0x01;
             break;
         case AUDIO_HAL_I2S_DSP:
-            if (I2S_DSP_MODE) {
+            if (I2S_DSP_MODE_A) {
                 ESP_LOGD(TAG, "ES7210 in DSP-A Format");
-                adc_iface |= 0x13;
+                adc_iface |= 0x03;
             } else {
                 ESP_LOGD(TAG, "ES7210 in DSP-B Format");
-                adc_iface |= 0x03;
+                adc_iface |= 0x13;
             }
             break;
         default:
@@ -432,7 +432,35 @@ esp_err_t es7210_adc_ctrl_state(audio_hal_codec_mode_t mode, audio_hal_ctrl_t ct
     return ESP_OK;
 }
 
-esp_err_t es7210_adc_set_gain(es7210_gain_value_t gain)
+esp_err_t es7210_adc_set_gain(es7210_input_mics_t mic_mask, es7210_gain_value_t gain)
+{
+    esp_err_t ret_val = ESP_OK;
+
+    if (gain < GAIN_0DB) {
+        gain = GAIN_0DB;
+    }
+
+    if (gain > GAIN_37_5DB) {
+        gain = GAIN_37_5DB;
+    }
+
+    if (mic_mask & ES7210_INPUT_MIC1) {
+        ret_val |= es7210_update_reg_bit(ES7210_MIC1_GAIN_REG43, 0x0f, gain);
+    }
+    if (mic_mask & ES7210_INPUT_MIC2) {
+        ret_val |= es7210_update_reg_bit(ES7210_MIC2_GAIN_REG44, 0x0f, gain);
+    }
+    if (mic_mask & ES7210_INPUT_MIC3) {
+        ret_val |= es7210_update_reg_bit(ES7210_MIC3_GAIN_REG45, 0x0f, gain);
+    }
+    if (mic_mask & ES7210_INPUT_MIC4) {
+        ret_val |= es7210_update_reg_bit(ES7210_MIC4_GAIN_REG46, 0x0f, gain);
+    }
+
+    return ret_val;
+}
+
+esp_err_t es7210_adc_set_gain_all(es7210_gain_value_t gain)
 {
     esp_err_t ret = ESP_OK;
     uint32_t  max_gain_vaule = 14;

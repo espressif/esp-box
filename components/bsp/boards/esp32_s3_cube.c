@@ -31,37 +31,27 @@ static const char *TAG = "board";
 
 static IRAM_ATTR void gpio_isr_handler(void *arg)
 {
-    gpio_set_level(GPIO_NUM_45, !gpio_get_level(GPIO_NUM_17));
-
-    gpio_set_level(GPIO_PWR_CTRL, gpio_get_level(GPIO_NUM_1) ? (GPIO_PWR_ON_LEVEL) : (!GPIO_PWR_ON_LEVEL));
+    // gpio_set_level(GPIO_PWR_CTRL, gpio_get_level(GPIO_NUM_1) ? (GPIO_PWR_ON_LEVEL) : (!GPIO_PWR_ON_LEVEL));
 }
 
 esp_err_t bsp_board_init(void)
 {
-    /*!< Function test for dev board - Motor */
-    gpio_config_t io_conf_motor;
-    io_conf_motor.intr_type = GPIO_INTR_DISABLE;
-    io_conf_motor.mode = GPIO_MODE_OUTPUT;
-    io_conf_motor.pin_bit_mask = 1ULL << GPIO_NUM_45;
-    io_conf_motor.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    io_conf_motor.pull_up_en = GPIO_PULLUP_DISABLE;
-    ESP_ERROR_CHECK(gpio_config(&io_conf_motor));
-
     /*!< Function test for dev board - Mute_Button */
     gpio_config_t io_conf_key;
     io_conf_key.intr_type = GPIO_INTR_ANYEDGE;
     io_conf_key.mode = GPIO_MODE_INPUT;
-    io_conf_key.pin_bit_mask = 1ULL << GPIO_NUM_17;
+    io_conf_key.pin_bit_mask = 1ULL << GPIO_NUM_1;
     io_conf_key.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_conf_key.pull_up_en = GPIO_PULLUP_ENABLE;
     ESP_ERROR_CHECK(gpio_config(&io_conf_key));
 
     /* Install GPIO ISR service to enable GPIO ISR callback */
     gpio_install_isr_service(0);
-    ESP_ERROR_CHECK(gpio_isr_handler_add(GPIO_NUM_17, gpio_isr_handler, NULL));
+    ESP_ERROR_CHECK(gpio_isr_handler_add(GPIO_NUM_1, gpio_isr_handler, NULL));
 
     /* The mute IC will not be reset. Make sure the io level of PA control is the same as mute state. */
-    gpio_set_level(GPIO_PWR_CTRL, gpio_get_level(GPIO_NUM_1) ? (GPIO_PWR_ON_LEVEL) : (!GPIO_PWR_ON_LEVEL));
+    // gpio_set_level(GPIO_PWR_CTRL, gpio_get_level(GPIO_NUM_1) ? (GPIO_PWR_ON_LEVEL) : (!GPIO_PWR_ON_LEVEL));
+    bsp_i2c_init(I2C_NUM_0, 400 * 1000);
 
     return ESP_OK;
 }

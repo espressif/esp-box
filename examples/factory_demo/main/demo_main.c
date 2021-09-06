@@ -19,30 +19,39 @@
  *      limitations under the License.
  */
 
+#include "app_audio.h"
 #include "app_sr.h"
 #include "bsp_board.h"
+#include "bsp_codec.h"
+#include "bsp_i2s.h"
 #include "bsp_lcd.h"
+#include "bsp_storage.h"
+#include "bsp_tp.h"
+#include "esp_err.h"
 #include "freertos/task.h"
+#include "lv_demo.h"
 #include "lv_port.h"
 #include "lvgl.h"
 #include "ui_main.h"
 
 void app_main(void)
 {
-    /* Initialize board and turn on audio power */
     ESP_ERROR_CHECK(bsp_board_init());
     ESP_ERROR_CHECK(bsp_board_power_ctrl(POWER_MODULE_AUDIO, true));
+    ESP_ERROR_CHECK(bsp_storage_init(BSP_STORAGE_SPIFFS));
+    // ESP_ERROR_CHECK(bsp_storage_init(BSP_STORAGE_SD_CARD));
 
     ESP_ERROR_CHECK(bsp_lcd_init());
+    ESP_ERROR_CHECK(bsp_tp_init());
     ESP_ERROR_CHECK(lv_port_init());
+    ui_main_start();
+    lv_task_handler();
 
-    /* Start audio detection task */
+    ESP_ERROR_CHECK(bsp_i2s_init(I2S_NUM_0, 16000));
+    ESP_ERROR_CHECK(bsp_codec_init(AUDIO_HAL_16K_SAMPLES));
+    ESP_ERROR_CHECK(app_audio_start());
     ESP_ERROR_CHECK(app_sr_start());
 
-    /* Build UI for demo */
-    ui_main_start();
-
-    /* Run LVGL task handler */
     while (vTaskDelay(1), true) {
         lv_task_handler();
     }

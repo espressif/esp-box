@@ -141,6 +141,32 @@ esp_err_t es7210_adc_config_i2s(audio_hal_codec_mode_t mode, audio_hal_codec_i2s
 esp_err_t es7210_adc_ctrl_state(audio_hal_codec_mode_t mode, audio_hal_ctrl_t ctrl_state);
 
 /**
+ * @brief  Set gain of given mask
+ *
+ * @param[in] mic_mask Mask of MIC channel
+ * 
+ * @param[in] gain:  gain 
+ * 
+ *       gain        :   value
+ *       GAIN_0DB    :   1
+ *       GAIN_3DB    :   2
+ *       GAIN_6DB    :   3
+ *           ·
+ *           ·
+ *           ·
+ *       GAIN_30DB   :   10
+ *       GAIN_33DB   :   11
+ *       GAIN_34_5DB :   12
+ *       GAIN_36DB   :   13
+ *       GAIN_37_5DB :   14
+ *
+ * @return
+ *     - ESP_OK
+ *     - ESP_FAIL
+ */
+esp_err_t es7210_adc_set_gain(es7210_input_mics_t mic_mask, es7210_gain_value_t gain);
+
+/**
  * @brief  Set gain (Note: the enabled microphone sets the same gain)
  *
  * @param[in] gain:  gain 
@@ -162,7 +188,7 @@ esp_err_t es7210_adc_ctrl_state(audio_hal_codec_mode_t mode, audio_hal_ctrl_t ct
  *     - ESP_OK
  *     - ESP_FAIL
  */
-esp_err_t es7210_adc_set_gain(es7210_gain_value_t gain);
+esp_err_t es7210_adc_set_gain_all(es7210_gain_value_t gain);
 
 /**
  * @brief Get gain

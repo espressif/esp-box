@@ -169,7 +169,7 @@ esp_err_t goodix_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y)
     *x = (reg.x >> 8) + (reg.x << 8);
     *y = (reg.y >> 8) + (reg.y << 8);
 
-    return ESP_OK;
+    return ret_val;
 }
 
 esp_err_t goodix_tp_read_gesture(goodix_tp_gesture_t *gesture)

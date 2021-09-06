@@ -22,7 +22,7 @@
 #include "driver/gpio.h"
 
 /**
- * @brief ESP32-S2-HMI-DevKit LCD GPIO defination and config
+ * @brief ESP32-S3-Cube LCD GPIO defination and config
  * 
  */
 #define FUNC_LCD_EN     (1)
@@ -35,39 +35,26 @@
 #define LCD_HOST        (SPI2_HOST)
 
 #define LCD_SWAP_XY     (0)
-#define LCD_MIRROR_X    (false)
-#define LCD_MIRROR_Y    (false)
+#define LCD_MIRROR_X    (true)
+#define LCD_MIRROR_Y    (true)
 #define LCD_COLOR_INV   (false)
 
-#define GPIO_LCD_BL     (GPIO_NUM_7)
+#define GPIO_LCD_BL     (GPIO_NUM_45)
 #define GPIO_LCD_BL_ON  (1)
 #define GPIO_LCD_CS     (GPIO_NUM_5)
-#define GPIO_LCD_RST    (GPIO_NUM_13)
+#define GPIO_LCD_RST    (GPIO_NUM_48)
 #define GPIO_LCD_DC     (GPIO_NUM_4)
-#define GPIO_LCD_WR     (GPIO_NUM_15)
-#define GPIO_LCD_CLK    (GPIO_LCD_WR)
+#define GPIO_LCD_CLK    (GPIO_NUM_7)
 #define GPIO_LCD_DIN    (GPIO_NUM_6)
 #define GPIO_LCD_DOUT   (GPIO_NUM_NC)
 
-#define GPIO_LCD_D00    (GPIO_NUM_NC)
-#define GPIO_LCD_D01    (GPIO_NUM_NC)
-#define GPIO_LCD_D02    (GPIO_NUM_NC)
-#define GPIO_LCD_D03    (GPIO_NUM_NC)
-#define GPIO_LCD_D04    (GPIO_NUM_NC)
-#define GPIO_LCD_D05    (GPIO_NUM_NC)
-#define GPIO_LCD_D06    (GPIO_NUM_NC)
-#define GPIO_LCD_D07    (GPIO_NUM_NC)
-#define GPIO_LCD_D08    (GPIO_NUM_NC)
-#define GPIO_LCD_D09    (GPIO_NUM_NC)
-#define GPIO_LCD_D10    (GPIO_NUM_NC)
-#define GPIO_LCD_D11    (GPIO_NUM_NC)
-#define GPIO_LCD_D12    (GPIO_NUM_NC)
-#define GPIO_LCD_D13    (GPIO_NUM_NC)
-#define GPIO_LCD_D14    (GPIO_NUM_NC)
-#define GPIO_LCD_D15    (GPIO_NUM_NC)
+#define TOUCH_PANEL_SWAP_XY     (0)
+#define TOUCH_PANEL_INVERSE_X   (1)
+#define TOUCH_PANEL_INVERSE_Y   (0)
+
 
 /**
- * @brief ESP32-S2-HMI-DevKit I2C GPIO defineation
+ * @brief ESP32-S3-Cube I2C GPIO defineation
  * 
  */
 #define FUNC_I2C_EN     (1)
@@ -75,68 +62,73 @@
 #define GPIO_I2C_SDA    (GPIO_NUM_8)
 
 /**
- * @brief ESP32-S2-HMI-DevKit SDMMC GPIO defination
+ * @brief ESP32-S3-Cube SDMMC GPIO defination
  * 
+ * @note Only avaliable when PMOD connected
  */
 #define FUNC_SDMMC_EN   (1)
-#define SDMMC_BUS_WIDTH (1)
-#define GPIO_SDMMC_CLK  (GPIO_NUM_10)
-#define GPIO_SDMMC_CMD  (GPIO_NUM_9)
-#define GPIO_SDMMC_D0   (GPIO_NUM_11)
-#define GPIO_SDMMC_D1   (GPIO_NUM_NC)
-#define GPIO_SDMMC_D2   (GPIO_NUM_NC)
-#define GPIO_SDMMC_D3   (GPIO_NUM_NC)
-#define GPIO_SDMMC_DET  (GPIO_NUM_NC)   // GPIO_NUM_21 if R167 not removed
+#define SDMMC_BUS_WIDTH (4)
+#define GPIO_SDMMC_CLK  (GPIO_NUM_13)
+#define GPIO_SDMMC_CMD  (GPIO_NUM_11)
+#define GPIO_SDMMC_D0   (GPIO_NUM_14)
+#define GPIO_SDMMC_D1   (GPIO_NUM_12)
+#define GPIO_SDMMC_D2   (GPIO_NUM_10)
+#define GPIO_SDMMC_D3   (GPIO_NUM_9)
+#define GPIO_SDMMC_DET  (GPIO_NUM_NC)
 
 /**
- * @brief ESP32-S2-HMI-DevKit SDSPI GPIO definationv
+ * @brief ESP32-S3-Cube SDSPI GPIO definationv
  * 
  */
-#define FUNC_SDSPI_EN       (1)
-#define GPIO_SDSPI_CS       (GPIO_NUM_4)
-#define GPIO_SDSPI_SCLK     (GPIO_NUM_6)
-#define GPIO_SDSPI_MISO     (GPIO_NUM_2)
-#define GPIO_SDSPI_MOSI     (GPIO_NUM_7)
+#define FUNC_SDSPI_EN       (0)
+#define GPIO_SDSPI_CS       (GPIO_NUM_NC)
+#define GPIO_SDSPI_SCLK     (GPIO_NUM_NC)
+#define GPIO_SDSPI_MISO     (GPIO_NUM_NC)
+#define GPIO_SDSPI_MOSI     (GPIO_NUM_NC)
 
 /**
- * @brief ESP32-S2-HMI-DevKit SPI GPIO defination
+ * @brief ESP32-S3-Cube SPI GPIO defination
  * 
  */
-#define FUNC_SPI_EN         (1)
-#define GPIO_SPI_CS         (GPIO_NUM_4)
-#define GPIO_SPI_MISO       (GPIO_NUM_2)
-#define GPIO_SPI_MOSI       (GPIO_NUM_7)
-#define GPIO_SPI_SCLK       (GPIO_NUM_6)
+#define FUNC_SPI_EN         (0)
+#define GPIO_SPI_CS         (GPIO_NUM_NC)
+#define GPIO_SPI_MISO       (GPIO_NUM_NC)
+#define GPIO_SPI_MOSI       (GPIO_NUM_NC)
+#define GPIO_SPI_SCLK       (GPIO_NUM_NC)
 
 /**
- * @brief ESP32-S2-HMI-DevKit RMT GPIO defination
+ * @brief ESP32-S3-Cube RMT GPIO defination
  * 
  */
-#define FUNC_RMT_EN         (1)
+#define FUNC_RMT_EN         (0)
 #define GPIO_RMT_IR         (GPIO_NUM_NC)
-#define GPIO_RMT_LED        (GPIO_NUM_10)
+#define GPIO_RMT_LED        (GPIO_NUM_NC)
 
 /**
- * @brief ESP32-S2-HMI-DevKit I2S GPIO defination
+ * @brief ESP32-S3-Cube I2S GPIO defination
  * 
  */
 #define FUNC_I2S_EN         (1)
 #define GPIO_I2S_LRCK       (GPIO_NUM_47)
-#define GPIO_I2S_MCLK       (GPIO_NUM_14)
-#define GPIO_I2S_SCLK       (GPIO_NUM_21)
-#define GPIO_I2S_SDIN       (GPIO_NUM_12)
-#define GPIO_I2S_DOUT       (GPIO_NUM_48)
+#define GPIO_I2S_MCLK       (GPIO_NUM_2)
+#define GPIO_I2S_SCLK       (GPIO_NUM_17)
+#define GPIO_I2S_SDIN       (GPIO_NUM_16)
+#define GPIO_I2S_DOUT       (GPIO_NUM_15)
 
 /**
- * @brief ESP32-S3-HMI-DevKit PA power control IO
+ * @brief ESP32-S3-HMI-DevKit power control IO
+ * 
+ * @note Some power control pins might not be listed yet
  * 
  */
 #define FUNC_PWR_CTRL       (1)
-#define GPIO_PWR_CTRL       (GPIO_NUM_16)
+#define GPIO_PWR_CTRL       (GPIO_NUM_46)
 #define GPIO_PWR_ON_LEVEL   (1)
 
 /**
  * @brief ESP32-S3-HMI-DevKit camrea control IO
+ * 
+ * @note Currently not used for this repo
  * 
  */
 #define FUNC_CAM_EN         (0)

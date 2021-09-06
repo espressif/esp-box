@@ -27,9 +27,13 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 
+/* Required for I2S driver workaround */
+#include "esp_rom_gpio.h"
+#include "hal/gpio_hal.h"
+#include "hal/i2s_ll.h"
+
 // static const char *TAG = "bsp_i2s";
 
-#if SOC_I2S_SUPPORTS_TDM
 /**
  * @brief Will usb TDM mode to drive more than one codec on I2S bus.
  * 
@@ -40,29 +44,21 @@
     .bits_per_sample        = I2S_BITS_PER_SAMPLE_16BIT, \
     .channel_format         = I2S_CHANNEL_FMT_MULTIPLE, \
     .communication_format   = I2S_COMM_FORMAT_STAND_PCM_SHORT, \
-    .dma_buf_count          = 8, \
-    .dma_buf_len            = 256, \
-    .use_apll               = true, \
     .intr_alloc_flags       = ESP_INTR_FLAG_LEVEL1 | ESP_INTR_FLAG_IRAM, \
+    .dma_buf_count          = 4, \
+    .dma_buf_len            = 256, \
+    .use_apll               = false, \
+    .tx_desc_auto_clear     = true, \
     .fixed_mclk             = 0, \
-    .chan_mask              = I2S_TDM_ACTIVE_CH0 | I2S_TDM_ACTIVE_CH1, \
-}
-#else
-
-#define I2S_CONFIG_DEFAULT() { \
-    .mode                   = I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_RX, \
-    .sample_rate            = sample_rate, \
-    .bits_per_sample        = I2S_BITS_PER_SAMPLE_16BIT, \
-    .channel_format         = I2S_CHANNEL_FMT_RIGHT_LEFT, \
-    .communication_format   = I2S_COMM_FORMAT_STAND_I2S, \
-    .dma_buf_count          = 8, \
-    .dma_buf_len            = 256, \
-    .use_apll               = true, \
-    .intr_alloc_flags       = ESP_INTR_FLAG_LEVEL1 | ESP_INTR_FLAG_IRAM, \
     .mclk_multiple          = I2S_MCLK_MULTIPLE_DEFAULT, \
+    .bits_per_chan          = I2S_BITS_PER_CHAN_16BIT, \
+    .chan_mask              = I2S_TDM_ACTIVE_CH0 | I2S_TDM_ACTIVE_CH1 | I2S_TDM_ACTIVE_CH2 | I2S_TDM_ACTIVE_CH3, \
+    .total_chan             = 4, \
+    .left_align             = false, \
+    .big_edin               = true, \
+    .bit_order_msb          = false, \
+    .skip_msk               = false, \
 }
-
-#endif
 
 esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate)
 {
@@ -81,10 +77,28 @@ esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate)
     ret_val |= i2s_driver_install(i2s_num, &i2s_config, 0, NULL);
     ret_val |= i2s_set_pin(i2s_num, &pin_config);
 
+    /* Config I2S channel format of TX and RX */
+    i2s_ll_rx_enable_big_endian(&I2S0, true);
+    i2s_ll_tx_enable_big_endian(&I2S0, false);
+    i2s_ll_tx_set_active_chan_mask(&I2S0, I2S_TDM_ACTIVE_CH0);
+    i2s_ll_rx_set_active_chan_mask(&I2S0, I2S_TDM_ACTIVE_CH0 | I2S_TDM_ACTIVE_CH1 | I2S_TDM_ACTIVE_CH2);
+
+    /* Inverse DSP mode WS signal polarity */
+    gpio_hal_iomux_func_sel(GPIO_PIN_MUX_REG[GPIO_I2S_LRCK], PIN_FUNC_GPIO);
+    gpio_set_direction(GPIO_I2S_LRCK, GPIO_MODE_OUTPUT);
+    esp_rom_gpio_connect_out_signal(GPIO_I2S_LRCK, i2s_periph_signal[I2S_NUM_0].tx_ws_sig, true, false);
+
+    ret_val |= i2s_start(I2S_NUM_0);
+
     return ret_val;
 }
 
 esp_err_t bsp_i2s_deinit(i2s_port_t i2s_num)
 {
-    return i2s_driver_uninstall(i2s_num);
+    esp_err_t ret_val = ESP_OK;
+
+    ret_val |= i2s_stop(I2S_NUM_0);
+    ret_val |= i2s_driver_uninstall(i2s_num);
+
+    return ret_val;
 }

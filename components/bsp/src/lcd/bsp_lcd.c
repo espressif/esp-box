@@ -55,7 +55,7 @@ esp_err_t bsp_lcd_init(void)
 
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = GPIO_LCD_RST,
-        .color_space = ESP_LCD_COLOR_SPACE_RGB,
+        .color_space = ESP_LCD_COLOR_SPACE_BGR,
         .bits_per_pixel = 16,
     };
 

@@ -462,11 +462,11 @@ esp_err_t es8311_config_fmt(es_i2s_fmt_t fmt)
             dac_iface |= 0x01;
             break;
         case AUDIO_HAL_I2S_DSP:
-            ESP_LOGD(TAG, "ES8311 in DSP-A Format");
+            ESP_LOGD(TAG, "ES8311 in DSP-B Format");
             adc_iface &= 0xDC;
             dac_iface &= 0xDC;
-            adc_iface |= 0x03;
-            dac_iface |= 0x03;
+            adc_iface |= 0x23;
+            dac_iface |= 0x23;
             break;
         default:
             dac_iface &= 0xFC;

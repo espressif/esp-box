@@ -1,8 +1,8 @@
 /**
- * @file app_audio.h
+ * @file tt21100.h
  * @brief 
  * @version 0.1
- * @date 2021-09-22
+ * @date 2021-09-06
  * 
  * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
  *
@@ -32,23 +32,19 @@ extern "C" {
  * 
  * @return esp_err_t 
  */
-esp_err_t app_audio_start(void);
+esp_err_t tt21100_tp_init(void);
 
 /**
  * @brief 
  * 
- */
-void audio_play_start(void);
-
-/**
- * @brief 
- * 
- * @param time_ms 
- * @param file_name 
+ * @param tp_num 
+ * @param x 
+ * @param y 
  * @return esp_err_t 
  */
-esp_err_t audio_record_to_file(size_t time_ms, const char *file_name);
+esp_err_t tt21100_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y);
 
 #ifdef __cplusplus
 }
 #endif
+

@@ -36,10 +36,6 @@ file(GLOB_RECURSE BSP_SRCS
     "src/bsp_storage.c"
     "src/bsp_tp.c")
 
-if (NOT CONFIG_IDF_TARGET_ESP32C3 AND NOT CONFIG_IDF_TARGET_ESP32H2)
-    # list(APPEND BSP_SRCS "./src/bsp_camera.c")
-endif()
-
 if(CONFIG_ESP_CUSTOM_BOARD)
     list(APPEND BSP_BOARD_SRC "./boards/esp_custom_board.c")
 endif()

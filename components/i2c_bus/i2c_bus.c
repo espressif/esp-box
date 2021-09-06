@@ -32,7 +32,7 @@
 #define I2C_ACK_CHECK_DIS 0x0     /*!< I2C master will not check ack from slave */
 #define I2C_BUS_FLG_DEFAULT (0)
 #define I2C_BUS_MASTER_BUF_LEN (0)
-#define I2C_BUS_MS_TO_WAIT portMAX_DELAY
+#define I2C_BUS_MS_TO_WAIT  (1000)
 #define I2C_BUS_TICKS_TO_WAIT (I2C_BUS_MS_TO_WAIT/portTICK_RATE_MS)
 #define I2C_BUS_MUTEX_TICKS_TO_WAIT (I2C_BUS_MS_TO_WAIT/portTICK_RATE_MS)
 

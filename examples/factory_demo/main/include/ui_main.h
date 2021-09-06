@@ -2,21 +2,10 @@
  * @file ui_main.h
  * @brief 
  * @version 0.1
- * @date 2021-08-11
+ * @date 2021-09-19
  * 
- * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
- *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
- *
- *               http://www.apache.org/licenses/LICENSE-2.0
- *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ * @copyright Copyright (c) 2021
+ * 
  */
 
 #pragma once
@@ -35,10 +24,23 @@ esp_err_t ui_main_start(void);
 /**
  * @brief 
  * 
- * @param on 
- * @return esp_err_t 
+ * @param cmd_id 
  */
-esp_err_t ui_led_ctrl(bool on);
+void ui_sr_show_cmd(int cmd_id);
+
+/**
+ * @brief 
+ * 
+ * @param text 
+ */
+void ui_sr_show_text(char *text);
+
+/**
+ * @brief 
+ * 
+ * @param show 
+ */
+void ui_sr_show_icon(bool show);
 
 #ifdef __cplusplus
 }

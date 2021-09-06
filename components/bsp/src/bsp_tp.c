@@ -28,11 +28,13 @@
 
 #include "ft5x06.h"
 #include "goodix.h"
+#include "tt21100.h"
 
 static const char *TAG = "bsp_tp";
 typedef enum {
     TP_VENDOR_NONE = -1,
-    TP_VENDOR_FT = 0,
+    TP_VENDOR_TT = 0,
+    TP_VENDOR_FT,
     TP_VENDOR_GT,
     TP_VENDOR_MAX,
 } tp_vendor_t;
@@ -44,7 +46,8 @@ typedef struct {
 } tp_dev_t;
 
 static tp_dev_t tp_dev_list[] = {
-    { "FocalTech", 0x38, TP_VENDOR_FT, },
+    { "Parade Tech", 0x24, TP_VENDOR_TT },
+    { "Focal Tech", 0x38, TP_VENDOR_FT },
     { "Goodix", 0x14, TP_VENDOR_GT },
 };
 
@@ -73,6 +76,9 @@ esp_err_t bsp_tp_init(void)
     ret_val |= bsp_tp_prob(&tp_vendor);
 
     switch (tp_vendor) {
+    case TP_VENDOR_TT:
+        ret_val |= tt21100_tp_init();
+        break;
     case TP_VENDOR_FT:
         ret_val |= ft5x06_init();
         break;
@@ -92,6 +98,9 @@ esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y)
     esp_err_t ret_val = ESP_OK;
 
     switch (tp_vendor) {
+    case TP_VENDOR_TT:
+        ret_val |= tt21100_tp_read(tp_num, x, y);
+        break;
     case TP_VENDOR_FT:
         ret_val |= ft5x06_read_pos(tp_num, x, y);
         break;
@@ -116,6 +125,8 @@ esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y)
 #if TOUCH_PANEL_INVERSE_Y
     *y = LCD_HEIGHT - (*y + 1);
 #endif
+
+    // ESP_LOGI(TAG, "%u : [%3u, %3u]", *tp_num, *x, *y);
 
     return ret_val;
 }
