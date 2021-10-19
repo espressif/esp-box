@@ -1,9 +1,11 @@
-file(GLOB_RECURSE CSRC_FILES *.c)
+
 idf_component_register(
-    SRCS
-        ${CSRC_FILES}
+    SRC_DIRS
+        "icm42670"
+        "touch_panel"
     INCLUDE_DIRS
-        "include"
+        "icm42670/include"
+        "touch_panel/include"
     REQUIRES
         bsp)
 

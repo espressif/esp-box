@@ -37,6 +37,3 @@
 [submodule "examples/freetype/main/lib/freetype"]
 	path = examples/freetype/main/lib/freetype
 	url = https://gitlab.freedesktop.org/freetype/freetype.git
-[submodule "components/lvgl/lv_lib/lv_lib_qrcode"]
-	path = components/lvgl/lv_lib/lv_lib_qrcode
-	url = https://github.com/lvgl/lv_lib_qrcode.git
