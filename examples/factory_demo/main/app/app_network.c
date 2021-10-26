@@ -20,16 +20,20 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "app_server.h"
+#include "app_network.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_spiffs.h"
+#include "esp_wifi.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "lwip/apps/netbiosns.h"
 #include "mdns.h"
 #include "nvs_flash.h"
 #include "protocol_examples_common.h"
+#include "ui_main.h"
 
 static const char *TAG = "app_network";
 
@@ -49,18 +53,69 @@ static void initialise_mdns(const char *file_name)
         sizeof(serviceTxtData) / sizeof(serviceTxtData[0])));
 }
 
+static void soft_ap_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data)
+{
+    if (WIFI_EVENT_AP_STACONNECTED == event_id) {
+        ui_network_set_state(true);
+    }
+
+    if (WIFI_EVENT_AP_STADISCONNECTED == event_id) {
+        ui_network_set_state(false);
+    }
+}
+
+static void start_soft_ap(void)
+{
+    esp_netif_create_default_wifi_ap();
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                        ESP_EVENT_ANY_ID,
+                                                        &soft_ap_event_handler,
+                                                        NULL,
+                                                        NULL));
+
+    wifi_config_t wifi_config = {
+        .ap = {
+            .ssid = EXAMPLE_ESP_WIFI_SSID,
+            .channel = EXAMPLE_ESP_WIFI_CHANNEL,
+            .password = EXAMPLE_ESP_WIFI_PASS,
+            .max_connection = EXAMPLE_MAX_STA_CONN,
+            .authmode = WIFI_AUTH_WPA2_PSK,
+            .pairwise_cipher = WIFI_CIPHER_TYPE_CCMP,
+        },
+    };
+    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+        wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+    }
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, "wifi_init_softap finished. SSID:%s password:%s channel:%d",
+             EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS, EXAMPLE_ESP_WIFI_CHANNEL);
+}
+
 static void network_task(void *pvParam)
 {
+    char *host_name = (char *) pvParam;
+
     ESP_ERROR_CHECK(nvs_flash_init());
 
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    initialise_mdns("esp-cube");
+    initialise_mdns(host_name);
     netbiosns_init();
-    netbiosns_set_name("esp-cube");
+    netbiosns_set_name(host_name);
 
-    ESP_ERROR_CHECK(example_connect());
+    /* Start soft-AP */
+    start_soft_ap();
+
+    /* Start example connection if you want to make ESP32-S3 as station */
+    // ESP_ERROR_CHECK(example_connect());
+
     start_rest_server("/spiffs/web");
 
     vTaskDelete(NULL);
@@ -68,12 +123,11 @@ static void network_task(void *pvParam)
 
 esp_err_t app_network_start(const char *host_name)
 {
-    /* Create audio detect task. Detect data fetch from buffer */
     BaseType_t ret_val = xTaskCreatePinnedToCore(
         (TaskFunction_t)        network_task,
         (const char * const)    "Network Task",
         (const uint32_t)        4 * 1024,
-        (void * const)          NULL,
+        (void * const)          host_name,
         (UBaseType_t)           1,
         (TaskHandle_t * const)  NULL,
         (const BaseType_t)      0);

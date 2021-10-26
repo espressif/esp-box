@@ -23,6 +23,7 @@
 #include "app_led.h"
 #include "bsp_board.h"
 #include "driver/gpio.h"
+#include "driver/ledc.h"
 #include "driver/rmt.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -39,7 +40,7 @@ static led_strip_t *strip = NULL;
 static led_state_t s_led_state = {
     .on = false,
     .h = 170,
-    .s = 0,
+    .s = 100,
     .v = 30,
     .gpio = GPIO_RMT_LED,
 };
@@ -112,6 +113,93 @@ esp_err_t app_led_set_all(uint8_t red, uint8_t green, uint8_t blue)
     }
 
     ret_val |= strip->refresh(strip, 0);
+
+    return ret_val;
+}
+
+esp_err_t app_pwm_led_init(void)
+{
+    esp_err_t ret_val = ESP_OK;
+
+    ledc_timer_config_t ledc_timer = {
+        .speed_mode       = LEDC_LOW_SPEED_MODE,
+        .timer_num        = LEDC_TIMER_0,
+        .duty_resolution  = LEDC_TIMER_8_BIT,
+        .freq_hz          = 8192,
+        .clk_cfg          = LEDC_AUTO_CLK
+    };
+    ret_val |= ledc_timer_config(&ledc_timer);
+
+    ledc_channel_config_t ledc_channel_red = {
+        .speed_mode     = LEDC_LOW_SPEED_MODE,
+        .channel        = LEDC_CHANNEL_0,
+        .timer_sel      = LEDC_TIMER_0,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .gpio_num       = GPIO_NUM_39,
+        .duty           = 0,
+        .hpoint         = 0
+    };
+    ret_val |= ledc_channel_config(&ledc_channel_red);
+
+    ledc_channel_config_t ledc_channel_green = {
+        .speed_mode     = LEDC_LOW_SPEED_MODE,
+        .channel        = LEDC_CHANNEL_1,
+        .timer_sel      = LEDC_TIMER_0,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .gpio_num       = GPIO_NUM_40,
+        .duty           = 0,
+        .hpoint         = 0
+    };
+    ret_val |= ledc_channel_config(&ledc_channel_green);
+
+    ledc_channel_config_t ledc_channel_blue = {
+        .speed_mode     = LEDC_LOW_SPEED_MODE,
+        .channel        = LEDC_CHANNEL_2,
+        .timer_sel      = LEDC_TIMER_0,
+        .intr_type      = LEDC_INTR_DISABLE,
+        .gpio_num       = GPIO_NUM_41,
+        .duty           = 0,
+        .hpoint         = 0
+    };
+    ret_val |= ledc_channel_config(&ledc_channel_blue);
+
+    return ESP_OK;
+}
+
+esp_err_t app_pwm_led_deinit(void)
+{
+    return ESP_ERR_NOT_SUPPORTED;
+}
+
+esp_err_t app_pwm_led_set_all(uint8_t red, uint8_t green, uint8_t blue)
+{
+    esp_err_t ret_val = ESP_OK;
+
+    if ((red == 0) && (green == 0) && (blue == 0)) {
+        s_led_state.on = false;
+    } else {
+        lv_color_hsv_t color_hsv = lv_color_rgb_to_hsv(red, green, blue);
+        s_led_state.on = true;
+        s_led_state.h = color_hsv.h;
+        s_led_state.s = color_hsv.s;
+        s_led_state.v = color_hsv.v;
+    }
+
+    if (s_led_state.on) {
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, red);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, green);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, blue);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
+    } else {
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, 0);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, 0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
+    }
 
     return ret_val;
 }

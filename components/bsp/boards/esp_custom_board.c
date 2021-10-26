@@ -33,6 +33,9 @@ esp_err_t bsp_board_init(void)
 
 esp_err_t bsp_board_power_ctrl(power_module_t module, bool on)
 {
+    (void) module;
+    (void) on;
+
     /* **************** ADD BOARD POWER CONTROL CODE HERE **************** */
 
     return ESP_ERR_NOT_SUPPORTED;

@@ -191,13 +191,15 @@ esp_err_t es7210_adc_set_gain(es7210_input_mics_t mic_mask, es7210_gain_value_t 
 esp_err_t es7210_adc_set_gain_all(es7210_gain_value_t gain);
 
 /**
- * @brief Get gain
- *
+ * @brief Get MIC gain
+ * 
+ * @param mic_mask Selected MIC
+ * @param gain Pointer to `es7210_gain_value_t`
  * @return
  *     - ESP_OK
  *     - ESP_FAIL
  */
-esp_err_t es7210_adc_get_gain(void);
+esp_err_t es7210_adc_get_gain(es7210_input_mics_t mic_mask, es7210_gain_value_t *gain);
 
 /**
  * @brief Set volume

@@ -19,6 +19,7 @@
  *      limitations under the License.
  */
 
+#include <stdbool.h>
 #include "app_audio.h"
 #include "app_led.h"
 #include "app_network.h"
@@ -30,7 +31,6 @@
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "lv_demo.h"
 #include "lv_port.h"
 #include "lvgl.h"
 #include "ui_main.h"
@@ -39,11 +39,8 @@ void app_main(void)
 {
     ESP_ERROR_CHECK(bsp_board_init());
     ESP_ERROR_CHECK(bsp_board_power_ctrl(POWER_MODULE_AUDIO, true));
-    ESP_ERROR_CHECK(bsp_storage_init(BSP_STORAGE_SPIFFS, (char *[]) { "model", "/srmodel" }));
-    ESP_ERROR_CHECK(bsp_storage_init(BSP_STORAGE_SPIFFS, (char *[]) { "storage", "/spiffs" }));
-
-    /* Initialize WS2812 LED(s) */
-    ESP_ERROR_CHECK(app_led_init(GPIO_RMT_LED));
+    ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
+    ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 10));
 
     /* Initialize LCD and GUI */
     ESP_ERROR_CHECK(bsp_lcd_init());
@@ -56,8 +53,8 @@ void app_main(void)
     ESP_ERROR_CHECK(app_audio_start());
     ESP_ERROR_CHECK(app_sr_start(false));
 
-    /* Start web server */
-    ESP_ERROR_CHECK(app_network_start("esp-cube"));
+    ESP_ERROR_CHECK(app_pwm_led_init());
+    ESP_ERROR_CHECK(app_network_start("ESP-Box"));
 
     /* Run LVGL task handler */
     while (vTaskDelay(2), true) {

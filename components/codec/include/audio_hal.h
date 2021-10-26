@@ -24,17 +24,12 @@
 
 #ifndef _AUDIO_HAL_H_
 #define _AUDIO_HAL_H_
-#include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
-#include "freertos/task.h"
+
+#define AUDIO_HAL_VOL_DEFAULT 60
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#define AUDIO_HAL_VOL_DEFAULT 70
-
-typedef struct audio_hal *audio_hal_handle_t;
 
 /**
  * @brief Select media hal codec mode
@@ -133,101 +128,6 @@ typedef struct {
     audio_hal_codec_mode_t codec_mode;     /*!< select codec mode: adc, dac or both */
     audio_hal_codec_i2s_iface_t i2s_iface; /*!< set I2S interface configuration */
 } audio_hal_codec_config_t;
-
-/**
- * @brief Configuration of functions and variables used to operate audio codec chip
- */
-typedef struct audio_hal {
-    esp_err_t (*audio_codec_initialize)(audio_hal_codec_config_t *codec_cfg);                                /*!< initialize codec */
-    esp_err_t (*audio_codec_deinitialize)(void);                                                             /*!< deinitialize codec */
-    esp_err_t (*audio_codec_ctrl)(audio_hal_codec_mode_t mode, audio_hal_ctrl_t ctrl_state);                 /*!< control codec mode and state */
-    esp_err_t (*audio_codec_config_iface)(audio_hal_codec_mode_t mode, audio_hal_codec_i2s_iface_t *iface);  /*!< configure i2s interface */
-    esp_err_t (*audio_codec_set_mute) (bool mute);                                                           /*!< set codec mute */
-    esp_err_t (*audio_codec_set_volume)(int volume);                                                         /*!< set codec volume */
-    esp_err_t (*audio_codec_get_volume)(int *volume);                                                        /*!< get codec volume */
-    xSemaphoreHandle audio_hal_lock;                                                                         /*!< semaphore of codec */
-    void *handle;                                                                                            /*!< handle of audio codec */
-} audio_hal_func_t;
-
-
-/**
- * @brief Initialize media codec driver
- *
- * @note If selected codec has already been installed, it'll return the audio_hal handle.
- *
- * @param audio_hal_conf Configure structure audio_hal_config_t
- * @param audio_hal_func Structure containing functions used to operate audio the codec chip
- *
- * @return  int, 0--success, others--fail
- */
-audio_hal_handle_t audio_hal_init(audio_hal_codec_config_t *audio_hal_conf, audio_hal_func_t *audio_hal_func);
-
-/**
- * @brief Uninitialize media codec driver
- *
- * @param audio_hal reference function pointer for selected audio codec
- *
- * @return  int, 0--success, others--fail
- */
-esp_err_t audio_hal_deinit(audio_hal_handle_t audio_hal);
-
-/**
- * @brief Start/stop codec driver
- *
- * @param audio_hal reference function pointer for selected audio codec
- * @param mode select media hal codec mode either encode/decode/or both to start from audio_hal_codec_mode_t
- * @param audio_hal_ctrl select start stop state for specific mode
- *
- * @return     int, 0--success, others--fail
- */
-esp_err_t audio_hal_ctrl_codec(audio_hal_handle_t audio_hal, audio_hal_codec_mode_t mode, audio_hal_ctrl_t audio_hal_ctrl);
-
-/**
- * @brief Set codec I2S interface samples rate & bit width and format either I2S or PCM/DSP.
- *
- * @param audio_hal reference function pointer for selected audio codec
- * @param mode select media hal codec mode either encode/decode/or both to start from audio_hal_codec_mode_t
- * @param iface I2S sample rate (ex: 16000, 44100), I2S bit width (16, 24, 32),I2s format (I2S, PCM, DSP).
- *
- * @return
- *     - 0   Success
- *     - -1  Error
- */
-esp_err_t audio_hal_codec_iface_config(audio_hal_handle_t audio_hal, audio_hal_codec_mode_t mode, audio_hal_codec_i2s_iface_t *iface);
-
-/**
- * @brief Set voice mute. Enables or disables DAC mute of a codec.
- *        @note `audio_hal_get_volume` will still give a non-zero number in mute state. It will be set to that number when speaker is unmuted.
- *
- * @param audio_hal reference function pointer for selected audio codec
- * @param mute      true/false. If true speaker will be muted and if false speaker will be unmuted.
- *
- * @return     int, 0--success, others--fail
- */
-esp_err_t audio_hal_set_mute(audio_hal_handle_t audio_hal, bool mute);
-
-/**
- * @brief Set voice volume.
- *        @note if volume is 0, mute is enabled,range is 0-100.
- *
- * @param audio_hal reference function pointer for selected audio codec
- * @param volume value of volume in percent(%)
- *
- * @return     int, 0--success, others--fail
- */
-esp_err_t audio_hal_set_volume(audio_hal_handle_t audio_hal, int volume);
-
-/**
- * @brief get voice volume.
- *        @note if volume is 0, mute is enabled, range is 0-100.
- *
- * @param audio_hal reference function pointer for selected audio codec
- * @param volume value of volume in percent returned(%)
- *
- * @return     int, 0--success, others--fail
- */
-esp_err_t audio_hal_get_volume(audio_hal_handle_t audio_hal, int *volume);
-
 
 #ifdef __cplusplus
 }

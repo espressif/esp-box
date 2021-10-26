@@ -22,6 +22,7 @@
 #include "app_audio.h"
 #include "app_led.h"
 #include "app_sr.h"
+#include "app_data_parse.h"
 #include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -47,7 +48,7 @@ void sr_handler_task(void *pvParam)
 
         if (SR_EVENT_WAKE_UP & event_val) {
             sr_anim_start();
-            sr_anim_set_text("Say command");
+            sr_anim_set_text("Hi ESP");
             audio_play_start();
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Say command");
             continue;
@@ -55,44 +56,35 @@ void sr_handler_task(void *pvParam)
 
         if (SR_EVENT_WORD_DETECT & event_val) {
             int32_t cmd_id = app_sr_get_last_cmd_id();
-            // ui_sr_show_icon(false);
             sr_anim_stop();
-            // sr_anim_set_text(cmd_list[cmd_id]);
 
             /* **************** REGISTER COMMAND CALLBACK HERE **************** */
 
             /* Register your callback here. You can get command id from cmd_id  */
             switch (cmd_id) {
-            case 0:
-                ESP_LOGI(TAG, "Free size : %zu", heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-                break;
             case SR_CMD_LIGHT_ON:
-                sr_anim_set_text("打开电灯");
-                app_led_set_all(30, 30, 30);
+                sr_anim_set_text(get_cmd_string(true));
+                app_pwm_led_set_all(30, 30, 30);
                 break;
             case SR_CMD_LIGHT_OFF:
-                sr_anim_set_text("关闭电灯");
-                app_led_set_all(0, 0, 0);
+                sr_anim_set_text(get_cmd_string(false));
+                app_pwm_led_set_all(0, 0, 0);
                 break;
             case SR_CMD_SET_RED:
-                sr_anim_set_text("调成红色");
-                app_led_set_all(30, 0, 0);
+                sr_anim_set_text("Turn Red");
+                app_pwm_led_set_all(30, 0, 0);
                 break;
             case SR_CMD_SET_GREEN:
-                sr_anim_set_text("调成绿色");
-                app_led_set_all(0, 30, 0);
+                sr_anim_set_text("Turn Green");
+                app_pwm_led_set_all(0, 30, 0);
                 break;
             case SR_CMD_SET_BLUE:
-                sr_anim_set_text("调成蓝色");
-                app_led_set_all(0, 0, 30);
+                sr_anim_set_text("Turn Blue");
+                app_pwm_led_set_all(0, 0, 30);
                 break;
             case SR_CMD_SET_WHITE:
-                sr_anim_set_text("调成白色");
-                app_led_set_all(30, 30, 30);
-                break;
-            case SR_CMD_SET_MAX:
-                sr_anim_set_text("最大亮度");
-                app_led_set_all(255, 255, 255);
+                sr_anim_set_text("Turn White");
+                app_pwm_led_set_all(30, 30, 30);
                 break;
             default:
                 /* Defalut handler */
@@ -101,7 +93,6 @@ void sr_handler_task(void *pvParam)
             }
             
             /* **************** ENDS REGISTER COMMAND CALLBACK **************** */
-
         }
     }
 

@@ -1,15 +1,13 @@
 file(GLOB_RECURSE BSP_SRCS
-    "src/lcd/bsp_lcd.c"
-    "src/lcd/bsp_lcd_spi.c"
-    "src/lcd/bsp_lcd_i80.c"
     "src/bsp_codec.c"
     "src/bsp_i2c.c"
     "src/bsp_i2s.c"
-    "src/bsp_storage.c"
-    "src/bsp_tp.c")
+    "src/bsp_tp.c"
+    "src/lcd/*.c"
+    "src/storage/*.c")
 
-if(CONFIG_ESP32_S3_CUBE_BOARD)
-    list(APPEND BSP_BOARD_SRC "./boards/esp32_s3_cube.c")
+if(CONFIG_ESP32_S3_BOX_BOARD)
+    list(APPEND BSP_BOARD_SRC "./boards/esp32_s3_box.c")
 endif()
 
 if(CONFIG_ESP_CUSTOM_BOARD)
@@ -24,7 +22,8 @@ idf_component_register(
         "boards"
         "include"
     REQUIRES
-        esp_lcd
-        i2c_bus
+        codec
         i2c_devices
-        lvgl)
+        esp_lcd
+        fatfs
+        spiffs)

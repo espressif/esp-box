@@ -2,11 +2,11 @@ menu "HMI Board Config"
 
     choice HMI_BOARD
         prompt "HMI board"
-        default ESP32_S3_CUBE_BOARD
+        default ESP32_S3_BOX_BOARD
         help
             Select an HMI board to use with the HMI project
-    config ESP32_S3_CUBE_BOARD
-        bool "ESP32-S3 Cube Dev Board"
+    config ESP32_S3_BOX_BOARD
+        bool "ESP32-S3 Box Dev Board"
         depends on IDF_TARGET_ESP32S3
     config ESP_CUSTOM_BOARD
         bool "Custom HMI board"

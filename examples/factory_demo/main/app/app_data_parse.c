@@ -24,48 +24,111 @@
 #include <string.h>
 #include <stdlib.h>
 #include "app_led.h"
+#include "app_sr.h"
 #include "cJSON.h"
 #include "esp_err.h"
+#include "esp_heap_caps.h"
+#include "esp_log.h"
 #include "lvgl.h"
+
+static char cmd_on[32] = "Turn On The Light";
+static char cmd_off[32] = "Turn Off The Light";
+static char voice_on[32] = CONFIG_EN_SPEECH_COMMAND_ID4;
+static char voice_off[32] = CONFIG_EN_SPEECH_COMMAND_ID5;
+static const char *TAG = "data_parse";
+
+char *get_cmd_string(bool on)
+{
+    if (on) {
+        return (char *) cmd_on;
+    }
+
+    return (char *) cmd_off;
+}
 
 static void parse_config(cJSON *root_obj)
 {
     cJSON *item_obj = NULL;
-    char cmd_on[32] = "";
-    char cmd_off[32] = "";
 
     item_obj = cJSON_GetObjectItem(root_obj, "type");
-    printf("%s : %s\n", item_obj->string, item_obj->valuestring);
-
-    item_obj = cJSON_GetObjectItem(root_obj, "node_id");
-    printf("%s : %d\n", item_obj->string, (int) item_obj->valuedouble);
-
-    item_obj = cJSON_GetObjectItem(root_obj, "gpio");
-    printf("%s : %d\n", item_obj->string, (int) item_obj->valuedouble);
-    // app_led_pin_config((int) item_obj->valuedouble);
-
-    cJSON *param_array = cJSON_GetObjectItem(root_obj, "params");
-    int param_array_num = cJSON_GetArraySize(param_array);
-    printf("Array %s has %d object(s)\n",
-        param_array->string, param_array_num);
-
-    for (int i = 0; i < param_array_num; i++) {
-        cJSON *param_item = cJSON_GetArrayItem(param_array, i);
-        
-        if ((int) cJSON_GetObjectItem(param_item, "status")->valuedouble) {
-            printf("Wake word for on : %s (%s)\n",
-                cJSON_GetObjectItem(param_item, "zh")->valuestring,
-                cJSON_GetObjectItem(param_item, "voice")->valuestring);
-                strcpy(cmd_on, cJSON_GetObjectItem(param_item, "voice")->valuestring);
-        } else {
-            printf("Wake word for off : %s (%s)\n",
-                cJSON_GetObjectItem(param_item, "zh")->valuestring,
-                cJSON_GetObjectItem(param_item, "voice")->valuestring);
-            strcpy(cmd_off, cJSON_GetObjectItem(param_item, "voice")->valuestring);
-        }
+    if (NULL != item_obj) {
+        printf("%s : %s\n", item_obj->string, item_obj->valuestring);
     }
 
-    // app_sr_reset_multinet(cmd_off, cmd_on);
+    item_obj = cJSON_GetObjectItem(root_obj, "node_id");
+    if (NULL != item_obj) {
+        printf("%s : %d\n", item_obj->string, (int) item_obj->valuedouble);
+    }
+
+    cJSON *param_array = cJSON_GetObjectItem(root_obj, "params");
+    if (NULL != param_array) {
+        int param_array_num = cJSON_GetArraySize(param_array);
+        printf("Array %s has %d object(s)\n", param_array->string, param_array_num);
+        for (int i = 0; i < param_array_num; i++) {
+            cJSON *param_item = cJSON_GetArrayItem(param_array, i);
+
+            if (strcmp("config", param_item->string)) {
+                printf("%s : %d\n", param_item->string, (int) param_item->valuedouble);
+            } else {
+                cJSON *item_led_obj = cJSON_GetObjectItem(param_item, "gpio");
+                if (NULL != item_led_obj) {
+                    printf("%s : %d\n", item_led_obj->string, (int) item_led_obj->valuedouble);
+                }
+
+                cJSON *voice_item_array = cJSON_GetObjectItem(param_item, "params");
+                if (NULL == voice_item_array) {
+                    return;
+                }
+    
+                int voice_item_size = cJSON_GetArraySize(voice_item_array);
+                printf("Voice item size : %d\n", voice_item_size);
+                for (size_t i = 0; i < voice_item_size; i++) {
+                    cJSON *voice_item = cJSON_GetArrayItem(voice_item_array, i);
+                    if (cJSON_GetObjectItem(voice_item, "status")->valuedouble == 1) {
+                        printf("Voice to turn on : (%s)[%s]\n",
+                            cJSON_GetObjectItem(voice_item, "zh")->valuestring,
+                            cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                            strcpy(cmd_on, cJSON_GetObjectItem(voice_item, "zh")->valuestring);
+                            strcpy(voice_on, cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                    } else {
+                        printf("Voice to turn on : (%s)[%s]\n",
+                            cJSON_GetObjectItem(voice_item, "zh")->valuestring,
+                            cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                            strcpy(cmd_off, cJSON_GetObjectItem(voice_item, "zh")->valuestring);
+                            strcpy(voice_off, cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                    }
+
+                }
+
+                /* Reset command list */
+                char *cmd = (char *) heap_caps_malloc(256, MALLOC_CAP_SPIRAM);
+                if (NULL != cmd) {
+                    cmd[0] = '\0';  /* Make cmd a valid string */
+
+                    /* Command should match `sdkconfig` */
+                    strcat(cmd, CONFIG_EN_SPEECH_COMMAND_ID0 ";");  /*!< Red */
+                    strcat(cmd, CONFIG_EN_SPEECH_COMMAND_ID1 ";");  /*!< Green */
+                    strcat(cmd, CONFIG_EN_SPEECH_COMMAND_ID2 ";");  /*!< Blue */
+                    strcat(cmd, CONFIG_EN_SPEECH_COMMAND_ID3 ";");  /*!< White */
+                    strcat(strcat(cmd, voice_on), ";");             /*!< On */
+                    strcat(strcat(cmd, voice_off), ";");            /*!< Off */
+
+                    /* Print new command list */
+                    ESP_LOGI(TAG, "New command set to :\n" "%s", cmd);
+
+                    /* Reset command list */
+                    app_sr_reset_command_list(cmd);
+
+                    free(cmd);
+                } else {    /* NULL == cmd */
+                    ESP_LOGE(TAG, "No memory for new command list");
+                    return;
+                }
+            }
+        }
+    } else {    /* (NULL == param_array) */
+        return;
+    }
 }
 
 static void parse_control(cJSON *root_obj)
@@ -111,9 +174,9 @@ static void parse_control(cJSON *root_obj)
 
     if (led_state.on) {
         lv_color_t color = lv_color_hsv_to_rgb(led_state.h, led_state.s, led_state.v);
-        app_led_set_all(color.ch.red << 3, ((color.ch.green_h << 3) + (color.ch.green_l)) << 2, color.ch.blue << 3);
+        app_pwm_led_set_all(color.ch.red << 3, ((color.ch.green_h << 3) + (color.ch.green_l)) << 2, color.ch.blue << 3);
     } else {
-        app_led_set_all(0, 0, 0);
+        app_pwm_led_set_all(0, 0, 0);
     }
 }
 
@@ -185,13 +248,13 @@ esp_err_t app_wifi_build_json_string(led_state_t *led_state, char **json_string)
     led_param_off = cJSON_CreateObject();
     cJSON_AddItemToArray(led_param_array, led_param_on);
     cJSON_AddNumberToObject(led_param_on, "status", 1);
-    cJSON_AddStringToObject(led_param_on, "voice", "da kai dian deng");
-    cJSON_AddStringToObject(led_param_on, "zh", "打开电灯");
+    cJSON_AddStringToObject(led_param_on, "voice", voice_on);
+    cJSON_AddStringToObject(led_param_on, "zh", cmd_on);
 
     cJSON_AddItemToArray(led_param_array, led_param_off);
     cJSON_AddNumberToObject(led_param_off, "status", 0);
-    cJSON_AddStringToObject(led_param_off, "voice", "guan bi dian deng");
-    cJSON_AddStringToObject(led_param_off, "zh", "关闭电灯");
+    cJSON_AddStringToObject(led_param_off, "voice", voice_off);
+    cJSON_AddStringToObject(led_param_off, "zh", cmd_off);
 
     /* Print serialized object */
     *json_string = cJSON_PrintUnformatted(root_obj);

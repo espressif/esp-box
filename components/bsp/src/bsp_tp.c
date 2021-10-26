@@ -24,7 +24,6 @@
 #include "bsp_tp.h"
 #include "esp_log.h"
 #include "esp_err.h"
-#include "i2c_bus.h"
 
 #include "ft5x06.h"
 #include "tt21100.h"
@@ -34,7 +33,6 @@ typedef enum {
     TP_VENDOR_NONE = -1,
     TP_VENDOR_TT = 0,
     TP_VENDOR_FT,
-    TP_VENDOR_GT,
     TP_VENDOR_MAX,
 } tp_vendor_t;
 
@@ -87,13 +85,19 @@ esp_err_t bsp_tp_init(void)
     return ret_val;
 }
 
-esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y)
+esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y, uint8_t *btn_val)
 {
     esp_err_t ret_val = ESP_OK;
+    uint16_t btn_signal = 0;
 
     switch (tp_vendor) {
     case TP_VENDOR_TT:
-        ret_val |= tt21100_tp_read(tp_num, x, y);
+        do {
+            ret_val |= tt21100_tp_read();
+        } while (tt21100_data_avaliable());
+
+        ret_val |= tt21100_get_touch_point(tp_num, x, y);
+        ret_val |= tt21100_get_btn_val(btn_val, &btn_signal);
         break;
     case TP_VENDOR_FT:
         ret_val |= ft5x06_read_pos(tp_num, x, y);
@@ -117,7 +121,7 @@ esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y)
     *y = LCD_HEIGHT - (*y + 1);
 #endif
 
-    // ESP_LOGI(TAG, "%u : [%3u, %3u]", *tp_num, *x, *y);
+    ESP_LOGD(TAG, "[%3u, %3u]", *x, *y);
 
     return ret_val;
 }

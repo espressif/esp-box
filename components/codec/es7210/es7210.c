@@ -486,17 +486,17 @@ esp_err_t es7210_adc_set_gain_all(es7210_gain_value_t gain)
     return ret;
 }
 
-esp_err_t es7210_adc_get_gain(void)
+esp_err_t es7210_adc_get_gain(es7210_input_mics_t mic_mask, es7210_gain_value_t *gain)
 {
     int regv = 0;
     uint8_t gain_value;
-    if (mic_select & ES7210_INPUT_MIC1) {
+    if (mic_mask & ES7210_INPUT_MIC1) {
         regv = es7210_read_reg(ES7210_MIC1_GAIN_REG43);
-    } else if (mic_select & ES7210_INPUT_MIC2) {
+    } else if (mic_mask & ES7210_INPUT_MIC2) {
         regv = es7210_read_reg(ES7210_MIC2_GAIN_REG44);
-    } else if (mic_select & ES7210_INPUT_MIC3) {
+    } else if (mic_mask & ES7210_INPUT_MIC3) {
         regv = es7210_read_reg(ES7210_MIC3_GAIN_REG45);
-    } else if (mic_select & ES7210_INPUT_MIC4) {
+    } else if (mic_mask & ES7210_INPUT_MIC4) {
         regv = es7210_read_reg(ES7210_MIC4_GAIN_REG46);
     } else {
         ESP_LOGE(TAG, "No MIC selected");
@@ -506,8 +506,9 @@ esp_err_t es7210_adc_get_gain(void)
         return regv;
     }
     gain_value = (regv & 0x0f);     /* Retain the last four bits for gain */
+    *gain = gain_value;
     ESP_LOGI(TAG, "GET: gain_value:%d", gain_value);
-    return gain_value;
+    return ESP_OK;
 }
 
 esp_err_t es7210_adc_set_volume(int volume)

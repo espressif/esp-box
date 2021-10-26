@@ -49,7 +49,7 @@
 #define GPIO_LCD_DOUT   (GPIO_NUM_NC)
 
 #define TOUCH_PANEL_SWAP_XY     (0)
-#define TOUCH_PANEL_INVERSE_X   (1)
+#define TOUCH_PANEL_INVERSE_X   (0)
 #define TOUCH_PANEL_INVERSE_Y   (0)
 
 
@@ -81,6 +81,7 @@
  * 
  */
 #define FUNC_SDSPI_EN       (0)
+#define SDSPI_HOST          (SPI2_HOST)
 #define GPIO_SDSPI_CS       (GPIO_NUM_NC)
 #define GPIO_SDSPI_SCLK     (GPIO_NUM_NC)
 #define GPIO_SDSPI_MISO     (GPIO_NUM_NC)

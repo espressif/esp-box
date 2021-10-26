@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 typedef struct {
-    uint8_t h;
+    uint16_t h;
     uint8_t s;
     uint8_t v;
     bool    on;
@@ -68,6 +68,36 @@ esp_err_t app_led_set_all(uint8_t red, uint8_t green, uint8_t blue);
  *    - ESP_ERR_INVALID_ARGS: Invalid pointer
  */
 esp_err_t app_led_get_state(led_state_t *state);
+
+/**
+ * @brief Init PWM LED(s)
+ * 
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t app_pwm_led_init(void);
+
+/**
+ * @brief Deinit PWM LED
+ * 
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t app_pwm_led_deinit(void);
+
+/**
+ * @brief Set all PWM LED(s) color
+ * 
+ * @param red   Red part of color
+ * @param green Green part of color
+ * @param blue  Blue part of color
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t app_pwm_led_set_all(uint8_t red, uint8_t green, uint8_t blue);
 
 #ifdef __cplusplus
 }

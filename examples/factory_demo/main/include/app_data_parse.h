@@ -19,7 +19,7 @@
  *      limitations under the License.
  */
 
-#include "cJSON.h"
+#include <stdbool.h>
 #include "esp_err.h"
 
 #ifdef __cplusplus
@@ -27,19 +27,31 @@ extern "C" {
 #endif
 
 /**
- * @brief 
+ * @brief Get the cmd string object
  * 
- * @param text 
- * @return esp_err_t 
+ * @param on On or off
+ * @return String of given state
+ */
+char *get_cmd_string(bool on);
+
+/**
+ * @brief Parse JSON string
+ * 
+ * @param text JSON string
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t app_wifi_parse_json_string(char *text);
 
 /**
- * @brief 
+ * @brief Build JSON string with given LED state
  * 
- * @param led_state 
- * @param json_string 
- * @return esp_err_t 
+ * @param led_state Status of LED
+ * @param json_string Pointer to output buffer's pointer. Should free this buffer after used. 
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t app_wifi_build_json_string(led_state_t *led_state, char **json_string);
 

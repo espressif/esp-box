@@ -23,6 +23,11 @@
 
 #include "esp_err.h"
 
+#define EXAMPLE_ESP_WIFI_SSID       "ESP-Box"
+#define EXAMPLE_ESP_WIFI_PASS       "password"
+#define EXAMPLE_ESP_WIFI_CHANNEL    1
+#define EXAMPLE_MAX_STA_CONN        2
+
 #ifdef __cplusplus
 extern "C" {
 #endif

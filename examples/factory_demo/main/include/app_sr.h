@@ -40,13 +40,12 @@ typedef enum {
  * 
  */
 typedef enum {
-    SR_CMD_LIGHT_ON = 18,
-    SR_CMD_LIGHT_OFF = 19,
-    SR_CMD_SET_RED = 20,
-    SR_CMD_SET_GREEN = 21,
-    SR_CMD_SET_BLUE = 22,
-    SR_CMD_SET_WHITE = 23,
-    SR_CMD_SET_MAX = 24,
+    SR_CMD_SET_RED = 0,
+    SR_CMD_SET_GREEN,
+    SR_CMD_SET_BLUE,
+    SR_CMD_SET_WHITE,
+    SR_CMD_LIGHT_ON,
+    SR_CMD_LIGHT_OFF,
 } sr_cmd_t;
 
 /**
@@ -66,6 +65,17 @@ esp_err_t app_sr_start(bool record_en);
  * @return int32_t Command index from 0
  */
 int32_t app_sr_get_last_cmd_id(void);
+
+/**
+ * @brief Reset command list
+ * 
+ * @param command_list New command string
+ * @return 
+ *    - ESP_OK: Success
+ *    - ESP_ERR_NO_MEM: No enough memory for err_id string
+ *    - Others: Fail
+ */
+esp_err_t app_sr_reset_command_list(char *command_list);
 
 #ifdef __cplusplus
 }

@@ -24,17 +24,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include "app_audio.h"
 #include "app_sr.h"
 #include "bsp_codec.h"
 #include "bsp_i2s.h"
-#include "dl_lib_coefgetter_if.h"
 #include "driver/i2s.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "esp_random.h"
-#include "esp_afe_sr_iface.h"
 #include "esp_afe_sr_models.h"
-#include "esp_mn_iface.h"
 #include "esp_mn_models.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
@@ -63,6 +60,9 @@ static afe_config_t afe_config = {
     .alloc_from_psram = 1,
     .agc_mode = 2,  /* 1 : -5dB 2: -4dB ... */
 };
+
+static model_iface_data_t *model_data = NULL;
+static const esp_mn_iface_t *multinet = &MULTINET_MODEL;
 static const esp_afe_sr_iface_t *afe_handle = &esp_afe_sr_2mic;
 
 static FILE *fp = NULL;
@@ -100,14 +100,15 @@ static void audio_feed_task(void *pvParam)
 static void audio_detect_task(void *pvParam)
 {
     bool detect_flag = false;
-    const esp_mn_iface_t *multinet = &MULTINET_MODEL;
-    model_iface_data_t *model_data = multinet->create((const model_coeff_getter_t *) &MULTINET_COEFF, 5760);
     esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *) pvParam;
 
     /* Allocate buffer for detection */
     size_t afe_chunk_size = afe_handle->get_fetch_chunksize(afe_data);
     int16_t *detect_buff = heap_caps_malloc(afe_chunk_size * sizeof(int16_t), MALLOC_CAP_INTERNAL);
     if (NULL == detect_buff) {
+        ESP_LOGE(TAG, "Expect : %zu, avaliable : %zu",
+            afe_chunk_size * sizeof(int16_t),
+            heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
         esp_system_abort("No mem for detect buffer");
     }
 
@@ -115,14 +116,6 @@ static void audio_detect_task(void *pvParam)
     if (afe_chunk_size != multinet->get_samp_chunksize(model_data)) {
         esp_system_abort("Invalid chunk size");
     }
-
-    ESP_LOGI(TAG,
-        "Audio detection start. Reset memories :\n"
-        "         Biggest    Free   Total\n"
-        "Internal %8zu%8zu%8zu\n"
-        "SPI RAM  %8zu%8zu%8zu\n",
-        heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL), heap_caps_get_free_size(MALLOC_CAP_INTERNAL), heap_caps_get_total_size(MALLOC_CAP_INTERNAL),
-        heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM), heap_caps_get_free_size(MALLOC_CAP_SPIRAM), heap_caps_get_total_size(MALLOC_CAP_SPIRAM));
 
     while (true) {
         int ret_val = afe_handle->fetch(afe_data, detect_buff);
@@ -139,11 +132,15 @@ static void audio_detect_task(void *pvParam)
         }
 
         if (true == detect_flag) {
-            sr_command_id = multinet->detect(model_data, detect_buff);
-
-            /* Save audio data to file */
+            /* Save audio data to file if record enabled */
             if (b_record_en && (NULL != fp)) {
                 fwrite(detect_buff, 1, afe_chunk_size * sizeof(int16_t), fp);
+            }
+
+            if (false == audio_is_playing()) {
+                sr_command_id = multinet->detect(model_data, detect_buff);
+            } else {
+                continue;
             }
 
             if (SR_CMD_NOT_DETECTED == sr_command_id) {
@@ -194,11 +191,16 @@ static void sr_init_task(void *pvParam)
 
     esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
 
+    /* Continuously reading flash will call task watchdog  */
+    vTaskDelay(pdMS_TO_TICKS(100));
+    
+    model_data = multinet->create((const model_coeff_getter_t *) &MULTINET_COEFF, 5760);
+
     /* Create audio feed task. Acquire data from I2S bus */
     BaseType_t ret_val = xTaskCreatePinnedToCore(
         (TaskFunction_t)        audio_feed_task,
         (const char * const)    "Feed Task",
-        (const uint32_t)        4 * 1024,
+        (const uint32_t)        2 * 1024,
         (void * const)          afe_data,
         (UBaseType_t)           5,
         (TaskHandle_t * const)  NULL,
@@ -227,7 +229,7 @@ static void sr_init_task(void *pvParam)
     ret_val = xTaskCreatePinnedToCore(
         (TaskFunction_t)        sr_handler_task,
         (const char * const)    "SR Handler Task",
-        (const uint32_t)        4 * 1024,
+        (const uint32_t)        5 * 1024,
         (void * const)          sr_event_group_handle,
         (UBaseType_t)           1,
         (TaskHandle_t * const)  NULL,
@@ -292,4 +294,19 @@ esp_err_t app_sr_start(bool record_en)
 int32_t app_sr_get_last_cmd_id(void)
 {
     return sr_command_id;
+}
+
+esp_err_t app_sr_reset_command_list(char *command_list)
+{
+    char *err_id = heap_caps_malloc(1024, MALLOC_CAP_SPIRAM);
+
+    if (NULL == err_id) {
+        return ESP_ERR_NO_MEM;
+    }
+
+    multinet->reset(model_data, command_list, err_id);
+
+    free(err_id);
+
+    return ESP_OK;
 }

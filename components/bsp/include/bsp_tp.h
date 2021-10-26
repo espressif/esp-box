@@ -44,11 +44,12 @@ esp_err_t bsp_tp_init(void);
  * @param tp_num Touch point number
  * @param x X coordinate
  * @param y Y coordinate
+ * @param btn_val Button mask value
  * @return
  *    - ESP_OK: Success
  *    - Others: Fail
  */
-esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y);
+esp_err_t bsp_tp_read(uint8_t *tp_num, uint16_t *x, uint16_t *y, uint8_t *btn_val);
 
 #ifdef __cplusplus
 }

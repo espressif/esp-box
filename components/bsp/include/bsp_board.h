@@ -29,8 +29,8 @@
  * 
  */
 
-#if CONFIG_ESP32_S3_CUBE_BOARD
-    #include "esp32_s3_cube.h"
+#if CONFIG_ESP32_S3_BOX_BOARD
+    #include "esp32_s3_box.h"
 #elif CONFIG_ESP_CUSTOM_BOARD
     #include "esp_custom_board.h"
 #else 
@@ -42,8 +42,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Power module of dev board.
- *      This can be expanded in the future.
+ * @brief Power module of dev board. This can be expanded in the future.
  * 
  */
 typedef enum {
@@ -51,14 +50,6 @@ typedef enum {
     POWER_MODULE_AUDIO,         /*!< Audio PA power control */
     POWER_MODULE_ALL = 0xff,    /*!< All module power control */
 } power_module_t;
-
-typedef struct {
-    esp_err_t (*init)(void *);                      /*!< Initialize function of dev board. Skip if NULL. */
-    esp_err_t (*pwr_ctrl)(power_module_t, bool);    /*!< Power control of dev board. NULL if not support. */
-    esp_err_t (*enter_low_power)(void);             /*!< Enter low power mode. NULL if not support. */
-} bsp_board_t;
-
-typedef bsp_board_t *bsp_board_handle_t;    /*!< Handle to board control object */
 
 /**
  * @brief Special config for dev board

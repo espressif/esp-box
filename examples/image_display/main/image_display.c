@@ -39,7 +39,7 @@ static void image_display(void);
 void app_main(void)
 {
     ESP_ERROR_CHECK(bsp_board_init());
-    ESP_ERROR_CHECK(bsp_storage_init_default(BSP_STORAGE_SPIFFS));
+    ESP_ERROR_CHECK(bsp_spiffs_init_default());
 
     ESP_ERROR_CHECK(bsp_lcd_init());
     ESP_ERROR_CHECK(bsp_tp_init());

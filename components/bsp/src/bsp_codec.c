@@ -82,12 +82,9 @@ esp_err_t bsp_codec_adc_init(audio_hal_iface_samples_t sample_rate)
 
     ret_val |= es7210_adc_init(&cfg);
     ret_val |= es7210_adc_config_i2s(cfg.codec_mode, &cfg.i2s_iface);
-    ret_val |= es7210_adc_set_gain(ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2 | ES7210_INPUT_MIC3, GAIN_0DB);
+    ret_val |= es7210_adc_set_gain(ES7210_INPUT_MIC1 | ES7210_INPUT_MIC2, GAIN_37_5DB);
+    ret_val |= es7210_adc_set_gain(ES7210_INPUT_MIC3 | ES7210_INPUT_MIC4, GAIN_0DB);
     ret_val |= es7210_adc_ctrl_state(cfg.codec_mode, AUDIO_HAL_CTRL_START);
-
-    // for (uint8_t i = 0; i <= 0x7f; i++) {
-    //     ESP_LOGI(TAG, "Reg : %02X, Val = %02X", i, es7210_read_reg(i));
-    // }
 
     if (ESP_OK != ret_val) {
         ESP_LOGE(TAG, "Failed initialize codec");
@@ -123,35 +120,6 @@ esp_err_t bsp_codec_dac_init(audio_hal_iface_samples_t sample_rate)
     return ret_val;
 }
 
-static esp_err_t bsp_codec_init_adc_dac(audio_hal_iface_samples_t sample_rate)
-{
-    esp_err_t ret_val = ESP_OK;
-    audio_hal_codec_config_t cfg = {
-        .codec_mode = AUDIO_HAL_CODEC_MODE_BOTH,
-        .dac_output = AUDIO_HAL_DAC_OUTPUT_ALL,
-        .adc_input = AUDIO_HAL_ADC_INPUT_ALL,
-        .i2s_iface = {
-            .bits = AUDIO_HAL_BIT_LENGTH_16BITS,
-            .fmt = AUDIO_HAL_I2S_NORMAL,
-            .mode = AUDIO_HAL_MODE_SLAVE,
-            .samples = sample_rate,
-        },
-    };
-
-    ret_val |= es8311_codec_init(&cfg);
-    ret_val |= es8311_set_bits_per_sample(cfg.i2s_iface.bits);
-    ret_val |= es8311_config_fmt(cfg.i2s_iface.fmt);
-    ret_val |= es8311_codec_set_voice_volume(30);
-    ret_val |= es8311_set_mic_gain(ES8311_MIC_GAIN_30DB);
-    ret_val |= es8311_codec_ctrl_state(cfg.codec_mode, AUDIO_HAL_CTRL_START);
-
-    if (ESP_OK != ret_val) {
-        ESP_LOGE(TAG, "Failed initialize codec");
-    }
-
-    return ret_val;
-}
-
 esp_err_t bsp_codec_init(audio_hal_iface_samples_t sample_rate)
 {
     esp_err_t ret_val = ESP_OK;
@@ -162,12 +130,6 @@ esp_err_t bsp_codec_init(audio_hal_iface_samples_t sample_rate)
 
     if(CODEC_TYPE_NONE == codec_type) {
         return ESP_ERR_NOT_FOUND;
-    }
-
-    /* Single Codec ES8311 only, Used for audio input and output */
-    if (1 << CODEC_TYPE_ES8311 == codec_type) {
-        ret_val |= bsp_codec_init_adc_dac(sample_rate);
-        return ret_val;
     }
 
     if (((1 << CODEC_TYPE_ES8311) + (1 << CODEC_TYPE_ES7210)) == codec_type) {

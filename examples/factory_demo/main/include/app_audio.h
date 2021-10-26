@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <stdbool.h>
 #include "esp_err.h"
 
 #ifdef __cplusplus
@@ -28,9 +29,11 @@ extern "C" {
 #endif
 
 /**
- * @brief 
+ * @brief Start audio playing task
  * 
- * @return esp_err_t 
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t app_audio_start(void);
 
@@ -41,11 +44,21 @@ esp_err_t app_audio_start(void);
 void audio_play_start(void);
 
 /**
- * @brief 
+ * @brief Return if audio is playing
  * 
- * @param time_ms 
- * @param file_name 
- * @return esp_err_t 
+ * @return true Audio is playing
+ * @return false Audio is not playing
+ */
+bool audio_is_playing(void);
+
+/**
+ * @brief Record audio to vfs device
+ * 
+ * @param time_ms Total time to record in millisecond
+ * @param file_name Full file name with mount point
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
  */
 esp_err_t audio_record_to_file(size_t time_ms, const char *file_name);
 

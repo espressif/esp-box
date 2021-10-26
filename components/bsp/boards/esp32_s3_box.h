@@ -1,5 +1,5 @@
 /**
- * @file esp32_s3_cube.h
+ * @file esp32_s3_box.h
  * @version 0.1
  * @date 2021-06-25
  * 
@@ -22,7 +22,7 @@
 #include "driver/gpio.h"
 
 /**
- * @brief ESP32-S3-Cube LCD GPIO defination and config
+ * @brief ESP32-S3-Box LCD GPIO defination and config
  * 
  */
 #define FUNC_LCD_EN     (1)
@@ -54,7 +54,7 @@
 
 
 /**
- * @brief ESP32-S3-Cube I2C GPIO defineation
+ * @brief ESP32-S3-Box I2C GPIO defineation
  * 
  */
 #define FUNC_I2C_EN     (1)
@@ -62,7 +62,7 @@
 #define GPIO_I2C_SDA    (GPIO_NUM_8)
 
 /**
- * @brief ESP32-S3-Cube SDMMC GPIO defination
+ * @brief ESP32-S3-Box SDMMC GPIO defination
  * 
  * @note Only avaliable when PMOD connected
  */
@@ -77,17 +77,18 @@
 #define GPIO_SDMMC_DET  (GPIO_NUM_NC)
 
 /**
- * @brief ESP32-S3-Cube SDSPI GPIO definationv
+ * @brief ESP32-S3-Box SDSPI GPIO definationv
  * 
  */
 #define FUNC_SDSPI_EN       (0)
+#define SDSPI_HOST          (SPI2_HOST)
 #define GPIO_SDSPI_CS       (GPIO_NUM_NC)
 #define GPIO_SDSPI_SCLK     (GPIO_NUM_NC)
 #define GPIO_SDSPI_MISO     (GPIO_NUM_NC)
 #define GPIO_SDSPI_MOSI     (GPIO_NUM_NC)
 
 /**
- * @brief ESP32-S3-Cube SPI GPIO defination
+ * @brief ESP32-S3-Box SPI GPIO defination
  * 
  */
 #define FUNC_SPI_EN         (0)
@@ -97,7 +98,7 @@
 #define GPIO_SPI_SCLK       (GPIO_NUM_NC)
 
 /**
- * @brief ESP32-S3-Cube RMT GPIO defination
+ * @brief ESP32-S3-Box RMT GPIO defination
  * 
  */
 #define FUNC_RMT_EN         (0)
@@ -105,7 +106,7 @@
 #define GPIO_RMT_LED        (GPIO_NUM_39)
 
 /**
- * @brief ESP32-S3-Cube I2S GPIO defination
+ * @brief ESP32-S3-Box I2S GPIO defination
  * 
  */
 #define FUNC_I2S_EN         (1)

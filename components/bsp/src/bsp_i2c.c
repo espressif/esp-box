@@ -29,15 +29,6 @@
 static const char *TAG= "bsp_i2c";
 static i2c_bus_handle_t i2c_bus_handle = NULL;
 
-/* Make sure unused member(s) zero. Especially `clk_flags` */
-static i2c_config_t conf = {
-    .mode = I2C_MODE_MASTER,
-    .scl_io_num = GPIO_I2C_SCL,
-    .sda_io_num = GPIO_I2C_SDA,
-    .scl_pullup_en = GPIO_PULLUP_ENABLE,
-    .sda_pullup_en = GPIO_PULLUP_ENABLE,
-};
-
 esp_err_t bsp_i2c_init(i2c_port_t i2c_num, uint32_t clk_speed)
 {
     /* Check if bus is already created */
@@ -46,7 +37,14 @@ esp_err_t bsp_i2c_init(i2c_port_t i2c_num, uint32_t clk_speed)
         return ESP_FAIL;
     }
 
-    conf.master.clk_speed = clk_speed;
+    i2c_config_t conf = {
+        .mode = I2C_MODE_MASTER,
+        .scl_io_num = GPIO_I2C_SCL,
+        .sda_io_num = GPIO_I2C_SDA,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .master.clk_speed = clk_speed,
+    };
 
     i2c_bus_handle = i2c_bus_create(i2c_num, &conf);
     

@@ -62,6 +62,33 @@ static bool lv_port_flush_ready(void)
     return false;
 }
 
+static void button_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
+{
+    static uint8_t prev_btn_id = 0;
+    uint8_t tp_num = 0;
+    uint16_t x = 0, y = 0, btn_val = 0;
+    /* Read touch point(s) via touch IC */
+    if (ESP_OK != bsp_tp_read(&tp_num, &x, &y, &btn_val)) {
+        // ESP_LOGE(TAG, "Failed read touch panel value");
+        return;
+    }
+
+    /*Get the pressed button's ID*/
+    if (btn_val) {
+        data->btn_id = btn_val;
+        data->state = LV_INDEV_STATE_PRESSED;
+    } else {
+        data->btn_id = 0;
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+
+    if (prev_btn_id != data->btn_id) {
+        lv_event_send(lv_scr_act(), LV_EVENT_HIT_TEST, (void *) btn_val);
+    }
+
+    prev_btn_id = btn_val;
+}
+
 /**
  * @brief Read touchpad data. 
  * 
@@ -72,10 +99,10 @@ static bool lv_port_flush_ready(void)
 static IRAM_ATTR void touchpad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
     uint8_t tp_num = 0;
-    uint16_t x = 0, y = 0;
+    uint16_t x = 0, y = 0, btn_val = 0;
     /* Read touch point(s) via touch IC */
-    if (ESP_OK != bsp_tp_read(&tp_num, &x, &y)) {
-        ESP_LOGE(TAG, "Failed read touch panel value");
+    if (ESP_OK != bsp_tp_read(&tp_num, &x, &y, &btn_val)) {
+        // ESP_LOGE(TAG, "Failed read touch panel value");
         return;
     }
 
@@ -177,16 +204,23 @@ static esp_err_t lv_port_indev_init(void)
      *  The `..._read()` function are only examples.
      *  You should shape them according to your hardware
      */
-    static lv_indev_drv_t indev_drv;
-    static lv_indev_t *indev_touchpad;
+    static lv_indev_drv_t indev_drv_tp;
+    static lv_indev_drv_t indev_drv_btn;
+    lv_indev_t *indev_touchpad;
+    lv_indev_t *indev_button;
 
     /* Initialize your touchpad if you have */
 
     /* Register a touchpad input device */
-    lv_indev_drv_init(&indev_drv);
-    indev_drv.type = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb = touchpad_read;
-    indev_touchpad = lv_indev_drv_register(&indev_drv);
+    lv_indev_drv_init(&indev_drv_tp);
+    indev_drv_tp.type = LV_INDEV_TYPE_POINTER;
+    indev_drv_tp.read_cb = touchpad_read;
+    indev_touchpad = lv_indev_drv_register(&indev_drv_tp);
+
+    lv_indev_drv_init(&indev_drv_btn);
+    indev_drv_btn.type = LV_INDEV_TYPE_BUTTON;
+    indev_drv_btn.read_cb = button_read;
+    indev_button = lv_indev_drv_register(&indev_drv_btn);
 
     /* Uncomment code below to display a mouse cursor on screen */
     // LV_IMG_DECLARE(mouse_cursor_icon)
