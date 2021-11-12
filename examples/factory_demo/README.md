@@ -1,18 +1,18 @@
-# ESP32-S3-Cube Factory Demo
+# ESP32-S3-Box Factory Demo
 
-This is the factory demo for ESP32-S3-Cube development board.
+This is the factory demo for ESP32-S3-Box development board.
 
 ## How to Use
 
 ### Hardware Required
 
-* A ESP32-S3-Cube
+* A ESP32-S3-Box
 * An USB-C cable for power supply and programming
 * An RGB LED used to transmit encoded IR signals 
 
 example connection:
 
-|         | ESP32-S3-Cube |
+|         | ESP32-S3-Box |
 |  :---:  | :-----------: |
 |   RED   |     IO 39     |
 |  GREEN  |     IO 40     |

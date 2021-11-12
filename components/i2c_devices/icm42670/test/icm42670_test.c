@@ -44,7 +44,7 @@ static void icm42670_test(void *args)
     }
 }
 
-TEST_CASE("ICM42670 test", "[imu][cube]")
+TEST_CASE("ICM42670 test", "[imu][box]")
 {
     icm42670_test(NULL);
 }

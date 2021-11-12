@@ -3,7 +3,7 @@ stages:
   - deploy
 
 variables:
-  ESP_CUBE_PATH: "$CI_PROJECT_DIR"
+  ESP_BOX_PATH: "$CI_PROJECT_DIR"
   BATCH_BUILD: "1"
   V: "0"
   IDF_CI_BUILD: "1"
@@ -66,4 +66,4 @@ push_to_github:
     - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
     - git remote remove github &>/dev/null || true
     - git remote add github git@github.com:espressif/esp-box.git
-    - ${ESP_CUBE_PATH}/tools/ci/push_to_github.sh
+    - ${ESP_BOX_PATH}/tools/ci/push_to_github.sh

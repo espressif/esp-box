@@ -40,11 +40,11 @@ static const char *TAG = "app_network";
 static void initialise_mdns(const char *file_name)
 {
     mdns_init();
-    mdns_hostname_set("esp-cube");
-    mdns_instance_name_set("esp-cube");
+    mdns_hostname_set("esp-box");
+    mdns_instance_name_set("esp-box");
 
     mdns_txt_item_t serviceTxtData[] = {
-        {"board", "ESP32-S3-Cube"},
+        {"board", "ESP32-S3-Box"},
         {"path", "/"}
     };
 
