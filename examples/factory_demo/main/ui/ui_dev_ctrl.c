@@ -93,7 +93,7 @@ void ui_dev_ctrl(bool show)
     static lv_obj_t *btn_back = NULL;
     static const btn_img_src_t img_src_list[] = {
         { .name = "Light", .img_on = &light_on, .img_off = &light_off },
-        { .name = "Meida", .img_on = &media_on, .img_off = &media_off },
+        { .name = "Media", .img_on = &media_on, .img_off = &media_off },
         { .name = "Fan", .img_on = &fan_on, .img_off = &fan_off },
         { .name = "Security", .img_on = &security_on, .img_off = &security_off },
     };
