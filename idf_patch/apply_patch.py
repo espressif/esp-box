@@ -13,7 +13,7 @@ binary_patch_list = {
     "/components/esp_phy/lib/esp32s3/libphy.a"}
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog="Simple MIDI file converter")
+    parser = argparse.ArgumentParser(prog = "ESP-IDF Patch Apply Script")
     parser.add_argument("--directory", "-d", type = str,  default = None, help = "esp-idf directory")
     args = parser.parse_args()
 

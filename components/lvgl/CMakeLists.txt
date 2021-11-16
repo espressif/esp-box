@@ -21,41 +21,19 @@ file(GLOB_RECURSE LVGL_SOURCES
     lvgl/examples/*.c)
 
 file(GLOB_RECURSE LV_DEMOS_SOURCES lv_demos/src/*.c)
-
-file(GLOB_RECURSE LV_LIB_SOURCES
-    lv_lib/lv_lib_png/*.c
-    lv_lib/lv_lib_bmp/*.c
-    lv_lib/lv_lib_gif/*.c
-    lv_lib/lv_lib_qrcode/*.c
-    lv_lib/lv_lib_split_jpg/tjpgd.c
-    lv_lib/lv_lib_split_jpg/lv_sjpg.c)
-
 file(GLOB_RECURSE LV_PORT_SOURCES lv_port/*.c)
-
-if (CONFIG_LV_FONT_USE_FREETYPE)
-    list(APPEND LV_LIB_SOURCES lv_lib/lv_lib_freetype/lv_freetype.c)
-endif()
-
 
 # Resister components
 idf_component_register(
     SRCS
         ${LVGL_SOURCES}
         ${LV_DEMOS_SOURCES}
-        ${LV_LIB_SOURCES}
         ${LV_PORT_SOURCES}
     INCLUDE_DIRS
         "."
         "include"
         "lvgl/src"
         "lv_demos"
-        "lv_lib"
-        "lv_lib/lv_lib_bmp"
-        "lv_lib/lv_lib_freetype"
-        "lv_lib/lv_lib_gif"
-        "lv_lib/lv_lib_png"
-        "lv_lib/lv_lib_qrcode"
-        "lv_lib/lv_lib_split_jpg"
         "lv_port"
     REQUIRES
         bsp
@@ -64,12 +42,18 @@ idf_component_register(
 # Some of warinings from LVGL. Block them.
 target_compile_options(${COMPONENT_LIB} PRIVATE -w)
 
+# We're using Kconfig, will will add `CONFIG_` prifix to MACRO.
+# This macro will use a wrapper macro like `#define LV_USE_XXX CONFIG_LV_USE_XXX`
+# But since `lv_conf_internal.h` will add `_LV_KCONFIG_PRESENT` if 
+#   `CONFIG_LV_COLOR_DEPTH` is defined. So this might not required.
+# target_compile_definitions(${COMPONENT_LIB} PUBLIC "-D_LV_KCONFIG_PRESENT")
+
 # Use simple include
-target_compile_definitions(${COMPONENT_LIB} PRIVATE "-DLV_CONF_INCLUDE_SIMPLE")
+target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DLV_CONF_INCLUDE_SIMPLE")
 target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DLV_DEMO_CONF_INCLUDE_SIMPLE")
 
-# Required for `lv_lib_png`
-target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DLV_PNG_USE_LV_FILESYSTEM")
+# Workaround for file system support
+target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DCONFIG_LV_USE_FS_STDIO='S'")
 
 if (CONFIG_LV_MEM_CUSTOM)
     if (CONFIG_LV_MEM_CUSTOM_ALLOC)
@@ -87,10 +71,7 @@ if (CONFIG_LV_TICK_CUSTOM)
     endif()
 endif()
 
-if (CONFIG_LV_USER_DATA_FREE)
-    target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DLV_USER_DATA_FREE=${CONFIG_LV_USER_DATA_FREE}")
-endif()
-
+# This will make LVGL faster but use more RAM if enabled
 if (CONFIG_LV_ATTRIBUTE_FAST_MEM_USE_IRAM)
     target_compile_definitions(${COMPONENT_LIB} PUBLIC "-DLV_ATTRIBUTE_FAST_MEM=IRAM_ATTR")
 endif()

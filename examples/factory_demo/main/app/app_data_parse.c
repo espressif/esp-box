@@ -30,6 +30,7 @@
 #include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "lvgl.h"
+#include "ui_main.h"
 
 static const char *TAG = "data_parse";
 
@@ -114,6 +115,9 @@ static void parse_config(cJSON *root_obj)
                         led_state_default.h = (uint16_t) cJSON_GetObjectItem(voice_item, "hue")->valuedouble;
                         led_state_default.s = (uint8_t) cJSON_GetObjectItem(voice_item, "saturation")->valuedouble;
                         led_state_default.v = (uint8_t) cJSON_GetObjectItem(voice_item, "value")->valuedouble;
+                        if (led_state_default.v < 8) {
+                            led_state_default.v = 8;
+                        }
                         printf("Voice for [%u, %u, %u] : (%s)[%s]\n",
                             led_state_default.h, led_state_default.s, led_state_default.v,
                             strcpy(cmd_color, cJSON_GetObjectItem(voice_item, "zh")->valuestring),
@@ -216,6 +220,8 @@ static void parse_control(cJSON *root_obj)
     } else {
         app_pwm_led_set_all(0, 0, 0);
     }
+
+    ui_dev_ctrl_update_state();
 }
 
 esp_err_t app_wifi_parse_json_string(char *text)

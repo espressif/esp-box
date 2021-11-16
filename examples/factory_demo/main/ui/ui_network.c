@@ -22,7 +22,6 @@
 #include <stdbool.h>
 #include "app_network.h"
 #include "lvgl.h"
-#include "lv_qrcode.h"
 #include "ui_main.h"
 
 LV_FONT_DECLARE(font_en_16)

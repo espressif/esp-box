@@ -46,10 +46,25 @@ static lv_obj_t *obj_dev[4] = { [0 ... 3] = NULL };
 
 static void btn_dev_cb(lv_event_t *event)
 {
+    if (LV_EVENT_VALUE_CHANGED != event->code && LV_EVENT_REFRESH != event->code) {
+        return;
+    }
+
+    led_state_t led_state;
     lv_obj_t *btn = (lv_obj_t *) event->target;
     lv_obj_t *img = (lv_obj_t *) event->user_data;
     lv_obj_t *lab = (lv_obj_t *) btn->user_data;
     btn_img_src_t *p_img_src = (btn_img_src_t *) img->user_data;
+
+    /* This is because event was triggered by another LED change API */
+    if (LV_EVENT_REFRESH == event->code) {
+        app_led_get_state(&led_state);
+        if (led_state.on) {
+            btn->state |= LV_STATE_CHECKED;
+        } else {
+            btn->state &= ~LV_STATE_CHECKED;
+        }
+    }
 
     if (btn->state & LV_STATE_CHECKED) {
         lv_img_set_src(img, p_img_src->img_on);
@@ -62,11 +77,13 @@ static void btn_dev_cb(lv_event_t *event)
         lv_obj_set_style_shadow_width(btn, 0, LV_STATE_DEFAULT);
     }
 
-    if (btn == obj_dev[0]) {
-        if (btn->state & LV_STATE_CHECKED) {
-            app_pwm_led_set_all(30, 30, 30);
-        } else {
-            app_pwm_led_set_all(0, 0, 0);
+    if (LV_EVENT_VALUE_CHANGED == event->code) {
+        if (btn == obj_dev[0]) {
+            if (btn->state & LV_STATE_CHECKED) {
+                app_pwm_led_set_all_hsv(led_state.h, led_state.s, led_state.v);
+            } else {
+                app_pwm_led_set_all_hsv(0, 0, 0);
+            }
         }
     }
 }
@@ -123,7 +140,7 @@ void ui_dev_ctrl(bool show)
             lv_obj_align(label, LV_ALIGN_CENTER, 0, 20);
 
             lv_obj_set_user_data(obj_dev[i], (void *) label);
-            lv_obj_add_event_cb(obj_dev[i], btn_dev_cb, LV_EVENT_CLICKED, (void *) img);
+            lv_obj_add_event_cb(obj_dev[i], btn_dev_cb, LV_EVENT_ALL, (void *) img);
             lv_obj_add_event_cb(obj_dev[i], btn_dev_detail_cb, LV_EVENT_LONG_PRESSED, (void *) i);
         }
     }
@@ -141,15 +158,27 @@ void ui_dev_ctrl(bool show)
     }
 
     if (show) {
-        lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(237, 238, 239), LV_STATE_DEFAULT);
+        // lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(237, 238, 239), LV_STATE_DEFAULT);
         lv_obj_clear_flag(btn_back, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_move_background(btn_back);
         for (size_t i = 0; i < 4; i++) {
             lv_obj_clear_flag(obj_dev[i], LV_OBJ_FLAG_HIDDEN);
+            lv_obj_move_background(obj_dev[i]);
         }
+
+        /* The LED status might changed by voice command */
+        ui_dev_ctrl_update_state();
     } else {
         lv_obj_add_flag(btn_back, LV_OBJ_FLAG_HIDDEN);
         for (size_t i = 0; i < 4; i++) {
             lv_obj_add_flag(obj_dev[i], LV_OBJ_FLAG_HIDDEN);
         }
+    }
+}
+
+void ui_dev_ctrl_update_state(void)
+{
+    if (NULL != obj_dev[0]) {
+        lv_event_send(obj_dev[0], LV_EVENT_REFRESH, NULL);
     }
 }

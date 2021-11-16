@@ -102,6 +102,12 @@ void ui_dev_ctrl(bool show);
 void ui_led(bool show);
 
 /**
+ * @brief This will update LED button state
+ * 
+ */
+void ui_dev_ctrl_update_state(void);
+
+/**
  * @brief Show or hide network config page
  * 
  * @param show True if want to show this page. False to hide.
