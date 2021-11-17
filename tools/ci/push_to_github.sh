@@ -6,9 +6,9 @@ set -ex
 
 if [ -n "${CI_COMMIT_TAG}" ]; then
     # for tags
-    git push github "${CI_COMMIT_TAG}"
+    git push --force github "${CI_COMMIT_TAG}"
 else
     # for branches
-    git push github "${CI_COMMIT_SHA}:refs/heads/${CI_COMMIT_REF_NAME}"
+    git push github --force "${CI_COMMIT_SHA}:refs/heads/${CI_COMMIT_REF_NAME}"
 fi
 

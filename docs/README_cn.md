@@ -1,3 +1,0 @@
-
-* [English Version](../README.md)
-
