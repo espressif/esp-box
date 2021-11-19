@@ -1,0 +1,1492 @@
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+index a27f647175..1c78ffb402 100644
+--- a/.gitlab-ci.yml
++++ b/.gitlab-ci.yml
+@@ -14,6 +14,14 @@ workflow:
+     # Disable those non-protected push triggered pipelines
+     - if: '$CI_COMMIT_REF_NAME != "master" && $CI_COMMIT_BRANCH !~ /^release\/v/ && $CI_COMMIT_TAG !~ /^v\d+\.\d+(\.\d+)?($|-)/ && $CI_PIPELINE_SOURCE == "push"'
+       when: never
++    # when running merged result pipelines, it would create a temp commit id. use $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA instead of $CI_COMMIT_SHA.
++    # Please use PIPELINE_COMMIT_SHA at all places that require a commit sha
++    - if: $CI_OPEN_MERGE_REQUESTS != null
++      variables:
++        PIPELINE_COMMIT_SHA: $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
++    - if: $CI_OPEN_MERGE_REQUESTS == null
++      variables:
++        PIPELINE_COMMIT_SHA: $CI_COMMIT_SHA
+     - when: always
+ 
+ variables:
+diff --git a/.gitlab/ci/assign-test.yml b/.gitlab/ci/assign-test.yml
+index 9dd3bb58e6..c03e2cdadd 100644
+--- a/.gitlab/ci/assign-test.yml
++++ b/.gitlab/ci/assign-test.yml
+@@ -73,7 +73,7 @@ update_test_cases:
+     AUTO_TEST_SCRIPT_PATH: "${CI_PROJECT_DIR}/auto_test_script"
+     PYTHON_VER: 3.7.7
+   script:
+-    - export GIT_SHA=$(echo ${CI_COMMIT_SHA} | cut -c 1-8)
++    - export GIT_SHA=$(echo ${PIPELINE_COMMIT_SHA} | cut -c 1-8)
+     - retry_failed git clone $TEST_MANAGEMENT_REPO
+     - python $CHECKOUT_REF_SCRIPT test-management test-management
+     - cd test-management
+diff --git a/.gitlab/ci/build.yml b/.gitlab/ci/build.yml
+index 7a70c4aa5c..fbbbaf870b 100644
+--- a/.gitlab/ci/build.yml
++++ b/.gitlab/ci/build.yml
+@@ -362,7 +362,7 @@ build_docker:
+     - export LOCAL_CI_REPOSITORY_URL=$CI_REPOSITORY_URL
+     - if [ -n "$LOCAL_GITLAB_HTTPS_HOST" ]; then export LOCAL_CI_REPOSITORY_URL="https://gitlab-ci-token:${CI_JOB_TOKEN}@${LOCAL_GITLAB_HTTPS_HOST}/${CI_PROJECT_PATH}"; fi
+     - echo "Using repository at $LOCAL_CI_REPOSITORY_URL"
+-    - export DOCKER_BUILD_ARGS="--build-arg IDF_CLONE_URL=${LOCAL_CI_REPOSITORY_URL} --build-arg IDF_CLONE_BRANCH_OR_TAG=${CI_COMMIT_REF_NAME} --build-arg IDF_CHECKOUT_REF=${CI_COMMIT_TAG:-$CI_COMMIT_SHA}"
++    - export DOCKER_BUILD_ARGS="--build-arg IDF_CLONE_URL=${LOCAL_CI_REPOSITORY_URL} --build-arg IDF_CLONE_BRANCH_OR_TAG=${CI_COMMIT_REF_NAME} --build-arg IDF_CHECKOUT_REF=${CI_COMMIT_TAG:-$PIPELINE_COMMIT_SHA}"
+     # Build
+     - docker build --tag ${DOCKER_TMP_IMAGE_NAME} ${DOCKER_BUILD_ARGS} tools/docker/
+     # We can't mount $PWD/examples/get-started/blink into the container, see https://gitlab.com/gitlab-org/gitlab-ce/issues/41227.
+diff --git a/.gitlab/ci/deploy.yml b/.gitlab/ci/deploy.yml
+index fb3a3d37c0..1eb71d7f44 100644
+--- a/.gitlab/ci/deploy.yml
++++ b/.gitlab/ci/deploy.yml
+@@ -39,8 +39,8 @@ deploy_test_result:
+     AUTO_TEST_SCRIPT_PATH: "${CI_PROJECT_DIR}/auto_test_script"
+   script:
+     - add_gitlab_ssh_keys
+-    - export GIT_SHA=$(echo ${CI_COMMIT_SHA} | cut -c 1-8)
+-    - export REV_COUNT=$(git rev-list --count HEAD)
++    - export GIT_SHA=$(echo ${PIPELINE_COMMIT_SHA} | cut -c 1-8)
++    - export REV_COUNT=$(git rev-list --count ${PIPELINE_COMMIT_SHA} --)
+     - export SUMMARY="IDF CI test result for $GIT_SHA (r${REV_COUNT})"
+     # artifacts of job update_test_cases creates test-management folder
+     # we need to remove it so we can clone test-management folder again
+diff --git a/.gitlab/ci/docs.yml b/.gitlab/ci/docs.yml
+index e88b854c0c..4292c5f0df 100644
+--- a/.gitlab/ci/docs.yml
++++ b/.gitlab/ci/docs.yml
+@@ -162,7 +162,7 @@ build_docs_pdf:
+   dependencies: []
+   script:
+     - add_doc_server_ssh_keys $DOCS_DEPLOY_PRIVATEKEY $DOCS_DEPLOY_SERVER $DOCS_DEPLOY_SERVER_USER
+-    - export GIT_VER=$(git describe --always)
++    - export GIT_VER=$(git describe --always ${PIPELINE_COMMIT_SHA} --)
+     - pip install -r docs/requirements.txt
+     - deploy-docs
+ 
+diff --git a/.gitlab/ci/pre_check.yml b/.gitlab/ci/pre_check.yml
+index 22bac105c4..9cbbd30724 100644
+--- a/.gitlab/ci/pre_check.yml
++++ b/.gitlab/ci/pre_check.yml
+@@ -22,7 +22,7 @@ check_pre_commit_master_release:
+     - .check_pre_commit_template
+     - .rules:protected
+   script:
+-    - git diff-tree --no-commit-id --name-only -r $CI_COMMIT_SHA | xargs pre-commit run --files
++    - git diff-tree --no-commit-id --name-only -r $PIPELINE_COMMIT_SHA | xargs pre-commit run --files
+ 
+ check_pre_commit_MR:
+   extends:
+@@ -190,6 +190,6 @@ check_commit_msg:
+   extends: .pre_check_job_template
+   script:
+     - git status
+-    - git log -n10 --oneline
++    - git log -n10 --oneline ${PIPELINE_COMMIT_SHA}
+     # commit start with "WIP: " need to be squashed before merge
+-    - 'git log --pretty=%s master.. -- | grep "^WIP: " && exit 1 || exit 0'
++    - 'git log --pretty=%s origin/master..${PIPELINE_COMMIT_SHA} -- | grep -i "^WIP:" && exit 1 || exit 0'
+diff --git a/.gitlab/ci/static-code-analysis.yml b/.gitlab/ci/static-code-analysis.yml
+index cdcabfd758..31db4ae75b 100644
+--- a/.gitlab/ci/static-code-analysis.yml
++++ b/.gitlab/ci/static-code-analysis.yml
+@@ -123,7 +123,7 @@ code_quality_report:
+       -Dsonar.branch.name=$CI_COMMIT_REF_NAME
+       -Dsonar.cxx.clangtidy.reportPath=$REPORT_PATTERN
+       -Dsonar.exclusions=$EXCLUSIONS
+-      -Dsonar.gitlab.commit_sha=$CI_COMMIT_SHA
++      -Dsonar.gitlab.commit_sha=$PIPELINE_COMMIT_SHA
+       -Dsonar.gitlab.ref_name=$CI_COMMIT_REF_NAME
+       -Dsonar.host.url=$SONAR_HOST_URL
+       -Dsonar.login=$SONAR_LOGIN
+diff --git a/components/bt/controller/esp32/bt.c b/components/bt/controller/esp32/bt.c
+index 09cdee59f7..c6162ce7a7 100644
+--- a/components/bt/controller/esp32/bt.c
++++ b/components/bt/controller/esp32/bt.c
+@@ -1760,9 +1760,18 @@ esp_err_t esp_bt_controller_deinit(void)
+         esp_pm_lock_delete(s_light_sleep_pm_lock);
+         s_light_sleep_pm_lock = NULL;
+     }
+-    esp_timer_stop(s_btdm_slp_tmr);
+-    esp_timer_delete(s_btdm_slp_tmr);
+-    s_btdm_slp_tmr = NULL;
++
++    if (s_pm_lock != NULL) {
++        esp_pm_lock_delete(s_pm_lock);
++        s_pm_lock = NULL;
++    }
++
++    if (s_btdm_slp_tmr != NULL) {
++        esp_timer_stop(s_btdm_slp_tmr);
++        esp_timer_delete(s_btdm_slp_tmr);
++        s_btdm_slp_tmr = NULL;
++    }
++
+     s_pm_lock_acquired = false;
+ #endif
+     semphr_delete_wrapper(s_wakeup_req_sem);
+diff --git a/components/cxx/test/test_cxx.cpp b/components/cxx/test/test_cxx.cpp
+index 50ff3103ea..2de35e0dbb 100644
+--- a/components/cxx/test/test_cxx.cpp
++++ b/components/cxx/test/test_cxx.cpp
+@@ -62,7 +62,7 @@ TEST_CASE("can use std::vector", "[cxx]")
+ #elif CONFIG_IDF_TARGET_ESP32S2
+ #define LEAKS "800"
+ #elif CONFIG_IDF_TARGET_ESP32C3
+-#define LEAKS "600"
++#define LEAKS "700"
+ #else
+ #error "unknown target in CXX tests, can't set leaks threshold"
+ #endif
+diff --git a/components/driver/include/driver/mcpwm.h b/components/driver/include/driver/mcpwm.h
+index 2a4e825f77..fed2c3f326 100644
+--- a/components/driver/include/driver/mcpwm.h
++++ b/components/driver/include/driver/mcpwm.h
+@@ -174,7 +174,6 @@ typedef enum {
+ /**
+  * @brief Interrupt masks for MCPWM capture
+  */
+-__attribute__ ((deprecated("please use callback function to avoid directly accessing registers")))
+ typedef enum {
+     MCPWM_LL_INTR_CAP0 = BIT(27), ///< Capture 0 happened
+     MCPWM_LL_INTR_CAP1 = BIT(28), ///< Capture 1 happened
+@@ -922,7 +921,6 @@ esp_err_t mcpwm_sync_invert_gpio_synchro(mcpwm_unit_t mcpwm_num, mcpwm_sync_sign
+  *     - ESP_OK Success
+  *     - ESP_ERR_INVALID_ARG Function pointer error.
+  */
+-__attribute__((deprecated("interrupt events are handled by driver, please use callback")))
+ esp_err_t mcpwm_isr_register(mcpwm_unit_t mcpwm_num, void (*fn)(void *), void *arg, int intr_alloc_flags,
+                              intr_handle_t *handle);
+ 
+diff --git a/components/esp_system/Kconfig b/components/esp_system/Kconfig
+index 0af9e61851..12bc7901de 100644
+--- a/components/esp_system/Kconfig
++++ b/components/esp_system/Kconfig
+@@ -236,8 +236,31 @@ menu "ESP System Settings"
+             bool "None"
+     endchoice
+ 
+-    # Internal option, indicates that console UART is used (and not USB, for example)
++    choice ESP_CONSOLE_SECONDARY
++        depends on IDF_TARGET_ESP32S3 || IDF_TARGET_ESP32C3
++        prompt "Channel for console secondary output"
++        default ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
++        help
++            This secondary option supports output through other specific port like USB_SERIAL_JTAG
++            when UART0 port as a primary is selected but not connected. This secondary output currently only supports
++            non-blocking mode without using REPL. If you want to output in blocking mode with REPL or
++            input through this secondary port, please change the primary config to this port
++            in `Channel for console output` menu.
++        config ESP_CONSOLE_SECONDARY_NONE
++            bool "No secondary console"
++        config ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
++            bool "USB_SERIAL_JTAG PORT"
++            depends on !ESP_CONSOLE_USB_SERIAL_JTAG
++            help
++                This option supports output through USB_SERIAL_JTAG port when the UART0 port is not connected.
++                The output currently only supports non-blocking mode without using the console.
++                If you want to output in blocking mode with REPL or input through USB_SERIAL_JTAG port,
++                please change the primary config to ESP_CONSOLE_USB_SERIAL_JTAG above.
++    endchoice
++
++
+     config ESP_CONSOLE_UART
++        # Internal option, indicates that console UART is used (and not USB, for example)
+         bool
+         default y if ESP_CONSOLE_UART_DEFAULT || ESP_CONSOLE_UART_CUSTOM
+ 
+diff --git a/components/esp_system/startup.c b/components/esp_system/startup.c
+index 719afd108f..87a3527267 100644
+--- a/components/esp_system/startup.c
++++ b/components/esp_system/startup.c
+@@ -50,9 +50,7 @@
+ #include "esp_pm.h"
+ #include "esp_private/pm_impl.h"
+ #include "esp_pthread.h"
+-#include "esp_private/usb_console.h"
+-#include "esp_vfs_cdcacm.h"
+-#include "esp_vfs_usb_serial_jtag.h"
++#include "esp_vfs_console.h"
+ 
+ #include "brownout.h"
+ 
+@@ -83,9 +81,6 @@
+     #error "System has been configured to run on multiple cores, but target SoC only has a single core."
+ #endif
+ 
+-#define STRINGIFY(s) STRINGIFY2(s)
+-#define STRINGIFY2(s) #s
+-
+ uint64_t g_startup_time = 0;
+ 
+ #if SOC_APB_BACKUP_DMA
+@@ -241,7 +236,6 @@ static void do_core_init(void)
+        fail initializing it properly. */
+     heap_caps_init();
+     esp_newlib_init();
+-    esp_newlib_time_init();
+ 
+     if (g_spiram_ok) {
+ #if CONFIG_SPIRAM_BOOT_INIT && (CONFIG_SPIRAM_USE_CAPS_ALLOC || CONFIG_SPIRAM_USE_MALLOC)
+@@ -266,23 +260,20 @@ static void do_core_init(void)
+     esp_brownout_init();
+ #endif
+ 
+-#ifdef CONFIG_VFS_SUPPORT_IO
+-#ifdef CONFIG_ESP_CONSOLE_UART
+-    esp_vfs_dev_uart_register();
+-    const char *default_stdio_dev = "/dev/uart/" STRINGIFY(CONFIG_ESP_CONSOLE_UART_NUM);
+-#endif // CONFIG_ESP_CONSOLE_UART
+-#ifdef CONFIG_ESP_CONSOLE_USB_CDC
+-    ESP_ERROR_CHECK(esp_usb_console_init());
+-    ESP_ERROR_CHECK(esp_vfs_dev_cdcacm_register());
+-    const char *default_stdio_dev = "/dev/cdcacm";
+-#endif // CONFIG_ESP_CONSOLE_USB_CDC
+-#ifdef CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+-    ESP_ERROR_CHECK(esp_vfs_dev_usb_serial_jtag_register());
+-    const char *default_stdio_dev = "/dev/usbserjtag";
+-#endif // CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
+-#endif // CONFIG_VFS_SUPPORT_IO
++    // esp_timer early initialization is required for esp_timer_get_time to work.
++    // This needs to happen before VFS initialization, since some USB_SERIAL_JTAG VFS driver uses
++    // esp_timer_get_time to determine timeout conditions.
++    esp_timer_early_init();
++    esp_newlib_time_init();
++
++#if CONFIG_VFS_SUPPORT_IO
++    // VFS console register.
++    esp_err_t vfs_err = esp_vfs_console_register();
++    assert(vfs_err == ESP_OK && "Failed to register vfs console");
++#endif
+ 
+ #if defined(CONFIG_VFS_SUPPORT_IO) && !defined(CONFIG_ESP_CONSOLE_NONE)
++    const static char *default_stdio_dev = "/dev/console/";
+     esp_reent_init(_GLOBAL_REENT);
+     _GLOBAL_REENT->_stdin  = fopen(default_stdio_dev, "r");
+     _GLOBAL_REENT->_stdout = fopen(default_stdio_dev, "w");
+diff --git a/components/esp_timer/include/esp_timer.h b/components/esp_timer/include/esp_timer.h
+index 8c94298947..eb4c6d707a 100644
+--- a/components/esp_timer/include/esp_timer.h
++++ b/components/esp_timer/include/esp_timer.h
+@@ -1,16 +1,8 @@
+-// Copyright 2017 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2017-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #pragma once
+ 
+@@ -83,11 +75,28 @@ typedef struct {
+     bool skip_unhandled_events;     //!< Skip unhandled events for periodic timers
+ } esp_timer_create_args_t;
+ 
++
++/**
++ * @brief Minimal initialization of esp_timer
++ *
++ * @note This function is called from startup code. Applications do not need
++ * to call this function before using other esp_timer APIs.
++ *
++ * This function can be called very early in startup process, after this call
++ * only esp_timer_get_time function can be used.
++ *
++ * @return
++ *      - ESP_OK on success
++ */
++esp_err_t esp_timer_early_init(void);
++
+ /**
+  * @brief Initialize esp_timer library
+  *
+  * @note This function is called from startup code. Applications do not need
+  * to call this function before using other esp_timer APIs.
++ * Before calling this function, esp_timer_early_init must be called by the
++ * startup code.
+  *
+  * @return
+  *      - ESP_OK on success
+diff --git a/components/esp_timer/private_include/esp_timer_impl.h b/components/esp_timer/private_include/esp_timer_impl.h
+index 63daba0d9e..d59a13eb13 100644
+--- a/components/esp_timer/private_include/esp_timer_impl.h
++++ b/components/esp_timer/private_include/esp_timer_impl.h
+@@ -1,16 +1,8 @@
+-// Copyright 2017 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2017-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #pragma once
+ 
+@@ -28,9 +20,20 @@
+ #include "esp_err.h"
+ #include "esp_intr_alloc.h"
+ 
++/**
++ * @brief Minimal initialization of platform specific layer of esp_timer
++ * This function can be called very early in startup process, after this call
++ * only esp_timer_get_time function can be used.
++ * esp_timer_impl_init has to be called after this function to initialize the
++ * rest of esp_timer implementation.
++ * @return ESP_OK
++ */
++esp_err_t esp_timer_impl_early_init(void);
++
+ /**
+  * @brief Initialize platform specific layer of esp_timer
+  * @param alarm_handler function to call on timer interrupt
++ * Before calling this function, esp_timer_impl_early_init must be called.
+  * @return ESP_OK, ESP_ERR_NO_MEM, or one of the errors from interrupt allocator
+  */
+ esp_err_t esp_timer_impl_init(intr_handler_t alarm_handler);
+diff --git a/components/esp_timer/src/esp_timer.c b/components/esp_timer/src/esp_timer.c
+index ad185760f5..fbabcfda4a 100644
+--- a/components/esp_timer/src/esp_timer.c
++++ b/components/esp_timer/src/esp_timer.c
+@@ -1,16 +1,8 @@
+-// Copyright 2017 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2017-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #include <sys/param.h>
+ #include <string.h>
+@@ -428,6 +420,15 @@ static IRAM_ATTR inline bool is_initialized(void)
+     return s_timer_task != NULL;
+ }
+ 
++esp_err_t esp_timer_early_init(void)
++{
++    esp_timer_impl_early_init();
++#if CONFIG_ESP_TIME_FUNCS_USE_ESP_TIMER
++    esp_timer_impl_init_system_time();
++#endif
++    return ESP_OK;
++}
++
+ esp_err_t esp_timer_init(void)
+ {
+     esp_err_t err;
+@@ -447,10 +448,6 @@ esp_err_t esp_timer_init(void)
+         goto out;
+     }
+ 
+-#if CONFIG_ESP_TIME_FUNCS_USE_ESP_TIMER
+-    esp_timer_impl_init_system_time();
+-#endif
+-
+     return ESP_OK;
+ 
+ out:
+diff --git a/components/esp_timer/src/esp_timer_impl_lac.c b/components/esp_timer/src/esp_timer_impl_lac.c
+index aa414709e7..a9c93ef0fe 100644
+--- a/components/esp_timer/src/esp_timer_impl_lac.c
++++ b/components/esp_timer/src/esp_timer_impl_lac.c
+@@ -1,16 +1,8 @@
+-// Copyright 2020 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2017-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #include "sys/param.h"
+ #include "esp_timer_impl.h"
+@@ -146,9 +138,6 @@ uint64_t IRAM_ATTR esp_timer_impl_get_counter_reg(void)
+ 
+ int64_t IRAM_ATTR esp_timer_impl_get_time(void)
+ {
+-    if (s_alarm_handler == NULL) {
+-        return 0;
+-    }
+     return esp_timer_impl_get_counter_reg() / TICKS_PER_US;
+ }
+ 
+@@ -217,13 +206,10 @@ void esp_timer_impl_advance(int64_t time_diff_us)
+     portEXIT_CRITICAL(&s_time_update_lock);
+ }
+ 
+-esp_err_t esp_timer_impl_init(intr_handler_t alarm_handler)
++esp_err_t esp_timer_impl_early_init(void)
+ {
+-    s_alarm_handler = alarm_handler;
+-
+     periph_module_enable(PERIPH_LACT);
+ 
+-    /* Reset the state */
+     REG_WRITE(CONFIG_REG, 0);
+     REG_WRITE(LOAD_LO_REG, 0);
+     REG_WRITE(LOAD_HI_REG, 0);
+@@ -231,6 +217,17 @@ esp_err_t esp_timer_impl_init(intr_handler_t alarm_handler)
+     REG_WRITE(ALARM_HI_REG, UINT32_MAX);
+     REG_WRITE(LOAD_REG, 1);
+     REG_SET_BIT(INT_CLR_REG, TIMG_LACT_INT_CLR);
++    REG_SET_FIELD(CONFIG_REG, TIMG_LACT_DIVIDER, APB_CLK_FREQ / 1000000 / TICKS_PER_US);
++    REG_SET_BIT(CONFIG_REG, TIMG_LACT_INCREASE |
++        TIMG_LACT_LEVEL_INT_EN |
++        TIMG_LACT_EN);
++
++    return ESP_OK;
++}
++
++esp_err_t esp_timer_impl_init(intr_handler_t alarm_handler)
++{
++    s_alarm_handler = alarm_handler;
+ 
+     const int interrupt_lvl = (1 << CONFIG_ESP_TIMER_INTERRUPT_LEVEL) & ESP_INTR_FLAG_LEVELMASK;
+     esp_err_t err = esp_intr_alloc(INTR_SOURCE_LACT,
+@@ -250,10 +247,6 @@ esp_err_t esp_timer_impl_init(intr_handler_t alarm_handler)
+ 
+     esp_timer_impl_update_apb_freq(esp_clk_apb_freq() / 1000000);
+ 
+-    REG_SET_BIT(CONFIG_REG, TIMG_LACT_INCREASE |
+-        TIMG_LACT_LEVEL_INT_EN |
+-        TIMG_LACT_EN);
+-
+     // Set the step for the sleep mode when the timer will work
+     // from a slow_clk frequency instead of the APB frequency.
+     uint32_t slowclk_ticks_per_us = esp_clk_slowclk_cal_get() * TICKS_PER_US;
+diff --git a/components/esp_timer/src/esp_timer_impl_systimer.c b/components/esp_timer/src/esp_timer_impl_systimer.c
+index 28bdb07212..b279ab213d 100644
+--- a/components/esp_timer/src/esp_timer_impl_systimer.c
++++ b/components/esp_timer/src/esp_timer_impl_systimer.c
+@@ -1,16 +1,8 @@
+-// Copyright 2017-2020 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2017-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #include "sys/param.h"
+ #include "esp_timer_impl.h"
+@@ -72,9 +64,6 @@ uint64_t IRAM_ATTR esp_timer_impl_get_counter_reg(void)
+ 
+ int64_t IRAM_ATTR esp_timer_impl_get_time(void)
+ {
+-    if (unlikely(s_alarm_handler == NULL)) {
+-        return 0;
+-    }
+     return systimer_hal_get_counter_value(&systimer_hal, SYSTIMER_LL_COUNTER_CLOCK) / SYSTIMER_LL_TICKS_PER_US;
+ }
+ 
+@@ -119,6 +108,23 @@ void esp_timer_impl_advance(int64_t time_us)
+     portEXIT_CRITICAL_SAFE(&s_time_update_lock);
+ }
+ 
++esp_err_t esp_timer_impl_early_init(void)
++{
++    systimer_hal_init(&systimer_hal);
++
++#if !SOC_SYSTIMER_FIXED_TICKS_US
++    assert(rtc_clk_xtal_freq_get() == 40 && "update the step for xtal to support other XTAL:APB frequency ratios");
++    systimer_hal_set_steps_per_tick(&systimer_hal, 0, 2); // for xtal
++    systimer_hal_set_steps_per_tick(&systimer_hal, 1, 1); // for pll
++#endif
++
++    systimer_hal_enable_counter(&systimer_hal, SYSTIMER_LL_COUNTER_CLOCK);
++    systimer_hal_select_alarm_mode(&systimer_hal, SYSTIMER_LL_ALARM_CLOCK, SYSTIMER_ALARM_MODE_ONESHOT);
++    systimer_hal_connect_alarm_counter(&systimer_hal, SYSTIMER_LL_ALARM_CLOCK, SYSTIMER_LL_COUNTER_CLOCK);
++
++    return ESP_OK;
++}
++
+ esp_err_t esp_timer_impl_init(intr_handler_t alarm_handler)
+ {
+     s_alarm_handler = alarm_handler;
+@@ -137,16 +143,6 @@ esp_err_t esp_timer_impl_init(intr_handler_t alarm_handler)
+         goto err_intr_alloc;
+     }
+ 
+-    systimer_hal_init(&systimer_hal);
+-#if !SOC_SYSTIMER_FIXED_TICKS_US
+-    assert(rtc_clk_xtal_freq_get() == 40 && "update the step for xtal to support other XTAL:APB frequency ratios");
+-    systimer_hal_set_steps_per_tick(&systimer_hal, 0, 2); // for xtal
+-    systimer_hal_set_steps_per_tick(&systimer_hal, 1, 1); // for pll
+-#endif
+-    systimer_hal_enable_counter(&systimer_hal, SYSTIMER_LL_COUNTER_CLOCK);
+-    systimer_hal_select_alarm_mode(&systimer_hal, SYSTIMER_LL_ALARM_CLOCK, SYSTIMER_ALARM_MODE_ONESHOT);
+-    systimer_hal_connect_alarm_counter(&systimer_hal, SYSTIMER_LL_ALARM_CLOCK, SYSTIMER_LL_COUNTER_CLOCK);
+-
+     /* TODO: if SYSTIMER is used for anything else, access to SYSTIMER_INT_ENA_REG has to be
+     * protected by a shared spinlock. Since this code runs as part of early startup, this
+     * is practically not an issue.
+diff --git a/components/protocomm/src/transports/protocomm_nimble.c b/components/protocomm/src/transports/protocomm_nimble.c
+index dd3fc25965..6bac49df39 100644
+--- a/components/protocomm/src/transports/protocomm_nimble.c
++++ b/components/protocomm/src/transports/protocomm_nimble.c
+@@ -319,6 +319,12 @@ gatt_svr_chr_access(uint16_t conn_handle, uint16_t attr_handle,
+         return rc == 0 ? 0 : BLE_ATT_ERR_INSUFFICIENT_RES;
+ 
+     case BLE_GATT_ACCESS_OP_WRITE_CHR:
++        /* If empty packet is received, return */
++        if (ctxt->om->om_len == 0) {
++            ESP_LOGD(TAG,"Empty packet");
++            return 0;
++        }
++
+         uuid = (uint8_t *) calloc(BLE_UUID128_VAL_LENGTH, sizeof(uint8_t));
+         if (!uuid) {
+             ESP_LOGE(TAG, "Error allocating memory for 128 bit UUID");
+diff --git a/components/spi_flash/flash_ops.c b/components/spi_flash/flash_ops.c
+index 0ecb6866d3..d3b696c96a 100644
+--- a/components/spi_flash/flash_ops.c
++++ b/components/spi_flash/flash_ops.c
+@@ -51,6 +51,7 @@
+ #include "esp_flash.h"
+ #include "esp_attr.h"
+ #include "bootloader_flash.h"
++#include "esp_compiler.h"
+ 
+ esp_rom_spiflash_result_t IRAM_ATTR spi_flash_write_encrypted_chip(size_t dest_addr, const void *src, size_t size);
+ 
+@@ -254,7 +255,9 @@ static inline void IRAM_ATTR spi_flash_guard_op_unlock(void)
+ static void IRAM_ATTR spi_flash_os_yield(void)
+ {
+ #ifdef CONFIG_SPI_FLASH_YIELD_DURING_ERASE
+-    vTaskDelay(CONFIG_SPI_FLASH_ERASE_YIELD_TICKS);
++    if (likely(xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)) {
++        vTaskDelay(CONFIG_SPI_FLASH_ERASE_YIELD_TICKS);
++    }
+ #endif
+ }
+ 
+diff --git a/components/spi_flash/spi_flash_os_func_app.c b/components/spi_flash/spi_flash_os_func_app.c
+index c38f405acd..97033d1ab9 100644
+--- a/components/spi_flash/spi_flash_os_func_app.c
++++ b/components/spi_flash/spi_flash_os_func_app.c
+@@ -1,16 +1,8 @@
+-// Copyright 2015-2019 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #include <stdarg.h>
+ #include <sys/param.h>  //For max/min
+@@ -24,7 +16,7 @@
+ #include "hal/spi_types.h"
+ #include "sdkconfig.h"
+ #include "esp_log.h"
+-
++#include "esp_compiler.h"
+ #include "esp_rom_sys.h"
+ 
+ #include "driver/spi_common_internal.h"
+@@ -140,11 +132,13 @@ static IRAM_ATTR esp_err_t spi1_flash_os_check_yield(void *arg, uint32_t chip_st
+ 
+ static IRAM_ATTR esp_err_t spi1_flash_os_yield(void *arg, uint32_t* out_status)
+ {
++    if (likely(xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)) {
+ #ifdef CONFIG_SPI_FLASH_ERASE_YIELD_TICKS
+-    vTaskDelay(CONFIG_SPI_FLASH_ERASE_YIELD_TICKS);
++        vTaskDelay(CONFIG_SPI_FLASH_ERASE_YIELD_TICKS);
+ #else
+-    vTaskDelay(1);
++        vTaskDelay(1);
+ #endif
++    }
+     on_spi1_yielded((spi1_app_func_arg_t*)arg);
+     return ESP_OK;
+ }
+diff --git a/components/vfs/CMakeLists.txt b/components/vfs/CMakeLists.txt
+index d49ebcf8ac..72d5689d9f 100644
+--- a/components/vfs/CMakeLists.txt
++++ b/components/vfs/CMakeLists.txt
+@@ -2,14 +2,16 @@ idf_component_register(SRCS "vfs.c"
+                             "vfs_eventfd.c"
+                             "vfs_uart.c"
+                             "vfs_semihost.c"
++                            "vfs_console.c"
+                     INCLUDE_DIRS include
++                    PRIV_INCLUDE_DIRS private_include
+                     PRIV_REQUIRES driver)
+ 
+ if(CONFIG_ESP_CONSOLE_USB_CDC)
+     target_sources(${COMPONENT_LIB} PRIVATE "vfs_cdcacm.c")
+ endif()
+ 
+-if(CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG)
++if(CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG OR CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG)
+     target_sources(${COMPONENT_LIB} PRIVATE "vfs_usb_serial_jtag.c")
+ endif()
+ 
+diff --git a/components/vfs/component.mk b/components/vfs/component.mk
+index e880793520..d9adffb06c 100644
+--- a/components/vfs/component.mk
++++ b/components/vfs/component.mk
+@@ -1,3 +1,4 @@
++COMPONENT_PRIV_INCLUDEDIRS := private_include
+ ifndef CONFIG_ESP_CONSOLE_USB_CDC
+     COMPONENT_OBJEXCLUDE := vfs_cdcacm.o
+ endif
+diff --git a/components/vfs/include/esp_vfs.h b/components/vfs/include/esp_vfs.h
+index 7ba6364530..2bc8c77fd2 100644
+--- a/components/vfs/include/esp_vfs.h
++++ b/components/vfs/include/esp_vfs.h
+@@ -254,7 +254,6 @@ typedef struct
+ #endif // CONFIG_VFS_SUPPORT_SELECT
+ } esp_vfs_t;
+ 
+-
+ /**
+  * Register a virtual filesystem for given path prefix.
+  *
+diff --git a/components/vfs/include/esp_vfs_cdcacm.h b/components/vfs/include/esp_vfs_cdcacm.h
+index b8dd03d92a..416efb35a4 100644
+--- a/components/vfs/include/esp_vfs_cdcacm.h
++++ b/components/vfs/include/esp_vfs_cdcacm.h
+@@ -1,16 +1,8 @@
+-// Copyright 2015-2017 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #pragma once
+ 
+diff --git a/components/vfs/include/esp_vfs_console.h b/components/vfs/include/esp_vfs_console.h
+new file mode 100644
+index 0000000000..bc5ce6733d
+--- /dev/null
++++ b/components/vfs/include/esp_vfs_console.h
+@@ -0,0 +1,24 @@
++/*
++ * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
++
++#pragma once
++
++#include "esp_err.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++/**
++ * @brief add uart/usb_serial_jtag/usb_otg_acmcdc virtual filesystem driver
++ *
++ * This function is called from startup code to enable serial output
++ */
++esp_err_t esp_vfs_console_register(void);
++
++#ifdef __cplusplus
++}
++#endif
+diff --git a/components/vfs/include/esp_vfs_dev.h b/components/vfs/include/esp_vfs_dev.h
+index dc33fe746d..91e9374972 100644
+--- a/components/vfs/include/esp_vfs_dev.h
++++ b/components/vfs/include/esp_vfs_dev.h
+@@ -1,16 +1,8 @@
+-// Copyright 2015-2017 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #pragma once
+ 
+diff --git a/components/vfs/include/esp_vfs_usb_serial_jtag.h b/components/vfs/include/esp_vfs_usb_serial_jtag.h
+index 54ff1f4e44..c53a671be8 100644
+--- a/components/vfs/include/esp_vfs_usb_serial_jtag.h
++++ b/components/vfs/include/esp_vfs_usb_serial_jtag.h
+@@ -1,16 +1,8 @@
+-// Copyright 2021 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #pragma once
+ 
+diff --git a/components/vfs/private_include/esp_vfs_private.h b/components/vfs/private_include/esp_vfs_private.h
+new file mode 100644
+index 0000000000..7a3f9e1e65
+--- /dev/null
++++ b/components/vfs/private_include/esp_vfs_private.h
+@@ -0,0 +1,101 @@
++/*
++ * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
++
++#include "esp_vfs.h"
++#include "esp_vfs_common.h"
++
++#ifdef __cplusplus
++extern "C" {
++#endif
++
++typedef struct vfs_entry_ {
++    esp_vfs_t vfs;          // contains pointers to VFS functions
++    char path_prefix[ESP_VFS_PATH_MAX]; // path prefix mapped to this VFS
++    size_t path_prefix_len; // micro-optimization to avoid doing extra strlen
++    void* ctx;              // optional pointer which can be passed to VFS
++    int offset;             // index of this structure in s_vfs array
++} vfs_entry_t;
++
++
++/**
++ * @brief get pointer of uart vfs.
++ *
++ * This function is called in vfs_console in order to get the vfs implementation
++ * of uart.
++ *
++ * @return pointer to structure esp_vfs_t
++ */
++const esp_vfs_t *esp_vfs_uart_get_vfs(void);
++
++/**
++ * @brief get pointer of cdcacm vfs.
++ *
++ * This function is called in vfs_console in order to get the vfs implementation
++ * of cdcacm.
++ *
++ * @return pointer to structure esp_vfs_t
++ */
++const esp_vfs_t *esp_vfs_cdcacm_get_vfs(void);
++
++/**
++ * @brief get pointer of usb_serial_jtag vfs.
++ *
++ * This function is called in vfs_console in order to get the vfs implementation
++ * of usb_serial_jtag.
++ *
++ * @return pointer to structure esp_vfs_nonblocking_console_t
++ */
++const esp_vfs_t *esp_vfs_usb_serial_jtag_get_vfs(void);
++
++/**
++ * Register a virtual filesystem.
++ *
++ * @param base_path  file path prefix associated with the filesystem.
++ *                   Must be a zero-terminated C string, may be empty.
++ *                   If not empty, must be up to ESP_VFS_PATH_MAX
++ *                   characters long, and at least 2 characters long.
++ *                   Name must start with a "/" and must not end with "/".
++ *                   For example, "/data" or "/dev/spi" are valid.
++ *                   These VFSes would then be called to handle file paths such as
++ *                   "/data/myfile.txt" or "/dev/spi/0".
++ *                   In the special case of an empty base_path, a "fallback"
++ *                   VFS is registered. Such VFS will handle paths which are not
++ *                   matched by any other registered VFS.
++ * @param len  Length of the base_path.
++ * @param vfs  Pointer to esp_vfs_t, a structure which maps syscalls to
++ *             the filesystem driver functions. VFS component doesn't
++ *             assume ownership of this pointer.
++ * @param ctx  If vfs->flags has ESP_VFS_FLAG_CONTEXT_PTR set, a pointer
++ *             which should be passed to VFS functions. Otherwise, NULL.
++ * @param vfs_index Index for getting the vfs content.
++ *
++ * @return  ESP_OK if successful.
++ *          ESP_ERR_NO_MEM if too many VFSes are registered.
++ *          ESP_ERR_INVALID_ARG if given an invalid parameter.
++ */
++esp_err_t esp_vfs_register_common(const char *base_path, size_t len, const esp_vfs_t* vfs, void* ctx, int *vfs_index);
++
++/**
++ * Get vfs fd with given path.
++ *
++ * @param path file path prefix associated with the filesystem.
++ *
++ * @return Pointer to the `vfs_entry_t` corresponding to the given path, which cannot be NULL.
++ */
++const vfs_entry_t *get_vfs_for_path(const char *path);
++
++/**
++ * Get vfs fd with given vfs index.
++ *
++ * @param index VFS index.
++ *
++ * @return Pointer to the `vfs_entry_t` corresponding to the given path, which cannot be NULL.
++ */
++const vfs_entry_t *get_vfs_for_index(int index);
++
++#ifdef __cplusplus
++}
++#endif
+diff --git a/components/vfs/vfs.c b/components/vfs/vfs.c
+index dc1f3af099..9fb4c592ee 100644
+--- a/components/vfs/vfs.c
++++ b/components/vfs/vfs.c
+@@ -26,6 +26,7 @@
+ #include "freertos/FreeRTOS.h"
+ #include "freertos/semphr.h"
+ #include "esp_vfs.h"
++#include "esp_vfs_private.h"
+ #include "sdkconfig.h"
+ 
+ #ifdef CONFIG_VFS_SUPPRESS_SELECT_DEBUG_OUTPUT
+@@ -55,14 +56,6 @@ typedef struct {
+     local_fd_t local_fd;
+ } fd_table_t;
+ 
+-typedef struct vfs_entry_ {
+-    esp_vfs_t vfs;          // contains pointers to VFS functions
+-    char path_prefix[ESP_VFS_PATH_MAX]; // path prefix mapped to this VFS
+-    size_t path_prefix_len; // micro-optimization to avoid doing extra strlen
+-    void* ctx;              // optional pointer which can be passed to VFS
+-    int offset;             // index of this structure in s_vfs array
+-} vfs_entry_t;
+-
+ typedef struct {
+     bool isset; // none or at least one bit is set in the following 3 fd sets
+     fd_set readfds;
+@@ -76,7 +69,7 @@ static size_t s_vfs_count = 0;
+ static fd_table_t s_fd_table[MAX_FDS] = { [0 ... MAX_FDS-1] = FD_TABLE_ENTRY_UNUSED };
+ static _lock_t s_fd_table_lock;
+ 
+-static esp_err_t esp_vfs_register_common(const char* base_path, size_t len, const esp_vfs_t* vfs, void* ctx, int *vfs_index)
++esp_err_t esp_vfs_register_common(const char* base_path, size_t len, const esp_vfs_t* vfs, void* ctx, int *vfs_index)
+ {
+     if (len != LEN_PATH_PREFIX_IGNORED) {
+         /* empty prefix is allowed, "/" is not allowed */
+@@ -271,7 +264,7 @@ esp_err_t esp_vfs_unregister_fd(esp_vfs_id_t vfs_id, int fd)
+     return ret;
+ }
+ 
+-static inline const vfs_entry_t *get_vfs_for_index(int index)
++const vfs_entry_t *get_vfs_for_index(int index)
+ {
+     if (index < 0 || index >= s_vfs_count) {
+         return NULL;
+@@ -316,7 +309,7 @@ static const char* translate_path(const vfs_entry_t* vfs, const char* src_path)
+     return src_path + vfs->path_prefix_len;
+ }
+ 
+-static const vfs_entry_t* get_vfs_for_path(const char* path)
++const vfs_entry_t* get_vfs_for_path(const char* path)
+ {
+     const vfs_entry_t* best_match = NULL;
+     ssize_t best_match_prefix_len = -1;
+diff --git a/components/vfs/vfs_cdcacm.c b/components/vfs/vfs_cdcacm.c
+index cd14d212dd..fb590a445d 100644
+--- a/components/vfs/vfs_cdcacm.c
++++ b/components/vfs/vfs_cdcacm.c
+@@ -1,16 +1,8 @@
+-// Copyright 2015-2020 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #include <string.h>
+ #include <stdbool.h>
+@@ -309,17 +301,23 @@ void esp_vfs_dev_cdcacm_set_rx_line_endings(esp_line_endings_t mode)
+     s_rx_mode = mode;
+ }
+ 
++static const esp_vfs_t vfs = {
++    .flags = ESP_VFS_FLAG_DEFAULT,
++    .write = &cdcacm_write,
++    .open = &cdcacm_open,
++    .fstat = &cdcacm_fstat,
++    .close = &cdcacm_close,
++    .read = &cdcacm_read,
++    .fcntl = &cdcacm_fcntl,
++    .fsync = &cdcacm_fsync
++};
++
++const esp_vfs_t *esp_vfs_cdcacm_get_vfs(void)
++{
++    return &vfs;
++}
++
+ esp_err_t esp_vfs_dev_cdcacm_register(void)
+ {
+-    const esp_vfs_t vfs = {
+-        .flags = ESP_VFS_FLAG_DEFAULT,
+-        .write = &cdcacm_write,
+-        .open = &cdcacm_open,
+-        .fstat = &cdcacm_fstat,
+-        .close = &cdcacm_close,
+-        .read = &cdcacm_read,
+-        .fcntl = &cdcacm_fcntl,
+-        .fsync = &cdcacm_fsync
+-    };
+     return esp_vfs_register("/dev/cdcacm", &vfs, NULL);
+ }
+diff --git a/components/vfs/vfs_console.c b/components/vfs/vfs_console.c
+new file mode 100644
+index 0000000000..be10600b87
+--- /dev/null
++++ b/components/vfs/vfs_console.c
+@@ -0,0 +1,218 @@
++/*
++ * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
++
++#include "esp_vfs_console.h"
++#include "esp_rom_sys.h"
++#include "esp_vfs_cdcacm.h"
++#include "esp_vfs_private.h"
++#include "esp_vfs_usb_serial_jtag.h"
++#include "esp_vfs_dev.h"
++#include "esp_private/usb_console.h"
++#include "sdkconfig.h"
++
++#define STRINGIFY(s) STRINGIFY2(s)
++#define STRINGIFY2(s) #s
++
++/**
++ * This file is to concentrate all the vfs(UART, USB_SERIAL_JTAG, CDCACM) console into one single file.
++ * Get the vfs information from their component (i.e. vfs_uart.c) through `esp_vfs_usb_xxx_get_console()`,
++ * which can help us to output some string to two different ports(i.e both through uart and usb_serial_jtag).
++ * Usually, we set a port as primary and another as secondary. For primary, it is used for all the features supported by each vfs implementation,
++ * while the secondary is only used for output.
++ */
++
++typedef struct {
++    int fd_primary;
++    int fd_secondary;
++} vfs_console_context_t;
++
++#if CONFIG_VFS_SUPPORT_IO
++// Primary register part.
++#ifdef CONFIG_ESP_CONSOLE_UART
++const static char *primary_path = "/dev/uart";
++#elif CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
++const static char *primary_path = "/dev/usbserjtag";
++#elif CONFIG_ESP_CONSOLE_USB_CDC
++const static char *primary_path = "/dev/cdcacm";
++#endif
++
++// Secondary register part.
++#if CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
++const static char *secondary_path = "/dev/secondary";
++static int secondary_vfs_index;
++#endif // Secondary part
++
++static int primary_vfs_index;
++
++static vfs_console_context_t vfs_console= {0};
++
++int console_open(const char * path, int flags, int mode)
++{
++// Primary port open
++#if CONFIG_ESP_CONSOLE_UART
++    vfs_console.fd_primary = get_vfs_for_path(primary_path)->vfs.open("/"STRINGIFY(CONFIG_ESP_CONSOLE_UART_NUM), flags, mode);
++#elif CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
++    vfs_console.fd_primary = esp_vfs_usb_serial_jtag_get_vfs()->open("/", flags, mode);
++#elif CONFIG_ESP_CONSOLE_USB_CDC
++    vfs_console.fd_primary = esp_vfs_cdcacm_get_vfs()->open("/", flags, mode);
++#endif
++
++// Secondary port open
++#if CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
++    vfs_console.fd_secondary = get_vfs_for_path(secondary_path)->vfs.open("/", flags, mode);
++#endif
++    return 0;
++}
++
++ssize_t console_write(int fd, const void *data, size_t size)
++{
++    // All function calls are to primary, except from write and close, which will be forwarded to both primary and secondary.
++    get_vfs_for_index(primary_vfs_index)->vfs.write(vfs_console.fd_primary, data, size);
++#if CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
++    get_vfs_for_index(secondary_vfs_index)->vfs.write(vfs_console.fd_secondary, data, size);
++#endif
++    return size;
++}
++
++int console_fstat(int fd, struct stat * st)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.fstat(fd, st);
++}
++
++int console_close(int fd)
++{
++    // All function calls are to primary, except from write and close, which will be forwarded to both primary and secondary.
++    get_vfs_for_index(primary_vfs_index)->vfs.close(vfs_console.fd_primary);
++#if CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
++    get_vfs_for_index(secondary_vfs_index)->vfs.close(vfs_console.fd_secondary);
++#endif
++    return 0;
++}
++
++ssize_t console_read(int fd, void * dst, size_t size)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.read(vfs_console.fd_primary, dst, size);
++}
++
++int console_fcntl(int fd, int cmd, int arg)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.fcntl(vfs_console.fd_primary, cmd, arg);
++}
++
++int console_fsync(int fd)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.fsync(vfs_console.fd_primary);
++}
++
++#ifdef CONFIG_VFS_SUPPORT_DIR
++int console_access(const char *path, int amode)
++{
++    // currently only UART support DIR.
++    return get_vfs_for_index(primary_vfs_index)->vfs.access("/"STRINGIFY(CONFIG_ESP_CONSOLE_UART_NUM), amode);
++}
++#endif // CONFIG_VFS_SUPPORT_DIR
++
++#ifdef CONFIG_VFS_SUPPORT_SELECT
++static esp_err_t console_start_select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
++        esp_vfs_select_sem_t select_sem, void **end_select_args)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.start_select(nfds, readfds, writefds, exceptfds, select_sem, end_select_args);
++}
++
++esp_err_t console_end_select(void *end_select_args)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.end_select(end_select_args);
++}
++
++#endif // CONFIG_VFS_SUPPORT_SELECT
++
++#ifdef CONFIG_VFS_SUPPORT_TERMIOS
++
++int console_tcsetattr(int fd, int optional_actions, const struct termios *p)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.tcsetattr(vfs_console.fd_primary, optional_actions, p);
++}
++
++int console_tcgetattr(int fd, struct termios *p)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.tcgetattr(vfs_console.fd_primary, p);
++}
++
++int console_tcdrain(int fd)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.tcdrain(vfs_console.fd_primary);
++}
++
++int console_tcflush(int fd, int select)
++{
++    return get_vfs_for_index(primary_vfs_index)->vfs.tcflush(vfs_console.fd_primary, select);
++}
++#endif // CONFIG_VFS_SUPPORT_TERMIOS
++
++static const esp_vfs_t vfs = {
++    .flags = ESP_VFS_FLAG_DEFAULT,
++    .write = &console_write,
++    .open = &console_open,
++    .fstat = &console_fstat,
++    .close = &console_close,
++    .read = &console_read,
++    .fcntl = &console_fcntl,
++    .fsync = &console_fsync,
++#ifdef CONFIG_VFS_SUPPORT_DIR
++    .access = &console_access,
++#endif // CONFIG_VFS_SUPPORT_DIR
++#ifdef CONFIG_VFS_SUPPORT_SELECT
++    .start_select = &console_start_select,
++    .end_select = &console_end_select,
++#endif // CONFIG_VFS_SUPPORT_SELECT
++#ifdef CONFIG_VFS_SUPPORT_TERMIOS
++    .tcsetattr = &console_tcsetattr,
++    .tcgetattr = &console_tcgetattr,
++    .tcdrain = &console_tcdrain,
++    .tcflush = &console_tcflush,
++#endif // CONFIG_VFS_SUPPORT_TERMIOS
++};
++
++esp_err_t esp_vfs_dev_console_register(void)
++{
++    return esp_vfs_register("/dev/console", &vfs, NULL);
++}
++
++esp_err_t esp_vfs_console_register(void)
++{
++    esp_err_t err = ESP_OK;
++// Primary register part.
++#ifdef CONFIG_ESP_CONSOLE_UART
++    const esp_vfs_t *uart_vfs = esp_vfs_uart_get_vfs();
++    err = esp_vfs_register_common(primary_path, strlen(primary_path), uart_vfs, NULL, &primary_vfs_index);
++#elif CONFIG_ESP_CONSOLE_USB_CDC
++    const esp_vfs_t *cdcacm_vfs = esp_vfs_cdcacm_get_vfs();
++    err = esp_usb_console_init();
++    if (err != ESP_OK) {
++        return err;
++    }
++    err = esp_vfs_register_common(primary_path, strlen(primary_path), cdcacm_vfs, NULL, &primary_vfs_index);
++#elif CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
++    const esp_vfs_t *usb_serial_jtag_vfs = esp_vfs_usb_serial_jtag_get_vfs();
++    err = esp_vfs_register_common(primary_path, strlen(primary_path), usb_serial_jtag_vfs, NULL, &primary_vfs_index);
++#endif // CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG
++    if (err != ESP_OK) {
++        return err;
++    }
++
++// Secondary register part.
++#if CONFIG_ESP_CONSOLE_SECONDARY_USB_SERIAL_JTAG
++    const esp_vfs_t *usb_serial_jtag_vfs = esp_vfs_usb_serial_jtag_get_vfs();
++    err = esp_vfs_register_common(secondary_path, strlen(secondary_path), usb_serial_jtag_vfs, NULL, &secondary_vfs_index);
++    if(err != ESP_OK) {
++        return err;
++    }
++#endif
++    err = esp_vfs_dev_console_register();
++    return err;
++}
++
++#endif // CONFIG_VFS_SUPPORT_IO
+diff --git a/components/vfs/vfs_uart.c b/components/vfs/vfs_uart.c
+index 714e9fc61a..1f3e0df683 100644
+--- a/components/vfs/vfs_uart.c
++++ b/components/vfs/vfs_uart.c
+@@ -1,16 +1,8 @@
+-// Copyright 2015-2017 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ #include <string.h>
+ #include <stdbool.h>
+@@ -969,31 +961,37 @@ static int uart_tcflush(int fd, int select)
+ }
+ #endif // CONFIG_VFS_SUPPORT_TERMIOS
+ 
+-void esp_vfs_dev_uart_register(void)
+-{
+-    esp_vfs_t vfs = {
+-        .flags = ESP_VFS_FLAG_DEFAULT,
+-        .write = &uart_write,
+-        .open = &uart_open,
+-        .fstat = &uart_fstat,
+-        .close = &uart_close,
+-        .read = &uart_read,
+-        .fcntl = &uart_fcntl,
+-        .fsync = &uart_fsync,
++static const esp_vfs_t vfs = {
++    .flags = ESP_VFS_FLAG_DEFAULT,
++    .write = &uart_write,
++    .open = &uart_open,
++    .fstat = &uart_fstat,
++    .close = &uart_close,
++    .read = &uart_read,
++    .fcntl = &uart_fcntl,
++    .fsync = &uart_fsync,
+ #ifdef CONFIG_VFS_SUPPORT_DIR
+-        .access = &uart_access,
++    .access = &uart_access,
+ #endif // CONFIG_VFS_SUPPORT_DIR
+ #ifdef CONFIG_VFS_SUPPORT_SELECT
+-        .start_select = &uart_start_select,
+-        .end_select = &uart_end_select,
++    .start_select = &uart_start_select,
++    .end_select = &uart_end_select,
+ #endif // CONFIG_VFS_SUPPORT_SELECT
+ #ifdef CONFIG_VFS_SUPPORT_TERMIOS
+-        .tcsetattr = &uart_tcsetattr,
+-        .tcgetattr = &uart_tcgetattr,
+-        .tcdrain = &uart_tcdrain,
+-        .tcflush = &uart_tcflush,
++    .tcsetattr = &uart_tcsetattr,
++    .tcgetattr = &uart_tcgetattr,
++    .tcdrain = &uart_tcdrain,
++    .tcflush = &uart_tcflush,
+ #endif // CONFIG_VFS_SUPPORT_TERMIOS
+-    };
++};
++
++const esp_vfs_t* esp_vfs_uart_get_vfs(void)
++{
++    return &vfs;
++}
++
++void esp_vfs_dev_uart_register(void)
++{
+     ESP_ERROR_CHECK(esp_vfs_register("/dev/uart", &vfs, NULL));
+ }
+ 
+diff --git a/components/vfs/vfs_usb_serial_jtag.c b/components/vfs/vfs_usb_serial_jtag.c
+index ae1b4f599b..20bb4dd4db 100644
+--- a/components/vfs/vfs_usb_serial_jtag.c
++++ b/components/vfs/vfs_usb_serial_jtag.c
+@@ -1,16 +1,8 @@
+-// Copyright 2015-2017 Espressif Systems (Shanghai) PTE LTD
+-//
+-// Licensed under the Apache License, Version 2.0 (the "License");
+-// you may not use this file except in compliance with the License.
+-// You may obtain a copy of the License at
+-//
+-//     http://www.apache.org/licenses/LICENSE-2.0
+-//
+-// Unless required by applicable law or agreed to in writing, software
+-// distributed under the License is distributed on an "AS IS" BASIS,
+-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-// See the License for the specific language governing permissions and
+-// limitations under the License.
++/*
++ * SPDX-FileCopyrightText: 2015-2021 Espressif Systems (Shanghai) CO LTD
++ *
++ * SPDX-License-Identifier: Apache-2.0
++ */
+ 
+ //This is a simple non-blocking (well, tx may spin for a bit if the buffer
+ //is full) USB-serial-jtag driver. Select etc is not supported yet.
+@@ -113,23 +105,21 @@ static int usb_serial_jtag_open(const char * path, int flags, int mode)
+ static void usb_serial_jtag_tx_char(int fd, int c)
+ {
+     uint8_t cc=(uint8_t)c;
+-    if (usb_serial_jtag_ll_txfifo_writable()) {
+-        //We can write to the buffer. Immediately do so.
+-        usb_serial_jtag_ll_write_txfifo(&cc, 1);
+-        s_ctx.last_tx_ts = esp_timer_get_time();
+-    } else {
+-        //Try to write to the buffer as long as we still expect the buffer to have
+-        //a chance of being emptied by an active host. Just drop the data if there's
+-        //no chance anymore.
+-        while ((esp_timer_get_time() - s_ctx.last_tx_ts) < TX_FLUSH_TIMEOUT_US) {
+-            if (usb_serial_jtag_ll_txfifo_writable()) {
+-                //Woohoo, we can write again. Do so and exit the while loop.
+-                usb_serial_jtag_ll_write_txfifo(&cc, 1);
+-                s_ctx.last_tx_ts = esp_timer_get_time();
+-                break;
+-            }
++    // Try to write to the buffer as long as we still expect the buffer to have
++    // a chance of being emptied by an active host. Just drop the data if there's
++    // no chance anymore.
++    // When we first try to send a character and the buffer is not accessible yet,
++    // we wait until the time has been more than TX_FLUSH_TIMEOUT_US since we successfully
++    // sent the last byte. If it takes longer than TX_FLUSH_TIMEOUT_US, we drop every
++    // byte until the buffer can be accessible again.
++    do {
++        if (usb_serial_jtag_ll_txfifo_writable()) {
++            usb_serial_jtag_ll_write_txfifo(&cc, 1);
++            s_ctx.last_tx_ts = esp_timer_get_time();
++            break;
+         }
+-    }
++    } while ((esp_timer_get_time() - s_ctx.last_tx_ts) < TX_FLUSH_TIMEOUT_US);
++
+ }
+ 
+ static int usb_serial_jtag_rx_char(int fd)
+@@ -364,25 +354,30 @@ void esp_vfs_dev_usb_serial_jtag_set_rx_line_endings(esp_line_endings_t mode)
+     s_ctx.rx_mode = mode;
+ }
+ 
++static const esp_vfs_t vfs = {
++    .flags = ESP_VFS_FLAG_DEFAULT,
++    .write = &usb_serial_jtag_write,
++    .open = &usb_serial_jtag_open,
++    .fstat = &usb_serial_jtag_fstat,
++    .close = &usb_serial_jtag_close,
++    .read = &usb_serial_jtag_read,
++    .fcntl = &usb_serial_jtag_fcntl,
++    .fsync = &usb_serial_jtag_fsync,
++#ifdef CONFIG_VFS_SUPPORT_TERMIOS
++    .tcsetattr = &usb_serial_jtag_tcsetattr,
++    .tcgetattr = &usb_serial_jtag_tcgetattr,
++    .tcdrain = &usb_serial_jtag_tcdrain,
++    .tcflush = &usb_serial_jtag_tcflush,
++#endif // CONFIG_VFS_SUPPORT_TERMIOS
++};
++
++const esp_vfs_t* esp_vfs_usb_serial_jtag_get_vfs(void)
++{
++    return &vfs;
++}
+ 
+ esp_err_t esp_vfs_dev_usb_serial_jtag_register(void)
+ {
+-    esp_vfs_t vfs = {
+-        .flags = ESP_VFS_FLAG_DEFAULT,
+-        .write = &usb_serial_jtag_write,
+-        .open = &usb_serial_jtag_open,
+-        .fstat = &usb_serial_jtag_fstat,
+-        .close = &usb_serial_jtag_close,
+-        .read = &usb_serial_jtag_read,
+-        .fcntl = &usb_serial_jtag_fcntl,
+-        .fsync = &usb_serial_jtag_fsync,
+-#ifdef CONFIG_VFS_SUPPORT_TERMIOS
+-        .tcsetattr = &usb_serial_jtag_tcsetattr,
+-        .tcgetattr = &usb_serial_jtag_tcgetattr,
+-        .tcdrain = &usb_serial_jtag_tcdrain,
+-        .tcflush = &usb_serial_jtag_tcflush,
+-#endif // CONFIG_VFS_SUPPORT_TERMIOS
+-    };
+     // "/dev/usb_serial_jtag" unfortunately is too long for vfs
+     return esp_vfs_register("/dev/usbserjtag", &vfs, NULL);
+ }
+diff --git a/export.ps1 b/export.ps1
+index 2daa7575aa..ce92c15108 100644
+--- a/export.ps1
++++ b/export.ps1
+@@ -12,7 +12,7 @@ $OLD_PATH = $env:PATH.split($S) | Select-Object -Unique # array without duplicat
+ $envars_raw = python $IDF_PATH/tools/idf_tools.py export --format key-value
+ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } # if error
+ 
+-$envars_array # will be filled like:
++$envars_array = @() # will be filled like:
+ #               [
+ #                    [vname1, vval1], [vname2, vval2], ...
+ #               ]
+@@ -23,6 +23,12 @@ foreach ($line  in $envars_raw) {
+     $envars_array += (, ($var_name, $var_val))
+ }
+ 
++if ($IsWindows -eq $null) {
++    # $IsWindows was added in PowerShell Core 6 and PowerShell 7 together with multi-platform support. # I.E. if this
++    # internal variable is not set then PowerShell 5 is used and # the platform cannot be # anything else than Windows.
++    $IsWindows = $true
++}
++
+ foreach ($pair  in $envars_array) {
+     # setting the values
+     $var_name = $pair[0].Trim() # trim spaces on the ends of the name

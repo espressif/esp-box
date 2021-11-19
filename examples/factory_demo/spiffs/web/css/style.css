@@ -295,7 +295,7 @@ html, body, form, fieldset, p, div, h1, h2, h3, h4, h5, h6 {
 }
 /*去除高亮*/
 * {
-    -webkit-tab-highlight-color: rgba(0,0,0,0);
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 a {
     text-decoration: none;
@@ -847,10 +847,8 @@ a {
     background: rgb(93, 185, 248);
 }
 .slider-wrap .dot {
-    width: 28px;
-    height: 28px;
-    background: #fff;
-    border: 1px solid #dee6f3;
+    width: 30px;
+    height: 30px;
     position: absolute;
     bottom: 0;
     top: 0;
@@ -858,6 +856,25 @@ a {
     border-radius: 50%;
     cursor: pointer;
     outline: none;
+    background: #fff;
+    border: 1px solid #dee6f3;
+    box-shadow: 0 0 12px rgb(255, 255, 255);
+    transition: border-color .2s linear, box-shadow .2s linear;
+}
+.slider-wrap .dot.active {
+    border-color: rgb(93, 185, 248);
+    box-shadow: 0 0 12px rgb(93, 185, 248);
+}
+.slider-wrap .dot:after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 200%;
+    height: 200%;
+    background: transparent;
+    border-radius: 50%;
 }
 .color-wrap {
     text-align: left;
@@ -872,7 +889,7 @@ a {
     display: block;
     color: #333;
     font-weight: bold;
-    padding-bottom: 8px;
+    padding-bottom: 12px;
 }
 #color-slider .bar,
 #command-color-slider .bar{
@@ -902,9 +919,11 @@ a {
     text-align: center;
 }
 #toast-wrap .toast-content {
-    line-height: 30px;
-    background: #07c160;
-    color: #fff;
+    min-height:30px;
+    padding: 4px 8px;
+    box-sizing: border-box;
+    background:#07c160;
+    color:#fff;
 }
 #toast-wrap .toast-content.error {
     background: #ee0a24;

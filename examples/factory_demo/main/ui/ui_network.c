@@ -30,12 +30,17 @@ LV_IMG_DECLARE(esp_logo_tiny)
 
 static lv_obj_t *qr = NULL;
 static lv_obj_t *lab_net_state = NULL;
+static lv_obj_t *label_title = NULL;
+
 static const char *wifi_info = "WIFI:T:WPA;S:" EXAMPLE_ESP_WIFI_SSID ";P:" EXAMPLE_ESP_WIFI_PASS ";";
 static const char *web_page = "http://192.168.4.1/";
-static const char *dev_dis_msg = "1. AP: \"ESP-Box\", PWD: \"password\"";
+static const char *dev_dis_msg = "1. AP: \"" EXAMPLE_ESP_WIFI_SSID "\", PWD: \"" EXAMPLE_ESP_WIFI_PASS "\"";
 static const char *dev_con_msg = "2. Visit web \"http://192.168.4.1\"\n" "  and wait for around 1 minute";
+static const char *ui_title_default = "Scan the QRcode to connect";
+static const char *ui_title_connetced = "Scan again to visit web";
 static char *qr_data = NULL;
 static char *net_msg = NULL;
+static bool s_connect = false;
 
 static void btn_back_network_cb(lv_event_t *event)
 {
@@ -70,12 +75,11 @@ void ui_network(bool show)
         lv_obj_add_event_cb(btn_back, btn_back_network_cb, LV_EVENT_CLICKED, NULL);
     }
 
-    static lv_obj_t *label = NULL;
-    if (NULL == label) {
-        label = lv_label_create(mask);
-        lv_label_set_text_static(label, "Scan the QRcode to connect");
-        lv_obj_set_style_text_font(label, &font_en_16, LV_STATE_DEFAULT);
-        lv_obj_align(label, LV_ALIGN_CENTER, 0, -48 - 20);
+    if (NULL == label_title) {
+        label_title = lv_label_create(mask);
+        lv_label_set_text_static(label_title, s_connect ? ui_title_connetced : ui_title_default);
+        lv_obj_set_style_text_font(label_title, &font_en_16, LV_STATE_DEFAULT);
+        lv_obj_align_to(label_title, btn_back, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
     }
 
     if (NULL == qr) {
@@ -114,6 +118,8 @@ void ui_network(bool show)
 
 void ui_network_set_state(bool connect)
 {
+    s_connect = connect;
+
     if (connect) {
         qr_data = (char *) web_page;
         net_msg = (char *) dev_con_msg;
@@ -128,5 +134,9 @@ void ui_network_set_state(bool connect)
 
     if (NULL != lab_net_state) {
         lv_label_set_text_static(lab_net_state, net_msg);
+    }
+
+    if (NULL != label_title) {
+        lv_label_set_text_static(label_title, connect ? ui_title_connetced : ui_title_default);
     }
 }

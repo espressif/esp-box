@@ -22,9 +22,10 @@
 
 #include <stdio.h>
 #include "lvgl.h"
+#include "ui_lang.h"
 #include "ui_main.h"
 
-LV_FONT_DECLARE(font_en_16)
+LV_FONT_DECLARE(FONT_HINT)
 LV_FONT_DECLARE(font_en_24)
 LV_FONT_DECLARE(font_en_64)
 
@@ -61,28 +62,25 @@ void ui_hint(bool show)
         lv_obj_center(obj);
 
         lv_obj_t *label_title = lv_label_create(obj);
-        lv_label_set_text_static(label_title, "Steps for usage");
+        lv_label_set_text_static(label_title, STR_HINT_TITLE);
         lv_obj_set_style_text_color(label_title, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
-        lv_obj_set_style_text_font(label_title, &font_en_16, LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(label_title, &FONT_HINT, LV_STATE_DEFAULT);
         lv_obj_align(label_title, LV_ALIGN_TOP_MID, 0, 0);
 
         lv_obj_t *label_hint = lv_label_create(obj);
-        lv_label_set_text_static(label_hint,
-            "1: Say \"Hi ESP\" to wake-up the device.\n"
-            "2: Wait for the \"Hi ESP\" shows on screen.\n"
-            "3: Say command, like \"turn on the light\"");
+        lv_label_set_text_static(label_hint, STR_HINT_MSG);
         lv_obj_set_style_text_line_space(label_hint, 6, LV_STATE_DEFAULT);
         lv_obj_set_style_text_color(label_hint, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
-        lv_obj_set_style_text_font(label_hint, &font_en_16, LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(label_hint, &FONT_HINT, LV_STATE_DEFAULT);
         lv_obj_align(label_hint, LV_ALIGN_CENTER, 0, 0);
 
         label_close = lv_label_create(obj);
-        lv_label_set_text_static(label_close, "OK Let's Go");
+        lv_label_set_text_static(label_close, STR_HINT_OK);
         lv_obj_set_ext_click_area(label_close, 20);
         lv_obj_add_flag(label_close, LV_OBJ_FLAG_CLICKABLE);
         lv_obj_set_style_text_color(label_close, lv_color_make(251, 17, 26), LV_STATE_DEFAULT);
         lv_obj_set_style_text_color(label_close, lv_color_black(), LV_STATE_PRESSED);
-        lv_obj_set_style_text_font(label_close, &font_en_16, LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(label_close, &FONT_HINT, LV_STATE_DEFAULT);
         lv_obj_align(label_close, LV_ALIGN_BOTTOM_MID, 0, 0);
         lv_obj_add_event_cb(label_close, hint_close_cb, LV_EVENT_CLICKED, (void *) obj);
     }

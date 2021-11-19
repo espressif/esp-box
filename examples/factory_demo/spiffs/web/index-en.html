@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+    <title>ESP-BOX</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body ontouchstart="" onmouseover="">
+<div id="home" class="app-page show">
+    <div class="app-wrap">
+        <div class="container-wrap flex flex-v">
+            <header class="header-wrap flex flex-ac flex-jcc">
+                <h3 class="ellipsis flex-1">ESP-BOX</h3>
+<!--                <div class="more">-->
+<!--                    <a onclick="addDevice()" href="javascript: void(0)"><i class="iconfont icon-add"></i></a>-->
+<!--                </div>-->
+            </header>
+            <div id="mescroll" class="mescroll">
+                <div>
+                    <div class="main-content flex flex-v">
+                        <div class="item-wrap flex-1">
+                            <div class="no-data hide">
+                                <h3>Add your first device!</h3>
+                                <p class="add-desc">Please click the button at the bottom or upper right corner to add a device</p>
+                                <div id="no-data-info" class="img-wrap flex flex-ac">
+                                </div>
+                                <div class="add-wrap flex flex-ac flex-jcc">
+                                    <span onclick="addDevice()" class="iconfont icon-add"></span>
+                                </div>
+                            </div>
+                            <div id="item-content" class="item-content flex flex-wrap"></div>
+                        </div>
+                        <div class="loading-wrap hide">
+                            <div class="loading-content">
+                                <div class="loading flex flex-v flex-ac">
+                                    <div class="loading-spinner flex flex-ac flex-jcc">
+                                        <span class=" van-loading__spinner van-loading__spinner--circular" style="color: #5db9f8;"><svg viewBox="25 25 50 50" class="van-loading__circular"><circle cx="50" cy="50" r="20" style="stroke-width: 1.4" fill="none"></circle></svg></span>
+                                        <div class="logo-img"></div>
+                                    </div>
+                                    <span class="text">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="addDevice" class="app-page">
+    <div class="app-wrap">
+        <div class="container-wrap flex flex-v">
+            <header class="header-wrap flex flex-ac flex-jcc">
+                <a onclick="goBack()" href="javascript:void(0)"><span class="back iconfont icon-left"></span></a>
+                <h3 class="ellipsis flex-1">Add Device</h3>
+            </header>
+            <div class="main-content flex flex-v flex-1">
+                <div class="device-type-wrap flex-1 flex flex-v">
+                    <div class="item-header">All Device</div>
+                    <div id="device-type-list" class="device-type-list">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="addDeviceInfo" class="app-page">
+    <div class="app-wrap">
+        <div class="container-wrap flex flex-v">
+            <header class="header-wrap flex flex-ac flex-jcc">
+                <a onclick="history.back()" href="javascript:void(0)"><span class="back iconfont icon-left"></span></a>
+                <h3 class="ellipsis flex-1">Device configuration</h3>
+            </header>
+            <div class="main-content flex flex-v flex-1">
+                <div class="collapse-wrap">
+                    <h3 class="collapse-title flex flex-jcb flex-ac"><span>Pin information</span></h3>
+                    <div class="collapse-content">
+                        <div class="collapse-item flex flex-jcb flex-ac">
+                            <label class="key">RED</label>
+                            <span class="value">GPIO39</span>
+                        </div>
+                        <div class="collapse-item flex flex-jcb flex-ac">
+                            <label class="key">GREEN</label>
+                            <span class="value">GPIO40</span>
+                        </div>
+                        <div class="collapse-item flex flex-jcb flex-ac">
+                            <label class="key">BLUE</label>
+                            <span class="value">GPIO41</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="collapse-wrap margin-top">
+                    <h3 class="collapse-title flex flex-jcb flex-ac"><span>Voice command</span><span onclick="addCommand()"><i style="font-size: 18px" class="iconfont icon-add"></i></span></h3>
+                    <div class="collapse-content collapse-content-add">
+                    </div>
+                </div>
+                <div class="btn-wrap">
+                    <button onclick="saveDeviceInfoData()" class="btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="operate" class="app-page">
+    <div class="app-wrap">
+        <div class="container-wrap flex flex-v">
+            <header class="header-wrap flex flex-ac flex-jcc">
+                <a onclick="operateBack()" href="javascript:void(0)"><span class="back iconfont icon-left"></span></a>
+                <h3 class="ellipsis flex-1">ESP-BOX</h3>
+            </header>
+            <div class="main-content flex flex-v">
+                <div class="tab-wrap flex flex-ac flex-jcc">
+                    <div class="tab-item tab-voice  active">Voice</div>
+                    <div class="tab-item tab-control">Control</div>
+                </div>
+                <div class="voice-config active">
+                    <div class="collapse-wrap">
+                        <h3 class="collapse-title flex flex-jcb flex-ac"><span>Pin information</span></h3>
+                        <div class="collapse-content">
+                            <div class="collapse-item flex flex-jcb flex-ac">
+                                <label class="key">RED</label>
+                                <span class="value">GPIO39</span>
+                            </div>
+                            <div class="collapse-item flex flex-jcb flex-ac">
+                                <label class="key">GREEN</label>
+                                <span class="value">GPIO40</span>
+                            </div>
+                            <div class="collapse-item flex flex-jcb flex-ac">
+                                <label class="key">BLUE</label>
+                                <span class="value">GPIO41</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse-wrap margin-top">
+                        <h3 class="collapse-title flex flex-jcb flex-ac">
+                            <span>Voice command</span>
+<!--                            <span onclick="addCommand()"><i style="font-size: 18px" class="iconfont icon-add"></i></span>-->
+                        </h3>
+                        <div class="collapse-content collapse-content-add">
+                        </div>
+                    </div>
+                    <div class="btn-wrap">
+                        <button onclick="saveOperateData()" class="btn">Save</button>
+                    </div>
+                </div>
+                <div class="device-control">
+                    <div onclick="operateSwitch()" class="power-wrap">
+                        <div class="power-content" >
+                            <i class="iconfont icon-power"></i>
+                        </div>
+                    </div>
+                    <div class="color-wrap">
+                        <div class="color-slider">
+                            <label>Hue</label>
+                            <div id="color-slider">
+                            </div>
+                        </div>
+                        <div class="color-slider">
+                            <label>Brightness</label>
+                            <div id="brightness-slider">
+                            </div>
+                        </div>
+                        <div class="color-slider">
+                            <label>Saturation</label>
+                            <div id="saturation-slider">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="command" class="app-page">
+    <div class="app-wrap">
+        <div class="container-wrap flex flex-v">
+            <header class="header-wrap flex flex-ac flex-jcc">
+                <a onclick="goBack()" href="javascript:void(0)"><span class="back iconfont icon-left"></span></a>
+                <h3 class="ellipsis flex-1">Edit voice command</h3>
+            </header>
+            <div class="main-content flex flex-v flex-1">
+                <div class="collapse-wrap">
+                    <div class="collapse-content">
+                        <div class="collapse-item flex flex-jcb flex-ac">
+                            <label class="key black">Command</label>
+                            <div class="command-select flex flex-ac flex-jcb">
+                                <span data-value="1" id="command-info">ON</span>
+                                <span id="command-color" class="command-color"></span>
+                            </div>
+<!--                            <div id="select-command" class="right-icon">-->
+<!--                                <i class="iconfont icon-right"></i>-->
+<!--                            </div>-->
+                        </div>
+                    </div>
+                    <div class="color-wrap command-color-wrap">
+                        <div class="color-slider">
+                            <label>Hue</label>
+                            <div id="command-color-slider">
+                            </div>
+                        </div>
+                        <div class="color-slider">
+                            <label>Brightness</label>
+                            <div id="command-brightness-slider">
+                            </div>
+                        </div>
+                        <div class="color-slider">
+                            <label>Saturation</label>
+                            <div id="command-saturation-slider">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="collapse-wrap margin-top">
+                    <div class="collapse-content">
+                        <div class="collapse-item flex flex-jcb">
+                            <label class="key black">Voice</label>
+                            <div class="command-select">
+                                <textarea maxlength="32" id="voice"></textarea>
+                                <div class="word-count"><sapn class="word-count-info">0</sapn>/32</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-wrap">
+                    <button onclick="saveCommand('en')" class="btn">Save</button>
+                </div>
+            </div>
+        </div>
+        <div class="model-wrap">
+            <div class="model-content">
+                <ul id="model-content-info">
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/common.js"></script>
+<!--[if IE]>
+<script src="js/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script src="js/index.min.js"></script>
+
+<script>
+    Pinyin.setOptions({checkPolyphone: true, charCase: 1});
+    initCmudict();
+    initHash();
+    window.addEventListener('hashchange', function() {
+        initHash();
+    })
+</script>
+</body>
+</html>

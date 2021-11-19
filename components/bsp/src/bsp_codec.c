@@ -74,7 +74,7 @@ esp_err_t bsp_codec_adc_init(audio_hal_iface_samples_t sample_rate)
         .adc_input = AUDIO_HAL_ADC_INPUT_ALL,
         .i2s_iface = {
             .bits = AUDIO_HAL_BIT_LENGTH_16BITS,
-            .fmt = AUDIO_HAL_I2S_DSP,
+            .fmt = AUDIO_HAL_I2S_NORMAL,
             .mode = AUDIO_HAL_MODE_SLAVE,
             .samples = sample_rate,
         },
@@ -101,7 +101,7 @@ esp_err_t bsp_codec_dac_init(audio_hal_iface_samples_t sample_rate)
         .dac_output = AUDIO_HAL_DAC_OUTPUT_LINE1,
         .i2s_iface = {
             .bits = AUDIO_HAL_BIT_LENGTH_16BITS,
-            .fmt = AUDIO_HAL_I2S_DSP,
+            .fmt = AUDIO_HAL_I2S_NORMAL,
             .mode = AUDIO_HAL_MODE_SLAVE,
             .samples = sample_rate,
         },

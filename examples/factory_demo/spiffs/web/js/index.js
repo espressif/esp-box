@@ -1411,7 +1411,7 @@ function saveDeviceData (deviceInfo, params) {
         console.log(res)
         clearLoading()
         if (res.status === 'success') {
-            toast('suc', 'Sucess')
+            toast('suc', 'Success')
             setTimeout(() => {
                 window.history.go(-2)
             }, 3000)

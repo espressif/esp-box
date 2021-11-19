@@ -347,7 +347,6 @@ esp_err_t es7210_config_fmt(audio_hal_iface_format_t fmt)
             break;
     }
     ret |= es7210_write_reg(ES7210_SDP_INTERFACE1_REG11, adc_iface);
-    ret |= es7210_write_reg(ES7210_SDP_INTERFACE2_REG12, 0x01);
     return ret;
 }
 

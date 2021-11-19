@@ -20,19 +20,26 @@
  */
 
 #include <stdbool.h>
+#include "app_led.h"
 #include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 /**
  * @brief Get the cmd string object
  * 
- * @param on On or off
+ * @param id Command ID
  * @return String of given state
  */
-char *get_cmd_string(bool on);
+char *get_cmd_string(int id);
+
+/**
+ * @brief Get the default led config object
+ * 
+ * @return Pointer to `led_state_t` 
+ */
+led_state_t *get_default_led_config(void);
 
 /**
  * @brief Parse JSON string
