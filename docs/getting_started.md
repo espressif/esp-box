@@ -2,7 +2,7 @@
 
 # Getting Started
 
-The ESP32-S3-BOX provides a platform for developing the control of home appliances using Voice Assistance + touch screen controller, sensor, infrared controller, and intelligent Wi-Fi gateway. The ESP32-S3-BOX comes with pre-built firmware that allows you to experience voice wake-up and offline speech commands recognition in Chinese and English languages, with the SDKs and examples provided by Espressif, you will be able to develop a wide variety of AIoT applications based on the ESP32-S3-BOX with great ease, such as online and offline voice assistants, voice-enabled devices, HMI touch-screen devices, control panels, multi-protocol gateways, and so on. 
+The ESP32-S3-BOX provides a platform for developing the control of home appliances using Voice Assistance + touch screen controller, sensor, infrared controller, and intelligent Wi-Fi gateway. The ESP32-S3-BOX comes with pre-built firmware that allows you to experience voice wake-up and offline speech commands recognition in Chinese and English languages, with the SDKs and examples provided by Espressif, you will be able to develop a wide variety of AIoT applications based on the ESP32-S3-BOX such as online and offline voice assistants, voice-enabled devices, HMI touch-screen devices, control panels, multi-protocol gateways easily. 
 
 The ESP32-S3-BOX SDK also includes a reconfigurable AI voice interaction that allows you to customize commands to control your smart home appliances. The content of this material is to give you a brief concept of how the ESP32-S3-BOX works, a basic idea for you to know where to begin. Once you go through the guide below, you may start developing the application yourself. So, let’s begin the journey!
 
@@ -59,7 +59,7 @@ The ESP32-S3-BOX SDK also includes a reconfigurable AI voice interaction that al
    <img src="./_static/page_home.png">
    </div>
 
-3. Now, say the wake word **“Hi E.S.P.” (pronounce in alphabet)** to activate your ESP32-S3-BOX. If the board wakes up, its screen below will display the wake word you just spoke. If the wake word is not displayed, try the wake word more times.  The animation below gives you a hint that your device is listening.
+3. Now, say the wake word **“Hi E. S. P.” (pronounce in alphabet)** to activate your ESP32-S3-BOX. If the board wakes up, its screen below will display the wake word you just spoke. If the wake word is not displayed, try the wake word more times.  The animation below gives you a hint that your device is listening.
 
    <div align="center">
    <img src="./_static/page_hi.png">
@@ -159,16 +159,16 @@ Scan another QR code again, and it will redirect you to the web control interfac
    <img src="_static/web_config_light_cmd_cg.JPG">
    </div>
 
-   5. Now, you can try out your new command! First, say **“Hi ESP”** to wake-up your device. Then say **“Good morning”** to turn on your light within 6 seconds. The new command phrase will display on the screen and the LED module will be turned on as below.。
+   5. Now, you can try out your new command! First, say **“Hi E. S. P.”** to wake-up your device. Then say **“Good morning”** to turn on your light within 6 seconds. The new command phrase will display on the screen and the LED module will be turned on as below.。
 
    <div align="center">
    <img src="_static/page_good_morning.png">
    </div>
 
    >**How to add appropriate command phrases:**
-   Now AI model supports users to custom command phrases. In order to obtain the best recognition experience, you need to pay attention to the following matters when defining command phrase:
+   Now AI model supports users to customize command phrases. In order to obtain the best recognition experience, you need to pay attention to the following matters when defining command phrase:
    >* Length of command word
-   The number of words in the command phrase must be greater than or equal to 2 and less than or equal to 10.
+   The number of words in the command phrase must be greater than or equal to 2 and less than or equal to 8.
    When defining a series of command phrases, it is best to keep the length of different command phrases similar.
    >* Avoid prefixes
    Multiple command phrase should not be prefixed with each other. Short words will be not recognized, such as “Turn on” and “Turn on the light", “Turn on" will be not recognized.
