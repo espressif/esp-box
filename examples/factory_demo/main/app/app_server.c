@@ -31,6 +31,7 @@
 #include "esp_log.h"
 #include "esp_vfs.h"
 #include "cJSON.h"
+#include "ui_lang.h"
 
 static const char *TAG = "esp-rest";
 #define REST_CHECK(a, str, goto_tag, ...)                                              \
@@ -83,7 +84,7 @@ static esp_err_t rest_common_get_handler(httpd_req_t *req)
 
     strlcpy(filepath, rest_context->base_path, sizeof(filepath));
     if (req->uri[strlen(req->uri) - 1] == '/') {
-        strlcat(filepath, "/index.html", sizeof(filepath));
+        strlcat(filepath, INDEX_NAME, sizeof(filepath));
     } else {
         strlcat(filepath, req->uri, sizeof(filepath));
     }

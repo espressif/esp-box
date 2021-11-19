@@ -21,7 +21,7 @@
 
 #include <stdbool.h>
 #include "bsp_board.h"
-#include "bsp_board_esp_custom.h"
+#include "esp_custom_board.h"
 #include "esp_err.h"
 
 esp_err_t bsp_board_init(void)

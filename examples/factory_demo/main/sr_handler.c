@@ -40,7 +40,7 @@ void sr_handler_task(void *pvParam)
         EventBits_t event_val = xEventGroupWaitBits(event_group_handle, SR_EVENT_ALL, true, false, portMAX_DELAY);
 
         if (SR_EVENT_TIMEOUT & event_val) {
-            sr_anim_set_text("Timeout");
+            sr_anim_set_text(STR_TIMEOUT);
             sr_anim_stop();
             ESP_LOGW(TAG, LOG_BOLD(LOG_COLOR_BROWN) "Timeout");
             continue;
@@ -48,7 +48,7 @@ void sr_handler_task(void *pvParam)
 
         if (SR_EVENT_WAKE_UP & event_val) {
             sr_anim_start();
-            sr_anim_set_text("Hi ESP");
+            sr_anim_set_text(STR_WAKEWORD);
             audio_play_start();
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Say command");
             continue;
@@ -63,28 +63,34 @@ void sr_handler_task(void *pvParam)
             /* Register your callback here. You can get command id from cmd_id  */
             switch (cmd_id) {
             case SR_CMD_LIGHT_ON:
-                sr_anim_set_text(get_cmd_string(true));
+                sr_anim_set_text(get_cmd_string(SR_CMD_LIGHT_ON));
                 app_pwm_led_set_all(30, 30, 30);
                 break;
             case SR_CMD_LIGHT_OFF:
-                sr_anim_set_text(get_cmd_string(false));
+                sr_anim_set_text(get_cmd_string(SR_CMD_LIGHT_OFF));
                 app_pwm_led_set_all(0, 0, 0);
                 break;
             case SR_CMD_SET_RED:
-                sr_anim_set_text("Turn Red");
+                sr_anim_set_text(STR_LIGHT_RED);
                 app_pwm_led_set_all(30, 0, 0);
                 break;
             case SR_CMD_SET_GREEN:
-                sr_anim_set_text("Turn Green");
+                sr_anim_set_text(STR_LIGHT_GREEN);
                 app_pwm_led_set_all(0, 30, 0);
                 break;
             case SR_CMD_SET_BLUE:
-                sr_anim_set_text("Turn Blue");
+                sr_anim_set_text(STR_LIGHT_BLUE);
                 app_pwm_led_set_all(0, 0, 30);
                 break;
             case SR_CMD_SET_WHITE:
-                sr_anim_set_text("Turn White");
+                sr_anim_set_text(STR_LIGHT_WHITE);
                 app_pwm_led_set_all(30, 30, 30);
+                break;
+            case SR_CMD_CUSTOM_COLOR:
+                sr_anim_set_text(get_cmd_string(SR_CMD_CUSTOM_COLOR));
+                led_state_t *led_state = get_default_led_config();
+                lv_color_t color = lv_color_hsv_to_rgb(led_state->h, led_state->s, led_state->v);
+                app_pwm_led_set_all(color.ch.red << 3, (color.ch.green_h << 5) + (color.ch.green_l << 2), color.ch.blue << 3);
                 break;
             default:
                 /* Defalut handler */

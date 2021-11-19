@@ -12,9 +12,9 @@
         <div class="container-wrap flex flex-v">
             <header class="header-wrap flex flex-ac flex-jcc">
                 <h3 class="ellipsis flex-1">ESP-BOX</h3>
-                <div class="more">
-                    <a onclick="addDevice()" href="javascript: void(0)"><i class="iconfont icon-add"></i></a>
-                </div>
+<!--                <div class="more">-->
+<!--                    <a onclick="addDevice()" href="javascript: void(0)"><i class="iconfont icon-add"></i></a>-->
+<!--                </div>-->
             </header>
             <div id="mescroll" class="mescroll">
                 <div>
@@ -91,7 +91,10 @@
                     </div>
                 </div>
                 <div class="collapse-wrap margin-top">
-                    <h3 class="collapse-title flex flex-jcb flex-ac"><span>语音命令</span><span onclick="addCommand()"><i style="font-size: 18px" class="iconfont icon-add"></i></span></h3>
+                    <h3 class="collapse-title flex flex-jcb flex-ac">
+                        <span>语音命令</span>
+<!--                        <span onclick="addCommand()"><i style="font-size: 18px" class="iconfont icon-add"></i></span>-->
+                    </h3>
                     <div class="collapse-content collapse-content-add">
                     </div>
                 </div>
@@ -133,7 +136,10 @@
                         </div>
                     </div>
                     <div class="collapse-wrap margin-top">
-                        <h3 class="collapse-title flex flex-jcb flex-ac"><span>语音指令</span><span onclick="addCommand()"><i style="font-size: 18px" class="iconfont icon-add"></i></span></h3>
+                        <h3 class="collapse-title flex flex-jcb flex-ac">
+                            <span>语音指令</span>
+<!--                            <span onclick="addCommand()"><i style="font-size: 18px" class="iconfont icon-add"></i></span>-->
+                        </h3>
                         <div class="collapse-content collapse-content-add">
                         </div>
                     </div>
@@ -185,9 +191,9 @@
                                 <span data-value="1" id="command-info">ON</span>
                                 <span id="command-color" class="command-color"></span>
                             </div>
-                            <div id="select-command" class="right-icon">
-                                <i class="iconfont icon-right"></i>
-                            </div>
+<!--                            <div id="select-command" class="right-icon">-->
+<!--                                <i class="iconfont icon-right"></i>-->
+<!--                            </div>-->
                         </div>
                     </div>
                     <div class="color-wrap command-color-wrap">
@@ -213,8 +219,8 @@
                         <div class="collapse-item flex flex-jcb">
                             <label class="key black">语音</label>
                             <div class="command-select">
-                                <textarea id="voice"></textarea>
-                                <div class="word-count"><sapn class="word-count-info">0</sapn>/60</div>
+                                <textarea maxlength="8" id="voice"></textarea>
+                                <div class="word-count"><sapn class="word-count-info">0</sapn>/8</div>
                             </div>
                         </div>
                     </div>

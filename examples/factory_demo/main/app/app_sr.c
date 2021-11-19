@@ -40,7 +40,7 @@
 #define SR_CMD_TIME_OUT     (-2)
 #define SR_CMD_NOT_DETECTED (-1)
 #define SR_CMD_ID_BASE      (0)
-#define I2S_CHANNEL_NUM     (3)
+#define I2S_CHANNEL_NUM     (4)
 
 static const char *TAG = "app_sr";
 
@@ -85,6 +85,18 @@ static void audio_feed_task(void *pvParam)
     while (true) {
         /* Read audio data from I2S bus */
         i2s_read(I2S_NUM_0, audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
+
+        /* Save audio data to file if record enabled */
+        if (b_record_en && (NULL != fp)) {
+            fwrite(audio_buffer, 1, audio_chunksize * 4 * sizeof(int16_t), fp);
+        }
+
+        /* Channel Adjust */
+        for (int  i = 0; i < audio_chunksize; i++) {
+            audio_buffer[i * 3 + 0] = audio_buffer[i * 4 + 3];
+            audio_buffer[i * 3 + 1] = audio_buffer[i * 4 + 1];
+            audio_buffer[i * 3 + 2] = 0;
+        }
 
         /* Feed samples of an audio stream to the AFE_SR */
         afe_handle->feed(afe_data, audio_buffer);

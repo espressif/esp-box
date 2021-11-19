@@ -99,6 +99,18 @@ esp_err_t app_pwm_led_deinit(void);
  */
 esp_err_t app_pwm_led_set_all(uint8_t red, uint8_t green, uint8_t blue);
 
+/**
+ * @brief Set all PWM LED(s) color with HSV
+ * 
+ * @param h Hue part of color
+ * @param s Saturation part of color
+ * @param v Brightness part of color
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t app_pwm_led_set_all_hsv(uint16_t h, uint8_t s, uint8_t v);
+
 #ifdef __cplusplus
 }
 #endif

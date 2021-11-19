@@ -31,19 +31,44 @@
 #include "esp_log.h"
 #include "lvgl.h"
 
-static char cmd_on[32] = "Turn On The Light";
-static char cmd_off[32] = "Turn Off The Light";
-static char voice_on[32] = CONFIG_EN_SPEECH_COMMAND_ID4;
-static char voice_off[32] = CONFIG_EN_SPEECH_COMMAND_ID5;
 static const char *TAG = "data_parse";
 
-char *get_cmd_string(bool on)
+/* String length is limited on web, but still not safe here */
+static char cmd_on[64] = STR_LIGHT_ON;
+static char cmd_off[64] = STR_LIGHT_OFF;
+static char cmd_color[64] = STR_LIGHT_COLOR;
+static char voice_on[64] = VOICE_LIGHT_ON;
+static char voice_off[64] = VOICE_LIGHT_OFF;
+static char voice_color[64] = VOICE_LIGHT_COLOR;
+static led_state_t led_state_default = {
+    .on = true,
+    .h = 30,
+    .s = 30,
+    .v = 30,
+    .gpio = -1,
+};
+
+char *get_cmd_string(int id)
 {
-    if (on) {
-        return (char *) cmd_on;
+
+    switch (id) {
+    case SR_CMD_LIGHT_ON:
+        return cmd_on;
+        break;
+    case SR_CMD_LIGHT_OFF:
+        return cmd_off;
+        break;
+    case SR_CMD_CUSTOM_COLOR:
+        return cmd_color;
+        break;
     }
 
-    return (char *) cmd_off;
+    return NULL;
+}
+
+led_state_t *get_default_led_config(void)
+{
+    return &led_state_default;
 }
 
 static void parse_config(cJSON *root_obj)
@@ -79,39 +104,50 @@ static void parse_config(cJSON *root_obj)
                 if (NULL == voice_item_array) {
                     return;
                 }
-    
+
                 int voice_item_size = cJSON_GetArraySize(voice_item_array);
                 printf("Voice item size : %d\n", voice_item_size);
                 for (size_t i = 0; i < voice_item_size; i++) {
                     cJSON *voice_item = cJSON_GetArrayItem(voice_item_array, i);
-                    if (cJSON_GetObjectItem(voice_item, "status")->valuedouble == 1) {
-                        printf("Voice to turn on : (%s)[%s]\n",
-                            cJSON_GetObjectItem(voice_item, "zh")->valuestring,
-                            cJSON_GetObjectItem(voice_item, "voice")->valuestring);
-                            strcpy(cmd_on, cJSON_GetObjectItem(voice_item, "zh")->valuestring);
-                            strcpy(voice_on, cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                    cJSON *sw_item = cJSON_GetObjectItem(voice_item, "status");
+                    if (NULL == sw_item) {
+                        led_state_default.h = (uint16_t) cJSON_GetObjectItem(voice_item, "hue")->valuedouble;
+                        led_state_default.s = (uint8_t) cJSON_GetObjectItem(voice_item, "saturation")->valuedouble;
+                        led_state_default.v = (uint8_t) cJSON_GetObjectItem(voice_item, "value")->valuedouble;
+                        printf("Voice for [%u, %u, %u] : (%s)[%s]\n",
+                            led_state_default.h, led_state_default.s, led_state_default.v,
+                            strcpy(cmd_color, cJSON_GetObjectItem(voice_item, "zh")->valuestring),
+                            strcpy(voice_color, cJSON_GetObjectItem(voice_item, "voice")->valuestring));
                     } else {
-                        printf("Voice to turn on : (%s)[%s]\n",
-                            cJSON_GetObjectItem(voice_item, "zh")->valuestring,
-                            cJSON_GetObjectItem(voice_item, "voice")->valuestring);
-                            strcpy(cmd_off, cJSON_GetObjectItem(voice_item, "zh")->valuestring);
-                            strcpy(voice_off, cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                        if (cJSON_GetObjectItem(voice_item, "status")->valuedouble == 1) {
+                            printf("Voice to turn on : (%s)[%s]\n",
+                                cJSON_GetObjectItem(voice_item, "zh")->valuestring,
+                                cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                                strcpy(cmd_on, cJSON_GetObjectItem(voice_item, "zh")->valuestring);
+                                strcpy(voice_on, cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                        } else {
+                            printf("Voice to turn on : (%s)[%s]\n",
+                                cJSON_GetObjectItem(voice_item, "zh")->valuestring,
+                                cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                                strcpy(cmd_off, cJSON_GetObjectItem(voice_item, "zh")->valuestring);
+                                strcpy(voice_off, cJSON_GetObjectItem(voice_item, "voice")->valuestring);
+                        }
                     }
-
                 }
 
                 /* Reset command list */
-                char *cmd = (char *) heap_caps_malloc(256, MALLOC_CAP_SPIRAM);
+                char *cmd = (char *) heap_caps_malloc(512, MALLOC_CAP_SPIRAM);
                 if (NULL != cmd) {
                     cmd[0] = '\0';  /* Make cmd a valid string */
 
                     /* Command should match `sdkconfig` */
-                    strcat(cmd, CONFIG_EN_SPEECH_COMMAND_ID0 ";");  /*!< Red */
-                    strcat(cmd, CONFIG_EN_SPEECH_COMMAND_ID1 ";");  /*!< Green */
-                    strcat(cmd, CONFIG_EN_SPEECH_COMMAND_ID2 ";");  /*!< Blue */
-                    strcat(cmd, CONFIG_EN_SPEECH_COMMAND_ID3 ";");  /*!< White */
-                    strcat(strcat(cmd, voice_on), ";");             /*!< On */
-                    strcat(strcat(cmd, voice_off), ";");            /*!< Off */
+                    strcat(cmd, VOICE_LIGHT_RED     STR_DELIMITER);     /*!< Red */
+                    strcat(cmd, VOICE_LIGHT_GREEN   STR_DELIMITER);     /*!< Green */
+                    strcat(cmd, VOICE_LIGHT_BLUE    STR_DELIMITER);     /*!< Blue */
+                    strcat(cmd, VOICE_LIGHT_WHITE   STR_DELIMITER);     /*!< White */
+                    strcat(strcat(cmd, voice_on),   STR_DELIMITER);     /*!< On */
+                    strcat(strcat(cmd, voice_off),  STR_DELIMITER);     /*!< Off */
+                    strcat(strcat(cmd, voice_color), STR_DELIMITER);    /*!< Custom color */
 
                     /* Print new command list */
                     ESP_LOGI(TAG, "New command set to :\n" "%s", cmd);
@@ -133,8 +169,8 @@ static void parse_config(cJSON *root_obj)
 
 static void parse_control(cJSON *root_obj)
 {
-    cJSON *item_obj = NULL;
     led_state_t led_state;
+    cJSON *item_obj = NULL;
     app_led_get_state(&led_state);
 
     item_obj = cJSON_GetObjectItem(root_obj, "type");
@@ -173,8 +209,10 @@ static void parse_control(cJSON *root_obj)
     }
 
     if (led_state.on) {
-        lv_color_t color = lv_color_hsv_to_rgb(led_state.h, led_state.s, led_state.v);
-        app_pwm_led_set_all(color.ch.red << 3, ((color.ch.green_h << 3) + (color.ch.green_l)) << 2, color.ch.blue << 3);
+        if (led_state.v < 8) {
+            led_state.v = 8;
+        }
+        app_pwm_led_set_all_hsv(led_state.h, led_state.s, led_state.v);
     } else {
         app_pwm_led_set_all(0, 0, 0);
     }
@@ -221,6 +259,7 @@ esp_err_t app_wifi_build_json_string(led_state_t *led_state, char **json_string)
     cJSON *led_param_array = NULL;
     cJSON *led_param_on = NULL;
     cJSON *led_param_off = NULL;
+    cJSON *led_param_color = NULL;
 
     /* Create root object */
     root_obj = cJSON_CreateObject();
@@ -246,6 +285,8 @@ esp_err_t app_wifi_build_json_string(led_state_t *led_state, char **json_string)
 
     led_param_on = cJSON_CreateObject();
     led_param_off = cJSON_CreateObject();
+    led_param_color = cJSON_CreateObject();
+    
     cJSON_AddItemToArray(led_param_array, led_param_on);
     cJSON_AddNumberToObject(led_param_on, "status", 1);
     cJSON_AddStringToObject(led_param_on, "voice", voice_on);
@@ -255,6 +296,13 @@ esp_err_t app_wifi_build_json_string(led_state_t *led_state, char **json_string)
     cJSON_AddNumberToObject(led_param_off, "status", 0);
     cJSON_AddStringToObject(led_param_off, "voice", voice_off);
     cJSON_AddStringToObject(led_param_off, "zh", cmd_off);
+
+    cJSON_AddItemToArray(led_param_array, led_param_color);
+    cJSON_AddNumberToObject(led_param_color, "hue", led_state_default.h);
+    cJSON_AddNumberToObject(led_param_color, "saturation", led_state_default.s);
+    cJSON_AddNumberToObject(led_param_color, "value", led_state_default.v);
+    cJSON_AddStringToObject(led_param_color, "voice", voice_color);
+    cJSON_AddStringToObject(led_param_color, "zh", cmd_color);
 
     /* Print serialized object */
     *json_string = cJSON_PrintUnformatted(root_obj);

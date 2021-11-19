@@ -25,6 +25,8 @@ esp_err_t ui_main_start(void)
 
     ui_mute_init();
 
+    ui_sr_anim_init();
+
     boot_animate_start(lv_scr_act());
 
     ui_clock_update_start();

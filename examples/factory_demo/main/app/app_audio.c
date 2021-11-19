@@ -112,7 +112,7 @@ bool audio_is_playing(void)
 /* **************** AUDIO DEBUG TOOL **************** */
 esp_err_t audio_record_to_file(size_t time_ms, const char *file_name)
 {
-    size_t audio_channel = 3;
+    size_t audio_channel = 4;
     size_t audio_sample_rate = 16000;
     size_t bytes_per_sample = sizeof(int16_t);
     size_t file_size = audio_sample_rate * time_ms / 1000 * bytes_per_sample * audio_channel;

@@ -35,23 +35,17 @@
 #define I2S_CONFIG_DEFAULT() { \
     .mode                   = I2S_MODE_MASTER | I2S_MODE_TX | I2S_MODE_RX, \
     .sample_rate            = sample_rate, \
-    .bits_per_sample        = I2S_BITS_PER_SAMPLE_16BIT, \
-    .channel_format         = I2S_CHANNEL_FMT_MULTIPLE, \
-    .communication_format   = I2S_COMM_FORMAT_STAND_PCM_SHORT, \
-    .intr_alloc_flags       = ESP_INTR_FLAG_LEVEL1 | ESP_INTR_FLAG_IRAM, \
-    .dma_buf_count          = 4, \
-    .dma_buf_len            = 256, \
+    .bits_per_sample        = I2S_BITS_PER_SAMPLE_32BIT, \
+    .channel_format         = I2S_CHANNEL_FMT_RIGHT_LEFT, \
+    .communication_format   = I2S_COMM_FORMAT_STAND_I2S, \
+    .intr_alloc_flags       = ESP_INTR_FLAG_LEVEL1, \
+    .dma_buf_count          = 6, \
+    .dma_buf_len            = 160, \
     .use_apll               = false, \
     .tx_desc_auto_clear     = true, \
     .fixed_mclk             = 0, \
     .mclk_multiple          = I2S_MCLK_MULTIPLE_DEFAULT, \
-    .bits_per_chan          = I2S_BITS_PER_CHAN_16BIT, \
-    .chan_mask              = I2S_TDM_ACTIVE_CH0 | I2S_TDM_ACTIVE_CH1 | I2S_TDM_ACTIVE_CH2, \
-    .total_chan             = 3, \
-    .left_align             = false, \
-    .big_edin               = false, \
-    .bit_order_msb          = false, \
-    .skip_msk               = false, \
+    .bits_per_chan          = I2S_BITS_PER_CHAN_32BIT, \
 }
 
 esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate)
@@ -70,21 +64,6 @@ esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate)
 
     ret_val |= i2s_driver_install(i2s_num, &i2s_config, 0, NULL);
     ret_val |= i2s_set_pin(i2s_num, &pin_config);
-
-    ret_val |= i2s_stop(I2S_NUM_0);
-
-    /* Config I2S channel format of TX and RX */
-    i2s_ll_tx_set_active_chan_mask(&I2S0, I2S_TDM_ACTIVE_CH0);
-    i2s_ll_rx_set_active_chan_mask(&I2S0, I2S_TDM_ACTIVE_CH0 | I2S_TDM_ACTIVE_CH1 | I2S_TDM_ACTIVE_CH2);
-
-    /* Inverse DSP mode WS signal polarity. See IDF-4140 for more */
-    gpio_hal_iomux_func_sel(GPIO_PIN_MUX_REG[GPIO_I2S_LRCK], PIN_FUNC_GPIO);
-    gpio_set_direction(GPIO_I2S_LRCK, GPIO_MODE_OUTPUT);
-    esp_rom_gpio_connect_out_signal(GPIO_I2S_LRCK, i2s_periph_signal[I2S_NUM_0].m_tx_ws_sig, true, false);
-
-    /* Clear I2S DMA buffer and start I2S */
-    ret_val |= i2s_zero_dma_buffer(I2S_NUM_0);
-    ret_val |= i2s_start(I2S_NUM_0);
 
     return ret_val;
 }

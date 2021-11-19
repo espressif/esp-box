@@ -2,6 +2,36 @@
 
 This is the factory demo for ESP32-S3-Box development board.
 
+## How to Compile
+
+Since some bug fixes of esp-idf may not be synced to GitHub, you need to manually apply some patches to build the example.
+
+### Apply Patch
+
+For Linux and macOS, you can apply the patch by entering the following command on the command line / terminal:
+
+```shell
+cd /path/to/esp-box/idf_patch
+python3 apply_patch.py -d /path/to/esp-idf
+. /path/to/esp-idf/export.sh
+```
+
+For Windows users, you may need to do the following manually:
+
+- Change the working directory to the folder where esp-idf is located
+- Run the following commands in cmd in sequence：
+  - `git fetch origin`
+  - `git checkout 35b20cadce65ce79c14cf2018efc87c44d71ab21`
+  - `git apply X:\path\to/esp-box\idf_patch\idf_patch.patch`
+- Copy the files in the `idf_patch\components\esp_phy` folder and replace them to the same location under esp-idf in turn
+- Run `install.bat` in the esp-idf directory
+- Run `export.bat` in the esp-idf directory
+- Enter the esp-box repo to compile the project you want
+
+### Compile Example
+
+The project provides `sdkconfig.defaults.cn` and `sdkconfig.defaults.en`, which are the default configuration files corresponding to Chinese and English respectively. By replacing `sdkconfig.defaults` with the above file, deleting `sdkconfig`, rebuilding and burning, you can burn routines in the specified language to ESP-Box.
+
 ## How to Use
 
 ### Hardware Required
@@ -24,6 +54,7 @@ Say "Hi esp" to wake up the device. Then say command word list is as follows aft
 
 - Turn On/Off The Light
 - Turn Red / Green / Blue / White
+- Custom Color
 
 The detected command word will be displayed on the screen. If the LED is correctly connected to the device, its color will change according to the command word.
 
@@ -43,58 +74,6 @@ Run `idf.py flash monitor` to build, flash and monitor the project.
 Once a complete flash process has been performed, you can use `idf.py app-flash monitor` to reduce the flash time.
 
 (To exit the serial monitor, type `Ctrl-]`. Please reset the development board f you cannot exit the monitor.)
-
-## Example Output
-
-Run this example, you will see the following output log:
-
-```
-SPIWP:0xee
-mode:DIO, clock div:1
-load:0x3fcd0108,len:0x51c
-load:0x403b6000,len:0x93c
-load:0x403ba000,len:0x2c48
-entry 0x403b6164
-I (33) opi psram: vendor id : 0x0d (AP)
-I (34) opi psram: dev id    : 0x02 (generation 3)
-I (34) opi psram: density   : 0x03 (64 Mbit)
-I (37) opi psram: good-die  : 0x01 (Pass)
-I (42) opi psram: Latency   : 0x01 (Fixed)
-I (46) opi psram: VCC       : 0x01 (3V)
-I (51) opi psram: SRF       : 0x01 (Fast Refresh)
-I (56) opi psram: BurstType : 0x01 (Hybrid Wrap)
-I (62) opi psram: BurstLen  : 0x01 (32 Byte)
-I (67) opi psram: Readlatency  : 0x02 (10 cycles@Fixed)
-I (73) opi psram: DriveStrength: 0x00 (1/1)
-W (77) PSRAM: DO NOT USE FOR MASS PRODUCTION! Timing parameters will be updated in future IDF version.
-I (88) spiram: Found 64MBit SPI RAM device
-I (92) spiram: SPI RAM mode: sram 80m
-I (96) spiram: PSRAM initialized, cache is in normal (1-core) mode.
-I (103) cpu_start: Pro cpu up.
-I (107) cpu_start: Starting app cpu, entry point is 0x403796c4
-0x403796c4: call_start_cpu1 at /home/zhe/esp/gitlab/idf/esp-idf-hmi/components/esp_system/port/cpu_start.c:156
-
-I (0) cpu_start: App cpu up.
-I (402) spiram: SPI SRAM memory test OK
-I (411) cpu_start: Pro cpu start user code
-I (411) cpu_start: cpu freq: 240000000
-I (411) cpu_start: Application information:
-I (411) cpu_start: Project name:     factory_demo
-I (411) cpu_start: App version:      b720353-dirty
-I (411) cpu_start: Compile time:     Nov  9 2021 11:25:23
-I (412) cpu_start: ELF file SHA256:  e12c5b6471e7e231...
-I (412) cpu_start: ESP-IDF:          v5.0-dev-19-g290c805aa8-dirty
-I (412) heap_init: Initializing. RAM available for dynamic allocation:
-I (413) heap_init: At 3FCB4708 len 0002B8F8 (174 KiB): D/IRAM
-I (413) heap_init: At 3FCE0000 len 0000EE34 (59 KiB): STACK/DRAM
-I (413) spiram: Adding pool of 8192K of external SPI memory to heap allocator
-I (414) spi_flash: detected chip: gd
-I (414) spi_flash: flash io: qio
-I (415) sleep: Configure to isolate all GPIO pins in sleep state
-I (415) sleep: Enable automatic switching of GPIO sleep configuration
-I (415) cpu_start: Starting scheduler on PRO CPU.
-I (0) cpu_start: Starting scheduler on APP CPU.
-```
 
 ## Troubleshooting
 

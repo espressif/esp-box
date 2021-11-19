@@ -22,11 +22,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "lvgl.h"
+#include "ui_lang.h"
 #include "ui_main.h"
 
-LV_FONT_DECLARE(font_cmd_36)
+LV_FONT_DECLARE(FONT_CMD)
 
 static lv_timer_t *sr_timer = NULL;
+static lv_obj_t *sr_label = NULL;
 static lv_obj_t *sr_mask = NULL;
 static lv_obj_t *sr_bar[16] = { [0 ... 15] = NULL };
 
@@ -58,96 +60,123 @@ static int int16_sin(int32_t deg)
     }
 }
 
-static void sr_anim_cb(lv_timer_t *timer)
+static bool sr_anim_active = false;
+static int32_t sr_anim_count = 0;
+
+static void sr_label_event_handler(lv_event_t *event)
 {
-    lv_obj_t **bar = (lv_obj_t **) timer->user_data;
-    static int32_t count = 0;
-
-    lv_obj_move_foreground(sr_mask);
-
-    for (size_t i = 0; i < 16; i++) {
-        lv_bar_set_value(bar[i], 80 * abs(int16_sin(20 * i + count * 10)) / 36767 + 10, LV_ANIM_ON);
-        lv_bar_set_start_value(bar[i], -80 * abs(int16_sin(20 * i + count * 10)) / 36767 - 10, LV_ANIM_ON);
+    char *text = (char *) event-> param;
+    if (NULL != text) {
+        lv_label_set_text_static(sr_label, text);
+        // sr_text = text;
     }
-
-    count++;
 }
 
-static void sr_anim_hide_cb(lv_timer_t *timer)
+static void sr_mask_event_handler(lv_event_t *event)
 {
-    lv_obj_add_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
-    lv_timer_del(timer);
+    bool active = (bool) event->param;
+
+    if (active) {
+        sr_anim_count = 0;
+        sr_anim_active = true;
+    } else {
+        sr_anim_active = false;
+    }
+}
+
+static void sr_anim_timer_cb(lv_timer_t *timer)
+{
+    if (sr_anim_active) {
+        /* Will hide hint message after wakeup */
+        static bool hint_hide = false;
+        if (hint_hide != true) {
+            ui_hint(false);
+            hint_hide = true;
+        }
+
+        /* Show sr animate mask and move to foreground */
+        if (lv_obj_has_flag(sr_mask, LV_OBJ_FLAG_HIDDEN)) {
+            lv_obj_clear_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_move_foreground(sr_mask);
+        }
+
+        for (size_t i = 0; i < 16; i++) {
+            lv_bar_set_value(sr_bar[i], 80 * abs(int16_sin(20 * i + sr_anim_count * 10)) / 36767 + 10, LV_ANIM_ON);
+            lv_bar_set_start_value(sr_bar[i], -80 * abs(int16_sin(20 * i + sr_anim_count * 10)) / 36767 - 10, LV_ANIM_ON);
+        }
+        sr_anim_count++;
+    } else {
+        /* The first timer callback will set the bars to 0 */
+        if (sr_anim_count != 0) {
+            for (size_t i = 0; i < 16; i++) {
+                lv_bar_set_value(sr_bar[i], 20, LV_ANIM_ON);
+                lv_bar_set_start_value(sr_bar[i], 20, LV_ANIM_ON);
+            }
+            sr_anim_count = 0;
+        } else {
+            /* The second timer callback will hide sr mask */
+            if (!lv_obj_has_flag(sr_mask, LV_OBJ_FLAG_HIDDEN)) {
+                lv_obj_add_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
+            }
+        }
+    }
 }
 
 void sr_anim_start(void)
+{
+    lv_event_send(sr_mask, LV_EVENT_VALUE_CHANGED, (void *) true);
+}
+
+void sr_anim_stop(void)
+{
+    lv_event_send(sr_mask, LV_EVENT_VALUE_CHANGED, (void *) false);
+}
+
+void ui_sr_anim_init(void)
 {
     if (NULL == sr_mask) {
         sr_mask = lv_obj_create(lv_scr_act());
         lv_obj_set_size(sr_mask, 320, 210);
         lv_obj_clear_flag(sr_mask, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_add_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
         lv_obj_set_style_radius(sr_mask, 0, LV_STATE_DEFAULT);
         lv_obj_set_style_border_width(sr_mask, 0, LV_STATE_DEFAULT);
         lv_obj_set_style_bg_color(sr_mask, lv_color_make(237, 238, 239), LV_STATE_DEFAULT);
         lv_obj_align(sr_mask, LV_ALIGN_CENTER, 0, 15);
+        lv_obj_add_event_cb(sr_mask, sr_mask_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
     }
-    
+
     for (size_t i = 0; i < sizeof(sr_bar) / sizeof(sr_bar[0]); i++) {
         if (NULL == sr_bar[i]) {
             sr_bar[i] = lv_bar_create(sr_mask);
             lv_obj_set_size(sr_bar[i], 6, 160);
-            lv_obj_set_style_anim_time(sr_bar[i], 500, LV_STATE_DEFAULT);
+            lv_obj_set_style_anim_time(sr_bar[i], 400, LV_STATE_DEFAULT);
             lv_obj_set_style_bg_color(sr_bar[i], lv_color_make(237, 238 , 239), LV_STATE_DEFAULT);
             lv_bar_set_range(sr_bar[i], -100, 100);
-            lv_bar_set_value(sr_bar[i], 0, LV_ANIM_OFF);
-            lv_bar_set_start_value(sr_bar[i], -0, LV_ANIM_OFF);
-            lv_bar_set_value(sr_bar[i], 20, LV_ANIM_ON);
-            lv_bar_set_start_value(sr_bar[i], -20, LV_ANIM_ON);
+            lv_bar_set_value(sr_bar[i], 20, LV_ANIM_OFF);
+            lv_bar_set_start_value(sr_bar[i], -20, LV_ANIM_OFF);
             lv_obj_align(sr_bar[i], LV_ALIGN_CENTER, (sizeof(sr_bar) / sizeof(sr_bar[0]) / 2 - i) * -15 , -10);
-        } else {
-            lv_bar_set_value(sr_bar[i], 20, LV_ANIM_ON);
-            lv_bar_set_start_value(sr_bar[i], -20, LV_ANIM_ON);
         }
     }
 
-    lv_obj_move_foreground(sr_mask);
-    lv_obj_clear_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
-
-    if (NULL != sr_timer) {
-        sr_anim_stop();
+    if (NULL == sr_label) {
+        sr_label = lv_label_create(sr_mask);
+        lv_obj_set_style_text_font(sr_label, &FONT_CMD, LV_STATE_DEFAULT);
+        lv_obj_set_style_text_color(sr_label, lv_color_black(), LV_STATE_DEFAULT);
+        lv_label_set_text_static(sr_label, "");
+        lv_obj_align(sr_label, LV_ALIGN_CENTER, 0, 80);
+        lv_obj_add_event_cb(sr_label, sr_label_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
     }
 
-    sr_timer = lv_timer_create(sr_anim_cb, 500, &sr_bar);
-}
+    sr_anim_count = 0;
+    sr_anim_active = false;
 
-void sr_anim_stop(void)
-{
     if (NULL == sr_timer) {
-        return;
+        sr_timer = lv_timer_create(sr_anim_timer_cb, 500, &sr_bar);
     }
-
-    /* Delete sr animate timer */
-    lv_timer_del(sr_timer);
-    sr_timer = NULL;
-
-    for (size_t i = 0; i < 16; i++) {
-        lv_bar_set_start_value(sr_bar[i], -10, LV_ANIM_ON);
-        lv_bar_set_value(sr_bar[i], 10, LV_ANIM_ON);
-    }
-
-    lv_timer_create(sr_anim_hide_cb, 500, NULL);
 }
 
 void sr_anim_set_text(char *text)
 {
-    static lv_obj_t *label = NULL;
-
-    if (NULL == label) {
-        label = lv_label_create(sr_mask);
-        lv_obj_set_style_text_font(label, &font_cmd_36, LV_STATE_DEFAULT);
-        lv_obj_set_style_text_color(label, lv_color_black(), LV_STATE_DEFAULT);
-        lv_obj_align(label, LV_ALIGN_CENTER, 0, 40);
-    }
-
-    lv_label_set_text_static(label, text);
-    lv_obj_align(label, LV_ALIGN_CENTER, 0, 80);
+    lv_event_send(sr_label, LV_EVENT_VALUE_CHANGED, (void *) text);
 }

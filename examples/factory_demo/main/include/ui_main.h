@@ -122,6 +122,12 @@ void ui_mute_init(void);
 void ui_mute_set_state(bool mute);
 
 /**
+ * @brief Init speech animate
+ * 
+ */
+void ui_sr_anim_init(void);
+
+/**
  * @brief Start speech recognition animate
  * 
  */
