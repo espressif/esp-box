@@ -4,13 +4,13 @@
 
 ### 硬件开源资料
 
-* [ESP-BOX Mainboard Schematic](../hardware/esp32_s3_box_v2.5/schematic)
-* [ESP-BOX Mainboard PCB](../hardware/esp32_s3_box_v2.5/pcb)
-* [ESP-BOX Mainboard Gerber](../hardware/esp32_s3_box_v2.5/gerber)
-* [ESP-BOX Subboard Schematic](../hardware/esp32_s3_box_sub_v2.2/schematic)
-* [ESP-BOX Subboard PCB](../hardware/esp32_s3_box_sub_v2.2/pcb)
-* [ESP-BOX Subboard Gerber](../hardware/esp32_s3_box_sub_v2.2/gerber)
-* [ESP-BOX Shell CAD STEP](../hardware/esp32_s3_box_shell_step)
+* [ESP32-S3-BOX Mainboard Schematic](../hardware/esp32_s3_box_v2.5/schematic)
+* [ESP32-S3-BOX Mainboard PCB](../hardware/esp32_s3_box_v2.5/pcb)
+* [ESP32-S3-BOX Mainboard Gerber](../hardware/esp32_s3_box_v2.5/gerber)
+* [ESP32-S3-BOX Subboard Schematic](../hardware/esp32_s3_box_sub_v2.2/schematic)
+* [ESP32-S3-BOX Subboard PCB](../hardware/esp32_s3_box_sub_v2.2/pcb)
+* [ESP32-S3-BOX Subboard Gerber](../hardware/esp32_s3_box_sub_v2.2/gerber)
+* [ESP32-S3-BOX Shell CAD STEP](../hardware/esp32_s3_box_shell_step)
 
 ### 规格参数
 
