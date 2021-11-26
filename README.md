@@ -29,11 +29,12 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 
 ## User Guide
 
-* For getting start of ESP32-S3-BOX, [Please refer to the Getting Started](./docs/getting_started.md)
-* For voice control and customization, [Please refer to the Voice Assistance Control and Customization](./docs/getting_started.md#voice-assistance-control-and-customization)
-* For control the device by graphical user interface, [Please refer to the GUI Guide](./docs/getting_started.md#esp32-s3-box-graphical-user-interface)
-* For more detils of ESP32-S3-BOX hardware, [Please refer to ESP32-S3-BOX hardware overview](./docs/hardware_overview.md)
-* For latest version firmware, [Please refer to the ESP32-S3-BOX firmware update](./docs/firmware_update.md)
+* For getting start of ESP32-S3-BOX, please refer to the [Getting Started](./docs/getting_started.md)
+* For voice control and customization, please refer to the [Voice Assistance Control and Customization](./docs/getting_started.md#voice-assistance-control-and-customization)
+* For control the device by graphical user interface, please refer to the [ESP32-S3-BOX GUI Guide](./docs/getting_started.md#esp32-s3-box-graphical-user-interface)
+* For product exploded-view and disassembly tutorial, please refer to [ESP32-S3-BOX Disassembly Tutorial](docs/disassembly_tutorial.md)
+* For more detils of ESP32-S3-BOX hardware, please refer to the [ESP32-S3-BOX hardware overview](./docs/hardware_overview.md).
+* For latest version firmware, please refer to the [ESP32-S3-BOX firmware update](./docs/firmware_update.md)
 
 ## Developer Guide
 

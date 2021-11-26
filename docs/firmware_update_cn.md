@@ -1,13 +1,13 @@
 * [English Version](./firmware_update.md)
 
-## 更新 ESP32-S3-BOX 固件
+# 更新 ESP32-S3-BOX 固件
 
 ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
 
 1. 一根 USB Type-C 数据线
 2. 最新版本固件（bin 文件）
 
-### 下载最新版本固件
+## 下载最新版本固件
 
 请下载最新版本固件，固件下载链接为：https://github.com/espressif/esp-box/releases
 
@@ -19,7 +19,15 @@ ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
 <img src="_static/bin_download.png">
 </div>
 
-### Windows 系统更新固件说明
+## 固件更新
+
+不同操作系统的固件更新方法，请参考以下连接:
+
+| [Windows](#windows-系统更新固件说明) | [Linux](#linux-系统更新固件说明) | [macOS](#macos-系统更新固件说明) |
+|:----:|:----:|:----:|
+| [<img src="_static/windows-logo.png" width="320" align="center" />](#windows-系统更新固件说明) | [<img src="_static/linux-logo.png" width="320" align="center" />](#linux-系统更新固件说明) | [<img src="_static/macos-logo.jpg" width="320" align="center" />](#macos-系统更新固件说明) |
+
+#### Windows 系统更新固件说明
 
 我们推荐使用 `Windows 10` 及以上版本，在该系统下 `USB-Serial-Jtag` 的驱动将联网自动下载。如果使用 `Windows 7` 系统，请手动下载 [USB-Serial-JTAG 驱动](https://dl.espressif.com/dl/idf-driver/idf-driver-esp32-usb-jtag-2021-07-15.zip) 并安装。
 
@@ -59,7 +67,7 @@ ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
    </div>
 
 
-### Linux 系统更新固件说明
+#### Linux 系统更新固件说明
 
 1. [下载最新版本固件](https://github.com/espressif/esp-box/releases)
 2. 使用 USB Type-C 数据线将 ESP32-S3-BOX 接入电脑，`USB-Serial-Jtag` 在 Linux 系统下无需安装驱动
@@ -93,7 +101,7 @@ ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
    <img src="_static/linux_download.png">
    </div>
 
-### macOS 系统更新固件说明
+#### macOS 系统更新固件说明
 
 1. [下载最新版本固件](https://github.com/espressif/esp-box/releases)
 2. 使用 USB Type-C 数据线将 ESP32-S3-BOX 接入电脑，`USB-Serial-Jtag` 在 macOS 系统下无需安装驱动
