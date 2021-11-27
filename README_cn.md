@@ -31,11 +31,12 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 
 ## 使用指引
 
-* 首次拿到 ESP32-S3-BOX，[您可以查看首次使用操作指引](./docs/getting_started_cn.md#给-esp32-s3-box-供电)
-* 想要设置独特的语音命令词，[您可以查看修改自定义命令词](./docs/getting_started_cn.md#语音控制命令词自定义)
-* 想要通过界面控制设备，[请查看图形界面操作指引](./docs/getting_started_cn.md#esp32-s3-box-图形界面)
-* 想要了解 ESP32-S3-BOX 硬件和接口细节，[请查看 ESP32-S3-BOX 硬件总览](./docs/hardware_overview_cn.md)
-* 想要使用最新版本固件，[请查看固件更新说明](./docs/firmware_update_cn.md)
+* 首次拿到 ESP32-S3-BOX，您可以查看[首次使用操作指引](./docs/getting_started_cn.md#给-esp32-s3-box-供电)
+* 想要设置独特的语音命令词，您可以查看[修改自定义命令词](./docs/getting_started_cn.md#语音控制命令词自定义)
+* 想要通过界面控制设备，请查看[图形界面操作指引](./docs/getting_started_cn.md#esp32-s3-box-图形界面)
+* 想要了解产品爆炸图和拆机说明, 请查看 [ESP32-S3-BOX 拆机教程](docs/disassembly_tutorial.md)
+* 想要了解 ESP32-S3-BOX 硬件和接口细节，请查看 [ESP32-S3-BOX 硬件总览](./docs/hardware_overview_cn.md)
+* 想要使用最新版本固件，请查看[固件更新说明](./docs/firmware_update_cn.md)
 
 ## 开发指引
 

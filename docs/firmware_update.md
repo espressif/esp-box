@@ -1,13 +1,13 @@
 * [中文版本](./firmware_update_cn.md)
 
-## Update ESP32-S3-BOX Firmware
+# Update ESP32-S3-BOX Firmware
 
 ESP32-S3-BOX supports updating firmware through USB, you just need:
 
 1. USB Type-C cable
 2. [Latest firmware bin file](https://github.com/espressif/esp-box/releases)
 
-### Download Latest Firmware
+## Latest Firmware Download
 
 For the latest firmware, please refer to: https://github.com/espressif/esp-box/releases
 
@@ -19,7 +19,15 @@ For the latest firmware, please refer to: https://github.com/espressif/esp-box/r
 <img src="_static/bin_download.png">
 </div>
 
-### Firmware update for Windows 
+## Firmware update
+
+Please follow the link below correspond to your OS to update the ESP-S3-BOX firmware.
+
+| [Windows](#firmware-update-for-windows) | [Linux](#firmware-update-for-linux) | [macOS](#firmware-update-for-macos) |
+|:----:|:----:|:----:|
+| [<img src="_static/windows-logo.png" width="320" width="240" align="center" />](#firmware-update-for-windows) | [<img src="_static/linux-logo.png" width="320" width="240" align="center" />](#firmware-update-for-linux) | [<img src="_static/macos-logo.jpg" width="320" width="240" align="center" />](#firmware-update-for-macos) |
+
+#### Firmware update for Windows 
 
 We recommend using `Windows 10` and above system. Under `Windows 10` system, the driver of `USB-Serial-Jtag` will be downloaded automatically. If you use the `Windows 7`, please download and install [USB-Serial-JTAG drive](https://dl.espressif.com/dl/idf-driver/idf-driver-esp32-usb-jtag-2021-07-15.zip) manually.
 
@@ -59,7 +67,7 @@ We recommend using `Windows 10` and above system. Under `Windows 10` system, the
    </div>
 
 
-### Firmware update for Linux 
+#### Firmware update for Linux 
 
 1. [Download latest firmware](https://github.com/espressif/esp-box/releases)
 2. Connect ESP32-S3-BOX to the computer through USB Type-C cable, there is no need to install the driver of `USB-Serial-Jtag` under Linux system.
@@ -88,7 +96,7 @@ We recommend using `Windows 10` and above system. Under `Windows 10` system, the
    <img src="_static/linux_download.png">
    </div>
 
-### Firmware update for macOS
+#### Firmware update for macOS
 
 1. [Download latest firmware](https://github.com/espressif/esp-box/releases)
 
