@@ -27,10 +27,11 @@
 
 LV_FONT_DECLARE(FONT_CMD)
 
-static lv_timer_t *sr_timer = NULL;
+static bool sr_anim_active = false;
+static int32_t sr_anim_count = 0;
 static lv_obj_t *sr_label = NULL;
 static lv_obj_t *sr_mask = NULL;
-static lv_obj_t *sr_bar[16] = { [0 ... 15] = NULL };
+static lv_obj_t *sr_bar[8] = { [0 ... 7] = NULL };
 
 static int int16_sin(int32_t deg)
 {
@@ -60,15 +61,11 @@ static int int16_sin(int32_t deg)
     }
 }
 
-static bool sr_anim_active = false;
-static int32_t sr_anim_count = 0;
-
 static void sr_label_event_handler(lv_event_t *event)
 {
     char *text = (char *) event-> param;
     if (NULL != text) {
         lv_label_set_text_static(sr_label, text);
-        // sr_text = text;
     }
 }
 
@@ -79,13 +76,17 @@ static void sr_mask_event_handler(lv_event_t *event)
     if (active) {
         sr_anim_count = 0;
         sr_anim_active = true;
+        lv_obj_clear_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_move_foreground(sr_mask);
     } else {
         sr_anim_active = false;
     }
 }
 
-static void sr_anim_timer_cb(lv_timer_t *timer)
+static void ui_speech_anim_cb(lv_timer_t *timer)
 {
+    const int32_t step = 40;
+
     if (sr_anim_active) {
         /* Will hide hint message after wakeup */
         static bool hint_hide = false;
@@ -100,17 +101,27 @@ static void sr_anim_timer_cb(lv_timer_t *timer)
             lv_obj_move_foreground(sr_mask);
         }
 
-        for (size_t i = 0; i < 16; i++) {
-            lv_bar_set_value(sr_bar[i], 80 * abs(int16_sin(20 * i + sr_anim_count * 10)) / 36767 + 10, LV_ANIM_ON);
-            lv_bar_set_start_value(sr_bar[i], -80 * abs(int16_sin(20 * i + sr_anim_count * 10)) / 36767 - 10, LV_ANIM_ON);
+        /* Set bar value */
+        int32_t sr_val[4] = {
+            abs(int16_sin(sr_anim_count * step + step * 0)) / (32768 >> 7),
+            abs(int16_sin(sr_anim_count * step + step * 1)) / (32768 >> 7),
+            abs(int16_sin(sr_anim_count * step + step * 2)) / (32768 >> 7),
+            abs(int16_sin(sr_anim_count * step + step * 3)) / (32768 >> 7),
+        };
+
+        for (size_t i = 0; i < 4; i++) {
+            lv_bar_set_value(sr_bar[i], sr_val[i] > 20 ? sr_val[i] : 20, LV_ANIM_ON);
+            lv_bar_set_value(sr_bar[7 - i], sr_val[i] > 20 ? sr_val[i] : 20, LV_ANIM_ON);
+            lv_bar_set_start_value(sr_bar[i], sr_val[i] > 20 ? -sr_val[i] : -20, LV_ANIM_ON);
+            lv_bar_set_start_value(sr_bar[7 - i], sr_val[i] > 20 ? -sr_val[i] : -20, LV_ANIM_ON);
         }
         sr_anim_count++;
     } else {
         /* The first timer callback will set the bars to 0 */
         if (sr_anim_count != 0) {
-            for (size_t i = 0; i < 16; i++) {
-                lv_bar_set_value(sr_bar[i], 20, LV_ANIM_ON);
-                lv_bar_set_start_value(sr_bar[i], 20, LV_ANIM_ON);
+            for (size_t i = 0; i < 8; i++) {
+                lv_bar_set_value(sr_bar[i], 0, LV_ANIM_ON);
+                lv_bar_set_start_value(sr_bar[i], -0, LV_ANIM_ON);
             }
             sr_anim_count = 0;
         } else {
@@ -119,6 +130,73 @@ static void sr_anim_timer_cb(lv_timer_t *timer)
                 lv_obj_add_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
             }
         }
+    } 
+}
+
+void ui_sr_anim_init(void)
+{
+    if (NULL == sr_mask) {
+        sr_mask = lv_obj_create(lv_scr_act());
+        lv_obj_set_size(sr_mask, 320, 210);
+        lv_obj_clear_flag(sr_mask, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_add_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_set_style_radius(sr_mask, 0, LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(sr_mask, 0, LV_STATE_DEFAULT);
+        lv_obj_set_style_bg_color(sr_mask, lv_obj_get_style_bg_color(lv_scr_act(), LV_PART_MAIN), LV_STATE_DEFAULT);
+        lv_obj_align(sr_mask, LV_ALIGN_CENTER, 0, 15);
+        lv_obj_add_event_cb(sr_mask, sr_mask_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+
+    static lv_obj_t *obj_img = NULL;
+    if (NULL == obj_img) {
+        obj_img = lv_obj_create(sr_mask);
+        lv_obj_set_size(obj_img, 80, 80);
+        lv_obj_clear_flag(obj_img, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_set_style_radius(obj_img, 40, LV_STATE_DEFAULT);
+        lv_obj_set_style_border_width(obj_img, 0, LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_width(obj_img, 40, LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_opa(obj_img, LV_OPA_30, LV_STATE_DEFAULT);
+        lv_obj_align(obj_img, LV_ALIGN_CENTER, 0, -30);
+        lv_obj_t *img_mic_logo = lv_img_create(obj_img);
+        LV_IMG_DECLARE(mic_logo)
+        lv_img_set_src(img_mic_logo, &mic_logo);
+        lv_obj_center(img_mic_logo);
+    }
+
+    if (NULL == sr_label) {
+        LV_FONT_DECLARE(FONT_CMD)
+        sr_label = lv_label_create(sr_mask);
+        lv_label_set_text_static(sr_label, "");
+        lv_obj_set_style_text_font(sr_label, &FONT_CMD, LV_STATE_DEFAULT);
+        lv_obj_set_style_text_color(sr_label, lv_color_black(), LV_STATE_DEFAULT);
+        lv_obj_align(sr_label, LV_ALIGN_CENTER, 0, 80);
+        lv_obj_add_event_cb(sr_label, sr_label_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
+    }
+
+    for (size_t i = 0; i < sizeof(sr_bar) / sizeof(sr_bar[0]); i++) {
+        if (NULL == sr_bar[i]) {
+            sr_bar[i] = lv_bar_create(sr_mask);
+            lv_obj_set_size(sr_bar[i], 5, 60);
+            lv_obj_set_style_anim_time(sr_bar[i], 400, LV_STATE_DEFAULT);
+            lv_obj_set_style_bg_color(sr_bar[i], lv_color_make(237, 238, 239), LV_STATE_DEFAULT);
+            lv_obj_set_style_bg_color(sr_bar[i], lv_color_make(246, 175, 171), LV_PART_INDICATOR);
+            lv_bar_set_range(sr_bar[i], -100, 100);
+            lv_bar_set_value(sr_bar[i], 20, LV_ANIM_OFF);
+            lv_bar_set_start_value(sr_bar[i], -20, LV_ANIM_OFF);
+            lv_obj_set_style_anim_time(sr_bar[i], 400, LV_STATE_DEFAULT);
+        }
+    }
+
+    for (size_t i = 0; i < sizeof(sr_bar) / sizeof(sr_bar[0]) / 2; i++) {
+        lv_obj_align_to(sr_bar[i], obj_img, LV_ALIGN_OUT_LEFT_MID, 15 * i - 65, 0);
+        lv_obj_align_to(sr_bar[i + 4], obj_img, LV_ALIGN_OUT_RIGHT_MID, 15 * i + 20, 0);
+    }
+
+    sr_anim_count = 0;
+    sr_anim_active = false;
+    static lv_timer_t *timer = NULL;
+    if (NULL == timer) {
+        timer = lv_timer_create(ui_speech_anim_cb, 500, NULL);
     }
 }
 
@@ -130,50 +208,6 @@ void sr_anim_start(void)
 void sr_anim_stop(void)
 {
     lv_event_send(sr_mask, LV_EVENT_VALUE_CHANGED, (void *) false);
-}
-
-void ui_sr_anim_init(void)
-{
-    if (NULL == sr_mask) {
-        sr_mask = lv_obj_create(lv_scr_act());
-        lv_obj_set_size(sr_mask, 320, 210);
-        lv_obj_clear_flag(sr_mask, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
-        lv_obj_add_flag(sr_mask, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_set_style_radius(sr_mask, 0, LV_STATE_DEFAULT);
-        lv_obj_set_style_border_width(sr_mask, 0, LV_STATE_DEFAULT);
-        lv_obj_set_style_bg_color(sr_mask, lv_color_make(237, 238, 239), LV_STATE_DEFAULT);
-        lv_obj_align(sr_mask, LV_ALIGN_CENTER, 0, 15);
-        lv_obj_add_event_cb(sr_mask, sr_mask_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
-    }
-
-    for (size_t i = 0; i < sizeof(sr_bar) / sizeof(sr_bar[0]); i++) {
-        if (NULL == sr_bar[i]) {
-            sr_bar[i] = lv_bar_create(sr_mask);
-            lv_obj_set_size(sr_bar[i], 6, 160);
-            lv_obj_set_style_anim_time(sr_bar[i], 400, LV_STATE_DEFAULT);
-            lv_obj_set_style_bg_color(sr_bar[i], lv_color_make(237, 238 , 239), LV_STATE_DEFAULT);
-            lv_bar_set_range(sr_bar[i], -100, 100);
-            lv_bar_set_value(sr_bar[i], 20, LV_ANIM_OFF);
-            lv_bar_set_start_value(sr_bar[i], -20, LV_ANIM_OFF);
-            lv_obj_align(sr_bar[i], LV_ALIGN_CENTER, (sizeof(sr_bar) / sizeof(sr_bar[0]) / 2 - i) * -15 , -10);
-        }
-    }
-
-    if (NULL == sr_label) {
-        sr_label = lv_label_create(sr_mask);
-        lv_obj_set_style_text_font(sr_label, &FONT_CMD, LV_STATE_DEFAULT);
-        lv_obj_set_style_text_color(sr_label, lv_color_black(), LV_STATE_DEFAULT);
-        lv_label_set_text_static(sr_label, "");
-        lv_obj_align(sr_label, LV_ALIGN_CENTER, 0, 80);
-        lv_obj_add_event_cb(sr_label, sr_label_event_handler, LV_EVENT_VALUE_CHANGED, NULL);
-    }
-
-    sr_anim_count = 0;
-    sr_anim_active = false;
-
-    if (NULL == sr_timer) {
-        sr_timer = lv_timer_create(sr_anim_timer_cb, 500, &sr_bar);
-    }
 }
 
 void sr_anim_set_text(char *text)

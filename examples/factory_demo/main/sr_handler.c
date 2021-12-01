@@ -97,7 +97,8 @@ void sr_handler_task(void *pvParam)
                 ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Detected : %d", cmd_id);
                 break;
             }
-            
+
+            ui_dev_ctrl_update_state();
             /* **************** ENDS REGISTER COMMAND CALLBACK **************** */
         }
     }

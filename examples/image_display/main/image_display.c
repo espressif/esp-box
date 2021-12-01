@@ -29,7 +29,6 @@
 #include "freertos/task.h"
 #include "lv_port.h"
 #include "lv_port_fs.h"
-#include "lv_png.h"
 #include "lvgl.h"
 
 static const char *TAG = "main";
@@ -44,9 +43,6 @@ void app_main(void)
     ESP_ERROR_CHECK(bsp_lcd_init());
     ESP_ERROR_CHECK(bsp_tp_init());
     ESP_ERROR_CHECK(lv_port_init());
-    ESP_ERROR_CHECK(lv_port_fs_init());
-
-    lv_png_init();
     image_display();
 
     while (vTaskDelay(1), true) {
