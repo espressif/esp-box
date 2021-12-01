@@ -87,8 +87,8 @@ We recommend using `Windows 10` and above system. Under `Windows 10` system, the
     python -m esptool --chip esp32s3 write_flash 0x0 download_path/test_bin.bin
     ```
 
-   1. `0x0` is the flash address 
-   2. `download_path/test_bin.bin` is the name and path the downloaded firmware.
+   1. `0x0` is the fixed flash address 
+   2. `download_path/test_bin.bin` need be replaced with your firmware path and name.
 
 5. After updating, the download tool will prompt `Hash of data verified`. Next, **please reboot to run the new firmware!**
 
@@ -118,8 +118,8 @@ We recommend using `Windows 10` and above system. Under `Windows 10` system, the
    python3 -m esptool --chip esp32s3 write_flash 0x0 download_path/test_bin.bin
    ```
 
-   1. `0x0` is the flash address 
-   2. `download_path/test_bin.bin` is the name and path for the downloaded firmware.
+   1. `0x0` is the fixed flash address.
+   2. `download_path/test_bin.bin` need be replaced with your firmware path and name.
 
 5. After updating, the download tool will prompt `Hash of data verified`. Next, **please reboot to run the new firmware!**
 

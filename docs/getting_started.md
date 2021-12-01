@@ -133,6 +133,8 @@ Scan another QR code again, and it will redirect you to the web control interfac
    <img src="_static/phone_scan_qrcode2.png">
    </div>
 
+> Tips For Android phones: We recommend you to turn off the mobile network and use the IP address via Chrome, Safari, or Firefox browsers to visit the webpage if scanning the QR code fails to load the webpage
+
 **3. Voice Command Customization**
 
    1. You can simply turn on & turn off the light from this user interface；
