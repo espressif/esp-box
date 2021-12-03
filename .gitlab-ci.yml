@@ -46,6 +46,10 @@ build_demo_cmake:
     - cd lv_demos
     - idf.py fullclean
     - idf.py build
+    - cd ../
+    - cd mp3_demo
+    - idf.py fullclean
+    - idf.py build
     - cd ../../
 
 push_to_github:
