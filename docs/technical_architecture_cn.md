@@ -13,7 +13,7 @@ ESP-BOX 开发框架包括系统层、框架层、应用层三个主要层级：
 ESP-IDF 是乐鑫官方开源操作系统框架，同时兼容 ESP32、ESP32-S 和 ESP32-C 系列 SoC，完成一次开发即可在多芯片平台部署。它集成了大量的系统级基础组件，用于代码编译和调试的开发工具集，以及详尽的开发指导文档，具体包括：
 1. 系统级基础组件，主要包括基于 FreeRTOS 的多任务、多核支持，可外扩 PSRAM 的内存堆分配器；多款 ESP 芯片的 LL、HAL、Driver、VFS 层支持，将不同芯片功能抽象为统一操作接口；多个标准网络协议栈 TCP/IP、HTTP、MQTT、WebSocket 等等；
 2. 开发工具集，主要包含用于代码编译的 GCC 交叉工具链、基于 OpenOCD 的 JTAG 调试工具、基于 Segger SystemView 的实时跟踪、Flash 和 eFuse 编程器等；
-3. 开发指导文档，详尽的说明了乐鑫各个芯片平台、各个软件版本下的 API 参考，使用指引和注意事项等，开发者可[在线浏览](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)也可[下载到本地](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/esp-idf-en-v4.4-dev-3540-g4e03a9c-esp32.pdf)查看。
+3. 开发指导文档，详尽的说明了乐鑫各个芯片平台、各个软件版本下的 API 参考，使用指引和注意事项等，开发者可[在线浏览](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)。
 
 ### 框架层 Framework Layer
 
@@ -23,9 +23,9 @@ ESP-IDF 是乐鑫官方开源操作系统框架，同时兼容 ESP32、ESP32-S �
 
 ESP-SR 是乐鑫面向智能语音领域开发的语音识别框架，该框架可利用 ESP32-S3 AI 扩展指令进行运算加速，为开发者提供开箱即用的高性能、高可靠性的语音识别功能，它包括：
 
-1. 声学前端（[Audio Front-End, AFE](https://github.com/espressif/esp-sr/tree/master/acoustic_algorithm)）算法集，用于提升智能语音设备在远场噪声环境中的交互能力，使开发者获得高质量且稳定的音频数据。它主要包括可以有效滤除扬声器回声的回声消除算法（Acoustic Echo Cancellation，AEC）, 用于强化麦克风阵列方向性的盲源分离算法（Blind Source Separation，BSS），和用于处理环境噪声的噪声抑制算法（Noise Suppression，NS）。ESP-SR 将以上算法封装成简单的 API，开发者无需关心这些算法的具体细节，只需要针对具体的应用场景，对需要使用的算法排列组合，并按照 API 的格式要求输入待处理的语音数据，即可得到声学前端算法的处理结果。
-2. 唤醒词识别模型（[WakeNet](https://github.com/espressif/esp-sr/blob/master/wake_word_engine/README.md)），用于在连续的音频流中实时监测出特定的语言片段，将智能设备从待机状态唤醒至语音交互状态。WakeNet 通过计算音频片段的梅尔倒频谱（Mel-Frequency Cepstrum, MFC）作为输入特征，使用针对 ESP32-S3 优化的神经网络算法对特征信号进行分类，在监测到命令词时触发唤醒信号，可在噪声环境下获得不小于 80% 的[有效识别率](https://github.com/espressif/esp-sr/blob/master/wake_word_engine/README.md#performance-test)。ESP-BOX 提供了开箱即用的离线唤醒词 “Hi, ESP” 和 “Hi, 乐鑫”，开发者无需额外的开发工作即可使用，同时乐鑫也支持为开发者[定制独特的唤醒词](https://github.com/espressif/esp-sr/blob/master/wake_word_engine/ESP_Wake_Words_Customization.md)。
-3. 命令词识别模型（[MultiNet](https://github.com/espressif/esp-sr/blob/master/speech_command_recognition/README.md)），用于在设备唤醒后，识别用户特定的中英文语音命令，例如 “Turn on the air conditioner”，“关闭电灯” 等。MultiNet 通过基于 CRNN 和 CTC 的卷积循环神经网络，对输入音频片段进行多命令词识别，可同时支持最多 100 个离线命令词。 开发者不需要了解识别模型细节，也无需重新进行模型训练，通过简单配置[中文拼音字符串](https://github.com/espressif/esp-sr/blob/master/speech_command_recognition/README.md#chinese-speech-command-recognition)或[英文音标字符串](https://github.com/espressif/esp-sr/blob/master/speech_command_recognition/README.md#english-speech-command-recognition)以及对应 ID，即可添加或修改命令词，模型在识别到语音命令词后将触发包含 ID 信息的事件。
+1. 声学前端（[Audio Front-End, AFE](https://github.com/espressif/esp-sr/tree/3ce34fe340af15e3bfb354c21c1ec2e6e31a37e8/docs/acoustic_algorithm)）算法集，用于提升智能语音设备在远场噪声环境中的交互能力，使开发者获得高质量且稳定的音频数据。它主要包括可以有效滤除扬声器回声的回声消除算法（Acoustic Echo Cancellation，AEC）, 用于强化麦克风阵列方向性的盲源分离算法（Blind Source Separation，BSS），和用于处理环境噪声的噪声抑制算法（Noise Suppression，NS）。ESP-SR 将以上算法封装成简单的 API，开发者无需关心这些算法的具体细节，只需要针对具体的应用场景，对需要使用的算法排列组合，并按照 API 的格式要求输入待处理的语音数据，即可得到声学前端算法的处理结果。
+2. 唤醒词识别模型（[WakeNet](https://github.com/espressif/esp-sr/tree/3ce34fe340af15e3bfb354c21c1ec2e6e31a37e8/docs/wake_word_engine/README.md)），用于在连续的音频流中实时监测出特定的语言片段，将智能设备从待机状态唤醒至语音交互状态。WakeNet 通过计算音频片段的梅尔倒频谱（Mel-Frequency Cepstrum, MFC）作为输入特征，使用针对 ESP32-S3 优化的神经网络算法对特征信号进行分类，在监测到命令词时触发唤醒信号，可在噪声环境下获得不小于 80% 的[有效识别率](https://github.com/espressif/esp-sr/tree/3ce34fe340af15e3bfb354c21c1ec2e6e31a37e8/docs/wake_word_engine/README.md#performance-test)。ESP-BOX 提供了开箱即用的离线唤醒词 “Hi, ESP” 和 “Hi, 乐鑫”，开发者无需额外的开发工作即可使用，同时乐鑫也支持为开发者[定制独特的唤醒词](https://github.com/espressif/esp-sr/tree/3ce34fe340af15e3bfb354c21c1ec2e6e31a37e8/docs/wake_word_engine/ESP_Wake_Words_Customization.md)。
+3. 命令词识别模型（[MultiNet](https://github.com/espressif/esp-sr/tree/3ce34fe340af15e3bfb354c21c1ec2e6e31a37e8/docs/speech_command_recognition/README.md)），用于在设备唤醒后，识别用户特定的中英文语音命令，例如 “Turn on the air conditioner”，“关闭电灯” 等。MultiNet 通过基于 CRNN 和 CTC 的卷积循环神经网络，对输入音频片段进行多命令词识别，可同时支持最多 200 个离线命令词。 开发者不需要了解识别模型细节，也无需重新进行模型训练，通过简单配置[中文拼音字符串](https://github.com/espressif/esp-sr/tree/3ce34fe340af15e3bfb354c21c1ec2e6e31a37e8/docs/speech_command_recognition/README.md#modify-speech-commands)或[英文音标字符串](https://github.com/espressif/esp-sr/tree/3ce34fe340af15e3bfb354c21c1ec2e6e31a37e8/docs/speech_command_recognition/README.md#modify-speech-commands)以及对应 ID，即可添加或修改命令词，模型在识别到语音命令词后将触发包含 ID 信息的事件。
 
 **ESP-HMI**
 
