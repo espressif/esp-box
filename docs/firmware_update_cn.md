@@ -92,8 +92,8 @@ ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
     python -m esptool --chip esp32s3 write_flash 0x0 download_path/test_bin.bin
     ```
 
-   1. `0x0` 是即将写入的 flash 地址
-   2. `download_path/test_bin.bin` 为固件下载的路径和名称
+   1. `0x0` 是一个固定值，表示即将写入的 flash 地址
+   2. `download_path/test_bin.bin` 是一个变量，请替换为您的固件下载路径和名称
 
 5. 下载完成后，工具将提示 `Hash of data verified`，之后**重新上电，即可进入新程序！**
 
@@ -126,8 +126,8 @@ ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
     python3 -m esptool --chip esp32s3 write_flash 0x0 download_path/test_bin.bin
     ```
 
-   1. `0x0` 是即将写入的 flash 地址
-   2. `download_path/test_bin.bin` 为固件下载的路径和名称
+   1. `0x0` 是一个固定值，表示即将写入的 flash 地址
+   2. `download_path/test_bin.bin` 是一个变量，请替换为您的固件下载路径和名称
 
 5. 下载完成后，工具将提示 `Hash of data verified`，之后**重新上电，即可进入新程序！**
 

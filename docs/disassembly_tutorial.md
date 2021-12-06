@@ -14,9 +14,10 @@ The figure below depicts an exploded view of the ESP32-S3-BOX, which shows the r
 
 ### What Do You Need
 
-- A Hot Air Blower
-- A Flat-Head Screwdriver
-- A Phillips-Head Screwdriver
+* A Hot Air Blower
+* A Flat-Head Screwdriver
+* A Phillips-Head Screwdriver
+* Triangle Plastic Pry Opening Tool
 
 ### Components Overview
 
@@ -28,8 +29,8 @@ The following tutorial will guide you to disassemble the development board step-
 
 ### Step-by-step Guide
 
-- The first step is to remove the touch display that is glued to the frame. Next, please use a "Hot Air Blower" perpendicularly on the edge of the touch screen to loosen the adhesive materials. 
-- Use the "Flat-Head Screwdriver" to pry off the touch screen. Please be careful, as you may damage the FPC cable and the glass cover of the touch screen when removing the touch screen from the development board. 
+- The first step is to remove the touch display that is glued to the frame. Please use a "Hot Air Blower" perpendicularly on the edge of the touch screen to loosen the adhesive materials. 
+- Next, use the "Flat-Head Screwdriver" or "Triangle Plastic Pry Opening Tool" to pry off the touch screen. Please be careful, as you may damage the FPC cable and the glass cover of the touch screen when removing the touch screen from the development board. 
 
 <div align="center">
   <img src="_static/disassembly_pictures/figure_1.jpg" width="500px"/>
@@ -38,14 +39,23 @@ The following tutorial will guide you to disassemble the development board step-
 - While tearing off the touch screen, you will observe the touch panel is connected to the mainboard by two FPC cables, 8 pin and 20 pin, respectively. Unlock the two FPC connectors and take down the whole touch screen.
 
 <div align="center">
-  <img src="_static/disassembly_pictures/figure_2.jpg" width="500px"/>
+  <img src="_static/disassembly_pictures/figure_2_1.jpg" width="500px"/>
 </div>
 
-- Use the “Phillips-Head Screwdriver” to remove the three self-tapping screws. Use the "Flat-Head Screwdriver" to remove the middle frame from the edge.
-. Use the "Flat-Head Screwdriver" to remove the middle frame from the edge. 
+<div align="center">
+  <img src="_static/disassembly_pictures/figure_2_2.jpg" width="500px"/>
+</div>
+
+- Use the “Phillips-Head Screwdriver” to remove the three self-tapping screws.
 
 <div align="center">
   <img src="_static/disassembly_pictures/figure_4.jpg" width="500px"/>
+</div>
+
+- Use the "Flat-Head Screwdriver" or "Triangle Plastic Pry Opening Tool" to remove the middle frame from the edge.
+
+<div align="center">
+  <img src="_static/disassembly_pictures/figure_4_2.jpg" width="500px"/>
 </div>
 
 > **Note**: The middle frame is 3D printed, it might be tight while removing the middle frame from the case. Try to open the snap-fit from the edge. 
