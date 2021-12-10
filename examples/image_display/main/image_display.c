@@ -21,15 +21,22 @@
 
 #include <dirent.h>
 #include "bsp_board.h"
+#include "bsp_indev.h"
 #include "bsp_lcd.h"
 #include "bsp_storage.h"
-#include "bsp_tp.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "lv_port.h"
 #include "lv_port_fs.h"
 #include "lvgl.h"
+
+#if CONFIG_ESP32_S3_BOX_LITE_BOARD
+#include "bsp_btn.h"
+static int s_selected = 0;
+static void btn_prev_cb(void *arg);
+static void btn_next_cb(void *arg);
+#endif
 
 static const char *TAG = "main";
 
@@ -41,13 +48,13 @@ void app_main(void)
     ESP_ERROR_CHECK(bsp_spiffs_init_default());
 
     ESP_ERROR_CHECK(bsp_lcd_init());
-    ESP_ERROR_CHECK(bsp_tp_init());
+    ESP_ERROR_CHECK(bsp_indev_init_default());
     ESP_ERROR_CHECK(lv_port_init());
     image_display();
 
-    while (vTaskDelay(1), true) {
+    do {
         lv_task_handler();
-    }
+    } while (vTaskDelay(1), true);
 }
 
 static void btn_event_cb(lv_event_t *event)
@@ -99,4 +106,21 @@ static void image_display(void)
             break;
         }
     }
+
+#if CONFIG_ESP32_S3_BOX_LITE_BOARD
+    bsp_btn_register_callback(0, BUTTON_SINGLE_CLICK, btn_prev_cb);
+    bsp_btn_register_callback(2, BUTTON_SINGLE_CLICK, btn_next_cb);
+    bsp_btn_set_user_data(0, (void *) list);
+    bsp_btn_set_user_data(2, (void *) list);
+#endif
+}
+
+static void btn_prev_cb(void *arg)
+{
+    //
+}
+
+static void btn_next_cb(void *arg)
+{
+    //
 }

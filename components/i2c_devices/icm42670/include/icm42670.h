@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
 
 #ifndef _ICM_42670_H_
 #define _ICM_42670_H_

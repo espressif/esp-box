@@ -26,6 +26,10 @@
 #include "esp_log.h"
 #include "es8311.h"
 
+#if CONFIG_ESP32_S3_BOX_LITE_BOARD
+static void register_button_callback(lv_obj_t *btn_list[]);
+#endif
+
 static void btn_play_pause_cb(lv_event_t *event)
 {
     lv_obj_t *btn = (lv_obj_t *) event->target;
@@ -172,4 +176,57 @@ void ui_audio_start(void)
     lv_obj_add_event_cb(music_list, music_list_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     audio_callback_register(audio_callback, (void *) music_list);
+
+#if CONFIG_ESP32_S3_BOX_LITE_BOARD
+    register_button_callback((lv_obj_t *[]) { label_prev, label_next, btn_play_pause });
+#endif
 }
+
+#if CONFIG_ESP32_S3_BOX_LITE_BOARD
+#include "bsp_btn.h"
+
+static void prev_click_cb(void *arg)
+{
+    button_dev_t *event = (button_dev_t *) arg;
+    lv_obj_t *obj = (lv_obj_t *) event->cb_user_data;
+
+    lv_event_send(obj, LV_EVENT_CLICKED, NULL);
+}
+
+static void next_click_cb(void *arg)
+{
+    button_dev_t *event = (button_dev_t *) arg;
+    lv_obj_t *obj = (lv_obj_t *) event->cb_user_data;
+
+    lv_event_send(obj, LV_EVENT_CLICKED, NULL);
+}
+
+static void play_pause_click_cb(void *arg)
+{
+    button_dev_t *event = (button_dev_t *) arg;
+    lv_obj_t *obj = (lv_obj_t *) event->cb_user_data;
+
+    if (lv_obj_has_state(obj, LV_STATE_CHECKED)) {
+        lv_obj_clear_state(obj, LV_STATE_CHECKED);
+    } else {
+        lv_obj_add_state(obj, LV_STATE_CHECKED);
+    }
+
+    lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
+}
+
+static void register_button_callback(lv_obj_t *btn_list[])
+{
+    lv_obj_t *btn_prev = btn_list[0];
+    lv_obj_t *btn_next = btn_list[1];
+    lv_obj_t *btn_play_pause = btn_list[2];
+
+    bsp_btn_set_user_data(0, (void *) btn_prev);
+    bsp_btn_set_user_data(1, (void *) btn_play_pause);
+    bsp_btn_set_user_data(2, (void *) btn_next);
+
+    bsp_btn_register_callback(0, BUTTON_SINGLE_CLICK, prev_click_cb);
+    bsp_btn_register_callback(1, BUTTON_SINGLE_CLICK, play_pause_click_cb);
+    bsp_btn_register_callback(2, BUTTON_SINGLE_CLICK, next_click_cb);
+}
+#endif

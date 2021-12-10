@@ -28,16 +28,9 @@ before_script:
 build_demo_cmake:
   <<: *build_examples_template
   script:
-    - cd idf_patch
-    - python3 apply_patch.py -d $IDF_PATH
-    - cd ../
     - cd examples/factory_demo
     - idf.py fullclean
     - idf.py build
-    - rm sdkconfig sdkconfig.defaults
-    - cp sdkconfig.defaults.cn sdkconfig.defaults
-    - idf.py build
-    - idf.py fullclean
     - cd ../
     - cd image_display
     - idf.py fullclean

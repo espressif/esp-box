@@ -31,6 +31,8 @@
 #include "lvgl.h"
 #include "ui_audio.h"
 
+#include "bsp_indev.h"
+
 void app_main(void)
 {
     ESP_ERROR_CHECK(bsp_board_init());
@@ -38,7 +40,7 @@ void app_main(void)
 
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 2));
     ESP_ERROR_CHECK(bsp_lcd_init());
-    ESP_ERROR_CHECK(bsp_tp_init());
+    ESP_ERROR_CHECK(bsp_indev_init_default());
     ESP_ERROR_CHECK(lv_port_init());
 
     ui_audio_start();

@@ -21,7 +21,7 @@
 
 #include "bsp_board.h"
 #include "bsp_lcd.h"
-#include "bsp_tp.h"
+#include "bsp_indev.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "lv_demo.h"
@@ -33,7 +33,7 @@ void app_main(void)
     ESP_ERROR_CHECK(bsp_board_init());
 
     ESP_ERROR_CHECK(bsp_lcd_init());
-    ESP_ERROR_CHECK(bsp_tp_init());
+    ESP_ERROR_CHECK(bsp_indev_init_default());
     ESP_ERROR_CHECK(lv_port_init());
 
     /**
@@ -43,12 +43,11 @@ void app_main(void)
      * 
      */
     lv_demo_widgets();      /* A widgets example. This is what you get out of the box */
-    // lv_demo_printer();      /* A printer user interface example. */
     // lv_demo_music();        /* A modern, smartphone-like music player demo. */
     // lv_demo_stress();       /* A stress test for LVGL. */
     // lv_demo_benchmark();    /* A demo to measure the performance of LVGL or to compare different settings. */
 
-    while (vTaskDelay(1), true) {
+    do {
         lv_task_handler();
-    }
+    } while (vTaskDelay(1), true);
 }
