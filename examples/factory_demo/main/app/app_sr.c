@@ -40,7 +40,7 @@
 #define SR_CMD_TIME_OUT     (-2)
 #define SR_CMD_NOT_DETECTED (-1)
 #define SR_CMD_ID_BASE      (0)
-#define I2S_CHANNEL_NUM     (4)
+#define I2S_CHANNEL_NUM     (2)
 
 static const char *TAG = "app_sr";
 
@@ -77,7 +77,7 @@ static void audio_feed_task(void *pvParam)
     int audio_chunksize = afe_handle->get_feed_chunksize(afe_data);
 
     /* Allocate audio buffer and check for result */
-    int16_t *audio_buffer = heap_caps_malloc(audio_chunksize * sizeof(int16_t) * I2S_CHANNEL_NUM, MALLOC_CAP_INTERNAL);
+    int16_t *audio_buffer = heap_caps_malloc(audio_chunksize * sizeof(int16_t) * 3, MALLOC_CAP_INTERNAL);
     if (NULL == audio_buffer) {
         esp_system_abort("No mem for audio buffer");
     }
@@ -88,14 +88,14 @@ static void audio_feed_task(void *pvParam)
 
         /* Save audio data to file if record enabled */
         if (b_record_en && (NULL != fp)) {
-            fwrite(audio_buffer, 1, audio_chunksize * 4 * sizeof(int16_t), fp);
+            fwrite(audio_buffer, 1, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), fp);
         }
 
         /* Channel Adjust */
-        for (int  i = 0; i < audio_chunksize; i++) {
-            audio_buffer[i * 3 + 0] = audio_buffer[i * 4 + 3];
-            audio_buffer[i * 3 + 1] = audio_buffer[i * 4 + 1];
+        for (int  i = audio_chunksize - 1; i >= 0; i--) {
             audio_buffer[i * 3 + 2] = 0;
+            audio_buffer[i * 3 + 1] = audio_buffer[i * 2 + 1];
+            audio_buffer[i * 3 + 0] = audio_buffer[i * 2 + 0];
         }
 
         /* Feed samples of an audio stream to the AFE_SR */

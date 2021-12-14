@@ -36,7 +36,7 @@ static void audio_task(void *pvParam);
 
 esp_err_t app_audio_start(void)
 {
-    FILE *fp = fopen("/spiffs/audio/wake.wav", "rb");
+    FILE *fp = fopen("/spiffs/audio/wake.pcm", "rb");
     if (NULL == fp) {
         ESP_LOGE(TAG, "Audio file does't exist");
         return ESP_ERR_NOT_FOUND;
