@@ -1,0 +1,80 @@
+# 
+# ***** BEGIN LICENSE BLOCK ***** 
+# Version: RCSL 1.0/RPSL 1.0 
+#  
+# Portions Copyright (c) 1995-2002 RealNetworks, Inc. All Rights Reserved. 
+#      
+# The contents of this file, and the files included with this file, are 
+# subject to the current version of the RealNetworks Public Source License 
+# Version 1.0 (the "RPSL") available at 
+# http://www.helixcommunity.org/content/rpsl unless you have licensed 
+# the file under the RealNetworks Community Source License Version 1.0 
+# (the "RCSL") available at http://www.helixcommunity.org/content/rcsl, 
+# in which case the RCSL will apply. You may also obtain the license terms 
+# directly from RealNetworks.  You may not use this file except in 
+# compliance with the RPSL or, if you have a valid RCSL with RealNetworks 
+# applicable to this file, the RCSL.  Please see the applicable RPSL or 
+# RCSL for the rights, obligations and limitations governing use of the 
+# contents of the file.  
+#  
+# This file is part of the Helix DNA Technology. RealNetworks is the 
+# developer of the Original Code and owns the copyrights in the portions 
+# it created. 
+#  
+# This file, and the files included with this file, is distributed and made 
+# available on an 'AS IS' basis, WITHOUT WARRANTY OF ANY KIND, EITHER 
+# EXPRESS OR IMPLIED, AND REALNETWORKS HEREBY DISCLAIMS ALL SUCH WARRANTIES, 
+# INCLUDING WITHOUT LIMITATION, ANY WARRANTIES OF MERCHANTABILITY, FITNESS 
+# FOR A PARTICULAR PURPOSE, QUIET ENJOYMENT OR NON-INFRINGEMENT. 
+# 
+# Technology Compatibility Kit Test Suite(s) Location: 
+#    http://www.helixcommunity.org/content/tck 
+# 
+# Contributor(s): 
+#  
+# ***** END LICENSE BLOCK ***** 
+# 
+
+UmakefileVersion(2,1)
+
+# old C++ shim layer for backwards compatibility with Player
+# if you don't want to use this, just use the public C api
+#   in mp3dec.c/.h
+project.AddSources("mpadecobj.cpp")
+
+project.AddSources("mp3dec.c", "mp3tabs.c")
+
+if (sysinfo.arch == 'arm') and project.IsDefined('HELIX_FEATURE_USE_IPP4'):
+    project.AddDefines('USE_IPP_MP3')
+
+if ('USE_IPP_MP3' in project.defines):
+      project.AddSources("ipp/bitstream.c", "ipp/buffers.c", "ipp/dequant.c", 
+                         "ipp/huffman.c", "ipp/imdct.c", "ipp/subband.c")
+      if('_LINUX' in project.defines):
+            project.AddIncludes('%s/include/' % GetSDKPath("ipp_mp3_tools"))
+      else:
+            project.AddIncludes('\"%s\include\"' % GetSDKPath("ipp_mp3_tools"))
+
+else:
+      project.AddSources("real/bitstream.c", "real/buffers.c", "real/dct32.c", 
+                         "real/dequant.c", "real/dqchan.c", "real/huffman.c", "real/hufftabs.c",
+                         "real/imdct.c", "real/scalfact.c", 
+                         "real/stproc.c", "real/subband.c", "real/trigtabs.c")
+      if ('ARM_ADS' in project.defines):
+            project.AddSources("real/arm/asmpoly.s")
+      elif ('_WINCE' in project.defines and '_ARM' in project.defines):
+            project.AddSources("real/arm/asmpoly.s", "real/arm/asmmisc.s")
+      elif (('_SYMBIAN' in project.defines or '_LINUX' in project.defines ) and
+            'ARM' in project.defines):
+            project.AddSources("real/arm/asmpoly_gcc.s")
+      else:
+            project.AddSources("real/polyphase.c")
+
+project.AddIncludes("./pub")
+project.AddModuleIncludes("common/include")
+project.AddModuleIncludes("common/runtime/pub")
+
+LibraryTarget("mp3codecfixpt")
+
+DependTarget()
+
