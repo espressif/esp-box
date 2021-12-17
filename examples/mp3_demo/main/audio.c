@@ -427,7 +427,7 @@ esp_err_t mp3_player_start(char *file_path)
         (const char * const)    "Audio Task",
         (const uint32_t)        4 * 1024,
         (void * const)          file_path,
-        (UBaseType_t)           1,
+        (UBaseType_t)           configMAX_PRIORITIES - 1,
         (TaskHandle_t * const)  NULL,
         (const BaseType_t)      0);
 
