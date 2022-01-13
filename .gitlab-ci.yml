@@ -21,7 +21,7 @@ before_script:
 
 .build_examples_template: &build_examples_template
   stage: build
-  image: espressif/idf:latest
+  image: espressif/idf:release-v4.4
   tags:
     - build
 
