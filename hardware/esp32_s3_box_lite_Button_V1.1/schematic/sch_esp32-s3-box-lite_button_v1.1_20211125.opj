@@ -1,0 +1,59 @@
+(ExpressProject ""
+  (ProjectVersion "19981106")
+  (ProjectType "PCB")
+  (Folder "Design Resources"
+    (Folder "Library")
+    (File ".\sch_esp32-s3-box-lite_button_v1.1_20211125.dsn"
+      (Type "Schematic Design"))
+    (BuildFileAddedOrDeleted "x")
+    (CompileFileAddedOrDeleted "x")
+    (NoModify)
+    (Netlist_TAB "8")
+    (OTHER_Part_Value "{Value}")
+    (OTHER_Netlist_File "SCH_ESP32-S3-BOX-LITE_BUTTON_V1.1_20211125.asc")
+    (OTHER_Netlist_File2 "SCH_ESP32-S3-BOX-LITE_BUTTON_V1.1_20211125.CMP")
+    (OTHER_View_Output "FALSE")
+    (OTHER_View_Output2 "FALSE")
+    (OTHER_Formatter "orpads2k.dll")
+    (OTHER_PCB_Footprint "{PCB Footprint}")
+    (OTHER_Switch0 "TRUE")
+    (OTHER_Switch1 "FALSE")
+    (OTHER_Switch2 "FALSE")
+    (OTHER_Switch3 "FALSE")
+    (OTHER_Switch4 "FALSE")
+    (OTHER_Switch5 "FALSE")
+    (OTHER_Switch6 "FALSE"))
+  (Folder "Outputs"
+    (File ".\sch_esp32-s3-box-lite_button_v1.1_20211125.asc"
+      (Type "Report")))
+  (Folder "Referenced Projects")
+  (GlobalState
+    (FileView
+      (Path "Design Resources")
+      (Path "Design Resources"
+         ".\sch_esp32-s3-box-lite_button_v1.1_20211125.dsn")
+      (Path "Design Resources"
+         ".\sch_esp32-s3-box-lite_button_v1.1_20211125.dsn" "SCHEMATIC1")
+      (Path "Outputs")
+      (Select "Design Resources"
+         ".\sch_esp32-s3-box-lite_button_v1.1_20211125.dsn"))
+    (HierarchyView)
+    (Doc
+      (Type "COrCapturePMDoc")
+      (Frame
+        (Placement "44 0 1 -1 -1 -8 -31 0 200 0 417"))
+      (Tab 0))
+    (Doc
+      (Type "COrSchematicDoc")
+      (Frame
+        (Placement "44 2 3 -1 -1 -8 -31 26 1596 26 486")
+        (Scroll "-323 -8")
+        (Zoom "94")
+        (Occurrence "/"))
+      (Path
+         "D:\1_PROJECT_RZ\ESP32-S3-BOX_LITE\37309_ESP32-S3-BOX_LITE_V02_20211221\37309_ESP32-S3-BOX-LITE_BUTTON_V1.1_20211125\01_SCHEMATIC\SCH_ESP32-S3-BOX-LITE_BUTTON_V1.1_20211125.DSN")
+      (Schematic "SCHEMATIC1")
+      (Page "Button")))
+  (MPSSessionName "zhairongpeng")
+  (PartMRUSelector)
+  (ISPCBBASICLICENSE "false"))

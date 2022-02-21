@@ -38,7 +38,7 @@ ESP-HMI is a human-computer interaction solution designed by Espressif based on 
 
 **ESP-RainMaker**
 
-[ESP-RainMaker](https://rainmaker.espressif.com/docs/get-started.html) is a complete system for IoT development, and it can As an end-to-end platform, it can provide developers with one-stop IoT product functions and examples such as device distribution, cloud connection, and OTA, it contains the following functions:
+[ESP-RainMaker](https://rainmaker.espressif.com/docs/get-started.html) is a complete system for AIoT development, and it can as an end-to-end platform, it can provide developers with one-stop IoT product functions and examples such as device distribution, cloud connection, and OTA, it contains the following functions:
 
 1. Device-side SDK, developers can use Espressif chips to define their IoT products by designing device parameters and attributes, and complete device-side firmware development quickly.
 2. Secure cloud middleware, developers do not need to manage device certificates and cloud infrastructure. They can directly use Espressif chips to quickly establish a secure communication link with the cloud.
