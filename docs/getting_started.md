@@ -74,6 +74,17 @@ Refer to the pin definition below, insert the RGB LED Module to the BOX. The RGB
 <img src="./_static/_get_started_static/5.1.png">
 </div>
 
+**The following features are only supported by ESP32-S3-BOX**
+ 
+4. Press the Mute button on the top of the ESP32-S3-BOX to disable the voice wake-up and speech recognition function. Press again to restore the function.
+   <div align="center">
+   <img src="_static/_get_started_static/hardware_mute_button.jpg" width="350px">
+   </div>
+
+5. You can press the “Red Circle” on the device and return to the last page.
+   <div align="center">
+   <img src="./_static/_get_started_static/hardware_home.png" width="350px">
+
 ## Offline Voice Assistant with your Device
 
 1. In any interface, you can say the Chinese wake word “Hi Le Xin”, or English wake word “Hi E. S. P.” (Pronounce in alphabet) to activate your BOX series development boards. If the board wakes up, its screen will display the wake word you just speak. If the wake word is not displayed, try the wake word more times. The animation interface below gives you a hint that your device is listening. 
