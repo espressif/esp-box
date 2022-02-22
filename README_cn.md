@@ -10,8 +10,8 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 
 | 开发板名称 |        产品图        |
 | :-----: | :---------------------: |
-| ESP32-S3-BOX<br> | [<img src="docs/_static/esp32_s3_box.png" width="200px" href="docs/esp32-s3-box/hardware_overview_for_box_cn.md"/>](docs/esp32_s3_box/hardware_overview_for_box_cn.md) |
-| ESP32-S3-BOX-Lite<br> | [<img src="docs/_static/esp32_s3_box_lite.png" width="200px" />](docs/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) |
+| [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box_cn.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |
+| [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |
 
 
 **ESP-BOX 支持以下特性:**

@@ -8,8 +8,8 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 
 | Product Name |        Product Figure       |
 | :-----: | :---------------------: |
-| ESP32-S3-BOX<br> | [<img src="docs/_static/esp32_s3_box.png" width="200px" href="docs/esp32-s3-box/hardware_overview_for_box_cn.md"/>](docs/esp32_s3_box/hardware_overview_for_box_cn.md) |
-| ESP32-S3-BOX-Lite<br> | [<img src="docs/_static/esp32_s3_box_lite.png" width="200px" />](docs/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) |
+| [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |
+| [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |
 
 **ESP-BOX features:**
 
