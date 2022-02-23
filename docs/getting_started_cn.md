@@ -69,6 +69,17 @@
 <img src="./_static/_get_started_static/5.1.png">
 </div>
 
+**以下功能仅 ESP32-S3-BOX 支持**
+
+4. 按下 ESP32-S3-BOX 顶部的静音按钮，按下后设备语音唤醒和识别功能被禁用，再次按下恢复语音功能。
+   <div align="center">
+   <img src="_static/_get_started_static/hardware_mute_button.jpg" width="350px">
+   </div>
+
+5. 也可以轻触触摸屏下方的 “小红圈” 返回上一页。
+   <div align="center">
+   <img src="./_static/_get_started_static/hardware_home.png" width="350px">
+
 ## 体验离线语音识别
 1. 在任意界面，您可以使用唤醒词去唤醒设备，中文唤醒词是“Hi 乐鑫”，英文唤醒词是 “Hi E. S. P.”（用字母发音）。设备唤醒成功后，唤醒词将显示在如下屏幕上并伴有提示音，如果唤醒词未出现，请再次尝试。如下展示的动画界面提示您的设备正在倾听。
 

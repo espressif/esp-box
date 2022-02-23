@@ -4,17 +4,22 @@
 # ESP-BOX AIoT 开发框架
 
 **重要提醒：**
-**我们建议您在第一次收到产品时[更新应用固件](./docs/firmware_update_cn.md)以获得最新功能和 bug 的修复。**
+> 我们建议您在第一次收到产品时[更新应用固件](./docs/firmware_update_cn.md)以获得最新功能和 bug 的修复。
 
 ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-S3-BOX 和 ESP32-S3-BOX-Lite 是目前对应的 AIoT 应用开发板，搭载支持 AI 加速的 ESP32-S3 Wi-Fi + Bluetooth 5 (LE) SoC。他们为用户提供了一个基于语音助手 + 触摸屏控制、传感器、红外控制器和智能 Wi-Fi 网关等功能，开发和控制智能家居设备的平台。开发板出厂支持离线语音交互功能，用户通过乐鑫丰富的 SDK 和解决方案，能够轻松构建在线和离线语音助手、智能语音设备、HMI 人机交互设备、控制面板、多协议网关等多样的应用。
 
 | 开发板名称 |        产品图        |
 | :-----: | :---------------------: |
-| ESP32-S3-BOX<br> | [<img src="docs/_static/esp32_s3_box.png" width="200px" href="docs/esp32-s3-box/hardware_overview_for_box_cn.md"/>](docs/esp32_s3_box/hardware_overview_for_box_cn.md) |
-| ESP32-S3-BOX-Lite<br> | [<img src="docs/_static/esp32_s3_box_lite.png" width="200px" />](docs/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) |
+| [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box_cn.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |
+| [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |
 
+## 版本信息
 
-**ESP-BOX 支持以下特性:**
+|      ESP-Box     | 依赖的 ESP-IDF |  分支信息                                           | 支持状态  |
+| :--------------: | :---------------: | :----------------------------------------------------: | -------------- |
+|      master      |   release/v4.4<br>commit id: 35b20cadce65    |  esp-sr version: v0.9.6<br>commit id: a289a0c7                              | 新功能开发分支 |
+
+## 支持特性
 
 * 双麦克风支持远场语音交互
 * 高唤醒率的离线语音唤醒
@@ -24,7 +29,7 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 * 端到端一站式接入云平台
 * Pmod™ 兼容接口支持多种外设扩展
 
-**ESP-BOX 开源内容包括:**
+## 开源内容
 
 * [原理图与 PCB 源文件](./hardware)
 * [外壳 3D 打印源文件](./hardware)

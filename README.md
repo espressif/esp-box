@@ -2,16 +2,23 @@
 
 # ESP-BOX AIoT Development Framework
 
-**Important Note: We recommend [updating the application firmware](./docs/firmware_update.md) when you first receive the product to have the latest features and bugfix.**
+**Important Note:**
+> We recommend [updating the application firmware](./docs/firmware_update.md) when you first receive the product to have the latest features and bugfix.
 
 The ESP-BOX is a new generation AIoT development platform released by Espressif Systems. The ESP32-S3-BOX and ESP32-S3-BOX-Lite are AIoT development boards that are based on Espressif’s ESP32-S3 Wi-Fi + Bluetooth 5 (LE) SoC. They provide a platform for developing the control of home appliances using Voice Assistance + touch and screen controller, sensor, infrared controller, and intelligent Wi-Fi gateway. Development boards come with pre-built firmware that supports offline voice interaction, with the SDKs and examples provided by Espressif, you will be able to develop a wide variety of AIoT applications based on the BOX series products such as online and offline voice assistants, voice-enabled devices, human-computer interaction devices, control panels, multi-protocol gateways easily. 
 
 | Product Name |        Product Figure       |
 | :-----: | :---------------------: |
-| ESP32-S3-BOX<br> | [<img src="docs/_static/esp32_s3_box.png" width="200px" href="docs/esp32-s3-box/hardware_overview_for_box_cn.md"/>](docs/esp32_s3_box/hardware_overview_for_box_cn.md) |
-| ESP32-S3-BOX-Lite<br> | [<img src="docs/_static/esp32_s3_box_lite.png" width="200px" />](docs/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) |
+| [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |
+| [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |
 
-**ESP-BOX features:**
+## Versions
+
+|      ESP-Box     | Dependent ESP-IDF |  Branch Note                                           | Support State  |
+| :--------------: | :---------------: | :----------------------------------------------------: | -------------- |
+|      master      |   release/v4.4<br>commit id: 35b20cadce65    |  esp-sr version: v0.9.6<br>commit id: a289a0c7                              | new feature develop |
+
+## Features
 
 * Supports far-field voice interaction with 2 mics
 * Offline voice wake-up with high wake-up rate
@@ -21,7 +28,7 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 * End-to-end AIoT dvelopment framwork ESP-RainMaker
 * Pmod™ compatible headers support expand peripheral modules
 
-**ESP-BOX Open-Source Content Include:**
+## Open-Source Content
 
 * [Schematic and PCB Source File](./hardware)
 * [Shell 3D Print Source File](./hardware)
