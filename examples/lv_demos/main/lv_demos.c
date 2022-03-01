@@ -21,7 +21,6 @@
 
 #include "bsp_board.h"
 #include "bsp_lcd.h"
-#include "bsp_indev.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "lv_demo.h"
@@ -32,9 +31,8 @@ void app_main(void)
 {
     ESP_ERROR_CHECK(bsp_board_init());
 
-    ESP_ERROR_CHECK(bsp_lcd_init());
-    ESP_ERROR_CHECK(bsp_indev_init_default());
     ESP_ERROR_CHECK(lv_port_init());
+    bsp_lcd_set_backlight(true);
 
     /**
      * @brief Demos provided by LVGL.
