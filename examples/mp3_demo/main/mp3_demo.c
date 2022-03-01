@@ -23,7 +23,6 @@
 #include "bsp_board.h"
 #include "bsp_lcd.h"
 #include "bsp_storage.h"
-#include "bsp_tp.h"
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -31,17 +30,14 @@
 #include "lvgl.h"
 #include "ui_audio.h"
 
-#include "bsp_indev.h"
-
 void app_main(void)
 {
     ESP_ERROR_CHECK(bsp_board_init());
     ESP_ERROR_CHECK(bsp_board_power_ctrl(POWER_MODULE_AUDIO, true));
 
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 2));
-    ESP_ERROR_CHECK(bsp_lcd_init());
-    ESP_ERROR_CHECK(bsp_indev_init_default());
     ESP_ERROR_CHECK(lv_port_init());
+    bsp_lcd_set_backlight(true);
 
     ui_audio_start();
     ESP_ERROR_CHECK(mp3_player_start("/spiffs"));
