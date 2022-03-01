@@ -20,25 +20,21 @@
  */
 
 #include <dirent.h>
-#include "bsp_board.h"
-#include "bsp_indev.h"
-#include "bsp_lcd.h"
-#include "bsp_storage.h"
-#include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_log.h"
+#include "bsp_board.h"
+#include "bsp_lcd.h"
+#include "bsp_btn.h"
+#include "bsp_lcd.h"
+#include "bsp_storage.h"
 #include "lv_port.h"
 #include "lv_port_fs.h"
 #include "lvgl.h"
 
-#if CONFIG_ESP32_S3_BOX_LITE_BOARD
-#include "bsp_btn.h"
-static int s_selected = 0;
-static void btn_prev_cb(void *arg);
-static void btn_next_cb(void *arg);
-#endif
-
 static const char *TAG = "main";
+
+static lv_group_t *g_btn_op_group = NULL;
 
 static void image_display(void);
 
@@ -47,9 +43,8 @@ void app_main(void)
     ESP_ERROR_CHECK(bsp_board_init());
     ESP_ERROR_CHECK(bsp_spiffs_init_default());
 
-    ESP_ERROR_CHECK(bsp_lcd_init());
-    ESP_ERROR_CHECK(bsp_indev_init_default());
     ESP_ERROR_CHECK(lv_port_init());
+    bsp_lcd_set_backlight(true);
     image_display();
 
     do {
@@ -84,6 +79,14 @@ static void btn_event_cb(lv_event_t *event)
 
 static void image_display(void)
 {
+    lv_indev_t *indev = lv_indev_get_next(NULL);
+
+    if (lv_indev_get_type(indev) == LV_INDEV_TYPE_KEYPAD) {
+        ESP_LOGI(TAG, "Input device type is keypad");
+        g_btn_op_group = lv_group_create();
+        lv_indev_set_group(indev, g_btn_op_group);
+    }
+
     lv_obj_t *list = lv_list_create(lv_scr_act());
     lv_obj_set_size(list, 170, 220);
     lv_obj_set_style_border_width(list, 0, LV_STATE_DEFAULT);
@@ -99,7 +102,8 @@ static void image_display(void)
     while (true) {
         p_dirent = readdir(p_dir_stream);
         if (NULL != p_dirent) {
-            lv_obj_t *btn = lv_list_add_btn(list, NULL, p_dirent->d_name);
+            lv_obj_t *btn = lv_list_add_btn(list, LV_SYMBOL_IMAGE, p_dirent->d_name);
+            lv_group_add_obj(g_btn_op_group, btn);
             lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_CLICKED, (void *) img);
         } else {
             closedir(p_dir_stream);
@@ -107,20 +111,4 @@ static void image_display(void)
         }
     }
 
-#if CONFIG_ESP32_S3_BOX_LITE_BOARD
-    bsp_btn_register_callback(0, BUTTON_SINGLE_CLICK, btn_prev_cb);
-    bsp_btn_register_callback(2, BUTTON_SINGLE_CLICK, btn_next_cb);
-    bsp_btn_set_user_data(0, (void *) list);
-    bsp_btn_set_user_data(2, (void *) list);
-#endif
-}
-
-static void btn_prev_cb(void *arg)
-{
-    //
-}
-
-static void btn_next_cb(void *arg)
-{
-    //
 }

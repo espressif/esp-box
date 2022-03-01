@@ -1,5 +1,10 @@
 # Image Display Example
 
+| Board             | Support Status |
+| ----------------- | -------------- |
+| ESP32-S3-BOX      | YES            |
+| ESP32-S3-BOX-Lite | YES            |
+
 Display PNG image with LVGL.
 
 ## How to use example
