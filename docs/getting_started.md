@@ -7,9 +7,9 @@ The guide is suitable for the development boards that flashed the latest firmwar
 The BOX series development boards based on ESP32-S3 SoC provides a platform for developing the control of home appliances using Voice Assistance + display with buttons controller, sensor, infrared controller, and intelligent Wi-Fi gateway. The BOX series development boards comes with pre-built firmware that allows you to experience voice wake-up and offline speech commands recognition in Chinese and English languages. 
 The ESP-BOX SDK includes a reconfigurable AI voice interaction that allows you to customize commands to control your smart home appliances. The content of this material is to give you a brief concept of how the latest firmware works, a basic idea for you to know where to begin. Once you go through the guide below, you may start developing the application yourself. So, let’s begin the journey! 
 
-  
+
 **The BOX Kit contains:**
- 
+
 | ESP32-S3-BOX | ESP32-S3-BOX-Lite |
 | :-----: | :---------------------: |
 | A main unit that can work on its own | A main unit that can work on its own|
@@ -17,9 +17,9 @@ The ESP-BOX SDK includes a reconfigurable AI voice interaction that allows you t
 | Dock, an accessory that serves as a stand for the device. |  N/A|
 
 
- 
+
 **Required Hardware:**
- 
+
 What do you need: An USB-C Cable (not included in the kit).
 
 ## Connect the RGB LED Module to your Device
@@ -37,11 +37,11 @@ Refer to the pin definition below, insert the RGB LED Module to the BOX. The RGB
 </div>
 
 2. Once power on, the interactive Espressif logo will display on the screen.   
-  
+
 <div align="center">
 <img src="./_static/_get_started_static/boot_animation.png" width="800px">
 </div>
-   
+
 ## Let's Play Around!
 
 1. Initially, the two Guide Pages introduces the functions of buttons of your BOX series development boards. Press Next to enter next page after reading them.
@@ -50,7 +50,7 @@ Refer to the pin definition below, insert the RGB LED Module to the BOX. The RGB
 | :-----: | :---------------------: |
 |  <img src="./_static/_get_started_static/0.png" width="300px"/>       | <img src="./_static/_get_started_static/1.png" width="300px"/>   |
 |  <img src="./_static/_get_started_static/2.png" width="280px"/>     | <img src="./_static/_get_started_static/2.png" width="280px"/>   |
- 
+
 2. Next, the Steps for Voice Assistant window gives you a hint of how to use the AI voice control. Press “OK Let’s Go” to enter the Menu screen.
 <div align="center">
 <img src="./_static/_get_started_static/3_EN.png">
@@ -58,7 +58,7 @@ Refer to the pin definition below, insert the RGB LED Module to the BOX. The RGB
 <div align="center">
 <img src="./_static/_get_started_static/3.1_EN.png">
 </div>
-   
+
 3. The Menu screen has five functions, they are Device Control, Media Player, Network, Help and About Us. You can navigate to different sections by switching the pages. For example, enter the Device Control user interface, tap the Light icon to turn on or turn off the LED light. Moreover, go back to the Menu page and go forward to the Media Player section, you can operate buttons to control the music playback or adjust the volume.
 
 <div align="center">
@@ -75,7 +75,7 @@ Refer to the pin definition below, insert the RGB LED Module to the BOX. The RGB
 </div>
 
 **The following features are only supported by ESP32-S3-BOX**
- 
+
 4. Press the Mute button on the top of the ESP32-S3-BOX to disable the voice wake-up and speech recognition function. Press again to restore the function.
    <div align="center">
    <img src="_static/_get_started_static/hardware_mute_button.jpg" width="350px">
@@ -84,6 +84,7 @@ Refer to the pin definition below, insert the RGB LED Module to the BOX. The RGB
 5. You can press the “Red Circle” on the device and return to the last page.
    <div align="center">
    <img src="./_static/_get_started_static/hardware_home.png" width="350px">
+   </div>
 
 ## Offline Voice Assistant with your Device
 
@@ -93,12 +94,12 @@ Refer to the pin definition below, insert the RGB LED Module to the BOX. The RGB
 <img src="./_static/_get_started_static/17.png">
 </div>
 
-2. Utter a command phrase within 6 seconds after the beep, for example “turn on the light”. The command phrase will display on the screen and the RGB light of the LED Module will turn on. Around 1 second the voice user interface exits.
+2. Utter a command phrase within 6 seconds after the beep, for example “turn on the light”.  The command phrase will display on the screen and the RGB light of the LED Module will turn on, and there will be a voice feedback "OK".  Around 6 seconds the voice user interface exits if no more commands.
 
 <div align="center">
 <img src="./_static/_get_started_static/21.png">
 </div>
-   
+
 3. You can use voice commands to enjoy music. Please wake up the device first, then say the command phrase "Sing a song". The music player opens and start playing built-in music. You can also use voice commands to switch to the next song or pause playing (There are two build-in songs).
    
    >**Tips:**
@@ -113,6 +114,23 @@ Refer to the pin definition below, insert the RGB LED Module to the BOX. The RGB
 4. The default command words are: 
 
 "**Turn on the light**", "**Switch off the light**", "**Turn Red**", "**Turn Green**", "**Turn Blue**", "**Sing a song**", "**Next Song**", "**Pause Playing**".
+
+## Continuous Recognition 
+
+More interestingly, the device supports continuous recognition of multiple command words after wake-up. Continuous recognition means that the user can talk to the device continuously once it is woken up. The continuous recognition makes the voice interaction more natural and smooth, and brings a more humanized interactive experience.
+
+**How to use**
+
+- Say "Hi, E. S. P" to wake up the device, a prompt beep will be played.
+- Say a command phrase after the prompt beep. If the device recognizes the command word, it will play the corresponding prompt tone "OK", and then it can continue to recognize.
+- If nothing is recognized, the device will continue to wait. If there is no new command word within 6S, the device will automatically exit and you need to wake it up again.
+
+**Attention**
+
+- If it fails to recognize normally for many times, please wait for timeout and wake up the device again to enter the recognition mode.
+- After the wake-up word is spoken, the command word shall be sent out at the same position. The device does not support recognition during movement.
+- The length of the best English offline command word we recommend is 3-5 English characters.
+- The current version does not support continuous recognition when the speaker plays a prompt tone.
 
 ## Voice Command Customization
 
@@ -137,7 +155,7 @@ The BOX series development boards are equipped with the Espressif’s proprietar
    <img src="_static/_get_started_static/Picture1.png">
    </div>
 1.3. If you first download the APP, please click "User", "Register" to register a new account.
-   
+
 1.4. Sign in with your ESP-BOX account and turn on the Bluetooth of your phone. Then tap + on the bottom of the interface, find the code scanning icon and scan the network provisioning QR code on your device.
 
    <div align="center">
@@ -159,16 +177,16 @@ The BOX series development boards are equipped with the Espressif’s proprietar
    <div align="center">
    <img src="_static/_get_started_static/7.png">
    </div>
-   
->**Tips:**
 
+>**Tips:**
+   >
    >* Make sure the device is connected to 2.4GHz Wi-Fi channel not 5GHz, if the Wi-Fi password is incorrect, it will lead to Wi-Fi Authentication failed as the figure below shows.
    >* Please stay on the device provisioning page during network provision.
-   >* Long press the Boot button for 5 seconds to clean the network information and restore to factory settings.
+  * Long press the Boot button for 5 seconds to clean the network information and restore to factory settings.
    <div align="center">
    <img src="_static/_get_started_static/7.jpeg"width="300" />
    </div>
-   
+
    **2. Customize Voice Command**
 
 2.1. Tap the ESP-BOX device and enter to the below interface. You can simply turn on or turn off the light by toggling the button on the user interface, as the figure below shows. (We left the Fan and Switch parts for you to configure and develop by yourself.)
@@ -187,13 +205,13 @@ The BOX series development boards are equipped with the Espressif’s proprietar
    <div align="center">
    <img src="_static/_get_started_static/11.jpeg"width="300" />
    </div>
-   
+
 2.3 The Control page allows you to adjust the color and brightness of the light, as well as the saturation of the color.
-  
+
    <div align="center">
    <img src="_static/_get_started_static/12.jpeg"width="300" />
    </div>
-   
+
 2.4 The Configure page allows you to define the preferred command phrase to control the on/off status and color of the light. For example, you can customize “Good morning” for action ON (as marked with “1” in the figure below). Click Save to return to the previous interface (as marked with “2” in the figure below). Then click Save again (as marked with “3” in the figure below).
 
    <div align="center">
@@ -202,15 +220,15 @@ The BOX series development boards are equipped with the Espressif’s proprietar
    <div align="center">
    <img src="_static/_get_started_static/13.1 EN.jpeg"width="300" />
    </div>
-   
+
 2.5 Now, you can try out your new command! First, say “Hi E. S. P.” to wake up your device. Then say “Good morning” to turn on your light within 6 seconds. The new command phrase will display on the screen and the LED module will turn on.
 
    <div align="center">
    <img src="_static/_get_started_static/15.png">
    </div>
-   
->**How to Add Appropriate Command Phrases: Now AI model supports users to define command phrases. In order to obtain the best recognition experience, you need to pay attention to the following matters when defining command phrase:**
 
+>**How to Add Appropriate Command Phrases: Now AI model supports users to define command phrases. In order to obtain the best recognition experience, you need to pay attention to the following matters when defining command phrase in the APP:**
+>
 >* Length of command word: The number of words in the command phrase must be greater than or equal to 2 and less than or equal to 8. When defining a series of command phrases, it is best to keep the length of different command phrases similar.
 >* Avoid prefixes: Multiple command phrase should not be prefixed with each other. Short words will be not recognized, such as “Turn on” and “Turn on the light", “Turn on" will be not recognized.
 
