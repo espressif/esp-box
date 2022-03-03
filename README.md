@@ -2,6 +2,8 @@
 
 # ESP-BOX AIoT Development Framework
 
+[![Build examples](https://github.com/espressif/esp-box/actions/workflows/build.yml/badge.svg)](https://github.com/espressif/esp-box/actions/workflows/build.yml)
+
 **Important Note:**
 
 > We recommend [updating the application firmware](./docs/firmware_update.md) when you first receive the product to have the new features and bugfix. Click [here](./docs/getting_started.md) to access the user guide of the latest release firmware. Click [here](https://github.com/espressif/esp-box/releases) to visit the older firmware.

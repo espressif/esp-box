@@ -3,6 +3,8 @@
 
 # ESP-BOX AIoT 开发框架
 
+[![Build examples](https://github.com/espressif/esp-box/actions/workflows/build.yml/badge.svg)](https://github.com/espressif/esp-box/actions/workflows/build.yml)
+
 **重要提醒：**
 > 我们建议您在第一次收到产品时[更新应用固件](./docs/firmware_update_cn.md)以获得最新功能和 bug 的修复，点此[链接](./docs/getting_started_cn.md)获取应用固件的使用说明。点击[此处](https://github.com/espressif/esp-box/releases)查看历史固件。
 
