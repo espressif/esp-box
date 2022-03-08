@@ -1,123 +1,155 @@
-/**
- * @file app_led.c
- * @brief 
- * @version 0.1
- * @date 2021-09-27
- * 
- * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
+/*
+ * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
- *
- *               http://www.apache.org/licenses/LICENSE-2.0
- *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
 
 #include <string.h>
+#include <math.h>
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_err.h"
+#include "esp_log.h"
+#include "esp_check.h"
 #include "app_led.h"
 #include "bsp_board.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "driver/rmt.h"
-#include "esp_err.h"
-#include "esp_log.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 #include "led_strip.h"
-#include "lvgl.h"
-
-#define CONFIG_EXAMPLE_STRIP_LED_NUMBER (8)
+#include "ui_main.h"
+#include "ui_device_ctrl.h"
 
 static const char *TAG = "app_led";
-static led_strip_t *strip = NULL;
 
-static led_state_t s_led_state = {
+typedef struct {
+    uint16_t h;
+    uint8_t s;
+    uint8_t v;
+} hsv_t;
+
+typedef struct {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    bool    on;
+} led_state_t;
+
+static led_state_t g_led_state = {
     .on = false,
-    .h = 170,
-    .s = 100,
-    .v = 30,
-    .gpio = GPIO_RMT_LED,
+    .r = 180,
+    .g = 180,
+    .b = 180,
 };
 
-esp_err_t app_led_get_state(led_state_t *state)
+#define LEDPWM_CNT_TOP 256
+static uint8_t g_gamma_table[LEDPWM_CNT_TOP + 1];
+static hsv_t g_customize_color = {0};
+static gpio_num_t g_last_led_io[3] = {GPIO_NUM_NC};
+static bool g_initialized = 0;
+
+/**
+ * @brief Simple helper function, converting HSV color space to RGB color space
+ *
+ * Wiki: https://en.wikipedia.org/wiki/HSL_and_HSV
+ *
+ */
+static void led_hsv2rgb(uint32_t h, uint32_t s, uint32_t v, uint8_t *r, uint8_t *g, uint8_t *b)
 {
-    if (NULL == state) {
-        return ESP_ERR_INVALID_ARG;
+    h %= 360; /**< h -> [0,360] */
+    uint32_t rgb_max = v * 2.55f;
+    uint32_t rgb_min = rgb_max * (100 - s) / 100.0f;
+
+    uint32_t i = h / 60;
+    uint32_t diff = h % 60;
+
+    /**< RGB adjustment amount by hue */
+    uint32_t rgb_adj = (rgb_max - rgb_min) * diff / 60;
+
+    switch (i) {
+    case 0:
+        *r = rgb_max;
+        *g = rgb_min + rgb_adj;
+        *b = rgb_min;
+        break;
+
+    case 1:
+        *r = rgb_max - rgb_adj;
+        *g = rgb_max;
+        *b = rgb_min;
+        break;
+
+    case 2:
+        *r = rgb_min;
+        *g = rgb_max;
+        *b = rgb_min + rgb_adj;
+        break;
+
+    case 3:
+        *r = rgb_min;
+        *g = rgb_max - rgb_adj;
+        *b = rgb_max;
+        break;
+
+    case 4:
+        *r = rgb_min + rgb_adj;
+        *g = rgb_min;
+        *b = rgb_max;
+        break;
+
+    default:
+        *r = rgb_max;
+        *g = rgb_min;
+        *b = rgb_max - rgb_adj;
+        break;
     }
-
-    memcpy(state, &s_led_state, sizeof(led_state_t));
-
-    return ESP_OK;
 }
 
-esp_err_t app_led_init(gpio_num_t io_num)
+void led_rgb2hsv(uint8_t r, uint8_t g, uint8_t b, uint16_t *h, uint8_t *s, uint8_t *v)
 {
-    rmt_config_t config = RMT_DEFAULT_CONFIG_TX(io_num, RMT_CHANNEL_0);
-    config.clk_div = 2;
-    ESP_ERROR_CHECK(rmt_config(&config));
-    ESP_ERROR_CHECK(rmt_driver_install(config.channel, 0, 0));
+    int32_t R = r;
+    int32_t G = g;
+    int32_t B = b;
+    int32_t min, max, delta, tmp;
+    tmp = R > G ? G : R;
+    min = tmp > B ? B : tmp;
+    tmp = R > G ? R : G;
+    max = tmp > B ? tmp : B;
+    *v = 100 * max / 255; /**< v */
+    delta = max - min;
 
-    led_strip_config_t strip_config = 
-        LED_STRIP_DEFAULT_CONFIG(CONFIG_EXAMPLE_STRIP_LED_NUMBER, (led_strip_dev_t)config.channel);
-    strip = led_strip_new_rmt_ws2812(&strip_config);
-    if (!strip) {
-        ESP_LOGE(TAG, "install WS2812 driver failed");
-        return ESP_FAIL;
-    }
-
-    ESP_ERROR_CHECK(strip->clear(strip, 100));
-
-    return ESP_OK;
-}
-
-esp_err_t app_led_deinit(void)
-{
-    if (NULL == strip) {
-        ESP_LOGE(TAG, "LED not initialized");
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    esp_err_t ret_val = led_strip_denit(strip);
-    strip = NULL;
-
-    return ret_val;
-}
-
-esp_err_t app_led_set_all(uint8_t red, uint8_t green, uint8_t blue)
-{
-    esp_err_t ret_val = ESP_OK;
-
-    if (NULL == strip) {
-        ESP_LOGE(TAG, "LED not initialized");
-        return ESP_ERR_INVALID_STATE;
-    }
-
-    for (size_t i = 0; i < CONFIG_EXAMPLE_STRIP_LED_NUMBER; i++) {
-        ret_val |= strip->set_pixel(strip, i, red, green, blue);
-    }
-
-    if ((red == 0) && (green == 0) && (blue == 0)) {
-        s_led_state.on = false;
+    if (max != 0) {
+        *s = 100 * delta / max; /**< s */
     } else {
-        lv_color_hsv_t color_hsv = lv_color_rgb_to_hsv(red, green, blue);
-        s_led_state.on = true;
-        s_led_state.h = color_hsv.h;
-        s_led_state.s = color_hsv.s;
-        s_led_state.v = color_hsv.v;
+        /**< r = g = b = 0 */
+        *s = 0;
+        *h = 0;
+        return;
     }
 
-    ret_val |= strip->refresh(strip, 0);
+    float h_temp = 0;
 
-    return ret_val;
+    if (delta == 0) {
+        *h = 0;
+        return;
+    } else if (R == max) {
+        h_temp = ((float)(G - B) / (float)delta);           /**< between yellow & magenta */
+    } else if (G == max) {
+        h_temp = 2.0f + ((float)(B - R) / (float)delta);    /**< between cyan & yellow */
+    } else if (B == max) {
+        h_temp = 4.0f + ((float)(R - G) / (float)delta);    /**< between magenta & cyan */
+    }
+
+    h_temp *= 60.0f;
+
+    if (h_temp < 0.0f) {
+        h_temp += 360;
+    }
+
+    *h = (uint32_t)h_temp; /**< degrees */
 }
 
-esp_err_t app_pwm_led_init(void)
+esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio_b)
 {
     esp_err_t ret_val = ESP_OK;
 
@@ -135,7 +167,7 @@ esp_err_t app_pwm_led_init(void)
         .channel        = LEDC_CHANNEL_0,
         .timer_sel      = LEDC_TIMER_0,
         .intr_type      = LEDC_INTR_DISABLE,
-        .gpio_num       = GPIO_NUM_39,
+        .gpio_num       = gpio_r,
         .duty           = 0,
         .hpoint         = 0
     };
@@ -146,7 +178,7 @@ esp_err_t app_pwm_led_init(void)
         .channel        = LEDC_CHANNEL_1,
         .timer_sel      = LEDC_TIMER_0,
         .intr_type      = LEDC_INTR_DISABLE,
-        .gpio_num       = GPIO_NUM_40,
+        .gpio_num       = gpio_g,
         .duty           = 0,
         .hpoint         = 0
     };
@@ -157,49 +189,68 @@ esp_err_t app_pwm_led_init(void)
         .channel        = LEDC_CHANNEL_2,
         .timer_sel      = LEDC_TIMER_0,
         .intr_type      = LEDC_INTR_DISABLE,
-        .gpio_num       = GPIO_NUM_41,
+        .gpio_num       = gpio_b,
         .duty           = 0,
         .hpoint         = 0
     };
     ret_val |= ledc_channel_config(&ledc_channel_blue);
+    g_initialized = 1;
+    // Generate gamma correction table
+    for (int i = 0; i < (LEDPWM_CNT_TOP + 1); i++) {
+        g_gamma_table[i] = (int)roundf(powf((float)i / (float)LEDPWM_CNT_TOP, 1.0 / 0.45) * (float)LEDPWM_CNT_TOP);
+    }
 
+    g_customize_color.h = 0;
+    g_customize_color.s = 100;
+    g_customize_color.v = 100;
+
+    g_last_led_io[0] = gpio_r;
+    g_last_led_io[1] = gpio_g;
+    g_last_led_io[2] = gpio_b;
+    return ESP_OK;
+}
+
+esp_err_t app_pwm_led_change_io(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio_b)
+{
+    ESP_RETURN_ON_FALSE(g_initialized, ESP_ERR_INVALID_STATE, TAG, "pwm led is not running");
+    if (g_initialized) {
+        ESP_LOGI(TAG, "io set to %d,%d,%d; before: %d,%d,%d",
+                 gpio_r, gpio_g, gpio_b,
+                 g_last_led_io[0],
+                 g_last_led_io[1],
+                 g_last_led_io[2]);
+        gpio_set_direction(g_last_led_io[0], GPIO_MODE_INPUT);
+        gpio_set_direction(g_last_led_io[1], GPIO_MODE_INPUT);
+        gpio_set_direction(g_last_led_io[2], GPIO_MODE_INPUT);
+    }
+    app_pwm_led_init(gpio_r, gpio_g, gpio_b);
     return ESP_OK;
 }
 
 esp_err_t app_pwm_led_deinit(void)
 {
+    ESP_LOGW(TAG, "app_pwm_led_deinit() ESP_ERR_NOT_SUPPORTED");
     return ESP_ERR_NOT_SUPPORTED;
+}
+
+static void update_pwm_led(uint8_t r, uint8_t g, uint8_t b)
+{
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, r);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, g);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, b);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
 }
 
 esp_err_t app_pwm_led_set_all(uint8_t red, uint8_t green, uint8_t blue)
 {
     esp_err_t ret_val = ESP_OK;
 
-    if ((red == 0) && (green == 0) && (blue == 0)) {
-        s_led_state.on = false;
-    } else {
-        lv_color_hsv_t color_hsv = lv_color_rgb_to_hsv(red, green, blue);
-        s_led_state.on = true;
-        s_led_state.h = color_hsv.h;
-        s_led_state.s = color_hsv.s;
-        s_led_state.v = color_hsv.v;
-    }
-
-    if (s_led_state.on) {
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, red);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, green);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, blue);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
-    } else {
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, 0);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, 0);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
-    }
+    g_led_state.r = red;
+    g_led_state.g = green;
+    g_led_state.b = blue;
+    app_pwm_led_set_power(true);
 
     return ret_val;
 }
@@ -211,35 +262,56 @@ esp_err_t app_pwm_led_set_all_hsv(uint16_t h, uint8_t s, uint8_t v)
     uint8_t red = 0;
     uint8_t green = 0;
     uint8_t blue = 0;
-
-    if (v == 0) {
-        s_led_state.on = false;
-    } else {
-        s_led_state.h = h;
-        s_led_state.s = s;
-        s_led_state.v = v;
-        s_led_state.on = true;
-        lv_color_t color_rgb = lv_color_hsv_to_rgb(h, s, v);
-        red = color_rgb.ch.red << 3;
-        green = (color_rgb.ch.green_h << 5) + (color_rgb.ch.green_l << 2);
-        blue = color_rgb.ch.blue << 3;
-    }
-
-    if (s_led_state.on) {
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, red);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, green);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, blue);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
-    } else {
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, 0);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, 0);
-        ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, 0);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
-        ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
-    }
+    led_hsv2rgb(h, s, v, &red, &green, &blue);
+    g_led_state.r = red;
+    g_led_state.g = green;
+    g_led_state.b = blue;
+    app_pwm_led_set_power(true);
 
     return ret_val;
+}
+
+esp_err_t app_pwm_led_set_power(bool power)
+{
+    esp_err_t ret_val = ESP_OK;
+    uint8_t red = 0;
+    uint8_t green = 0;
+    uint8_t blue = 0;
+
+    if (power) {
+        g_led_state.on = true;
+        ui_dev_ctrl_set_state(UI_DEV_LIGHT, 1);
+    } else {
+        g_led_state.on = false;
+        update_pwm_led(0, 0, 0);
+        ui_dev_ctrl_set_state(UI_DEV_LIGHT, 0);
+        return ret_val;
+    }
+    red = g_gamma_table[g_led_state.r];
+    green = g_gamma_table[g_led_state.g];
+    blue = g_gamma_table[g_led_state.b];
+    update_pwm_led(red, green, blue);
+    return ret_val;
+}
+
+bool app_pwm_led_get_state(void)
+{
+    return g_led_state.on;
+}
+
+esp_err_t app_pwm_led_set_customize_color(uint16_t h, uint8_t s, uint8_t v)
+{
+    ESP_LOGI(TAG, "customize_color: hsv=[%d,%d,%d]", h, s, v);
+    g_customize_color.h = h;
+    g_customize_color.s = s;
+    g_customize_color.v = v;
+    return ESP_OK;
+}
+
+esp_err_t app_pwm_led_get_customize_color(uint16_t *h, uint8_t *s, uint8_t *v)
+{
+    *h = g_customize_color.h;
+    *s = g_customize_color.s;
+    *v = g_customize_color.v;
+    return ESP_OK;
 }

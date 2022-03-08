@@ -3,8 +3,10 @@
 
 # ESP-BOX AIoT 开发框架
 
+[![Build examples](https://github.com/espressif/esp-box/actions/workflows/build.yml/badge.svg)](https://github.com/espressif/esp-box/actions/workflows/build.yml)
+
 **重要提醒：**
-> 我们建议您在第一次收到产品时[更新应用固件](./docs/firmware_update_cn.md)以获得最新功能和 bug 的修复。
+> 我们建议您在第一次收到产品时[更新应用固件](./docs/firmware_update_cn.md)以获得最新功能和 bug 的修复，点此[链接](./docs/getting_started_cn.md)获取应用固件的使用说明。点击[此处](https://github.com/espressif/esp-box/releases)查看历史固件。
 
 ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-S3-BOX 和 ESP32-S3-BOX-Lite 是目前对应的 AIoT 应用开发板，搭载支持 AI 加速的 ESP32-S3 Wi-Fi + Bluetooth 5 (LE) SoC。他们为用户提供了一个基于语音助手 + 触摸屏控制、传感器、红外控制器和智能 Wi-Fi 网关等功能，开发和控制智能家居设备的平台。开发板出厂支持离线语音交互功能，用户通过乐鑫丰富的 SDK 和解决方案，能够轻松构建在线和离线语音助手、智能语音设备、HMI 人机交互设备、控制面板、多协议网关等多样的应用。
 
@@ -15,9 +17,11 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 
 ## 版本信息
 
-|      ESP-Box     | 依赖的 ESP-IDF |  分支信息                                           | 支持状态  |
-| :--------------: | :---------------: | :----------------------------------------------------: | -------------- |
-|      master      |   release/v4.4<br>commit id: 35b20cadce65    |  esp-sr version: v0.9.6<br>commit id: a289a0c7                              | 新功能开发分支 |
+|  ESP-Box  |                        依赖的 ESP-IDF                        |                           分支信息                           | 支持状态                                                |
+| :-------: | :----------------------------------------------------------: | :----------------------------------------------------------: | ------------------------------------------------------- |
+|  master   |            release/v4.4<br/>commit id: 2bdea81b2a            | Latest developing firmware <br/>esp-sr version:  dev/v2.0<br/>commit id: c873a35 | 新功能开发分支，兼容  ESP32-S3-BOX 和 ESP32-S3-BOX-Lite |
+| Tag 0.2.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.2.1/idf_patch) |      esp-sr version: close v1.0<br/>commit id: 3ce34fe       | 仅支持 ESP32-S3-BOX                                     |
+| Tag 0.1.1 | Release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.1.1/idf_patch) |        esp-sr version: v0.9.6<br/>commit id: 3ce34fe         | 仅支持 ESP32-S3-BOX                                     |
 
 ## 支持特性
 
@@ -25,6 +29,7 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 * 高唤醒率的离线语音唤醒
 * 高识别率的离线中英文命令词识别
 * 可动态配置 200+ 中英文命令词
+* 连续识别和唤醒打断
 * 灵活可复用的 GUI 框架
 * 端到端一站式接入云平台
 * Pmod™ 兼容接口支持多种外设扩展
@@ -42,6 +47,7 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 
 * 首次拿到 BOX 系列开发板，您可以查看 [首次使用操作指引](./docs/getting_started_cn.md#给设备供电)
 * 想要体验离线语音助手功能，您可以查看 [离线语音识别](./docs/getting_started_cn.md#体验离线语音识别)
+* 体验更人性化的语音交互，可查看 [连续语音识别](./docs/getting_started_cn.md#连续语音识别)
 * 想要通过手机 APP 设置独特的语音命令词，请查看 [ESP-BOX APP 操作指引](./docs/getting_started_cn.md#语音命令词自定义)
 * 想要了解产品爆炸图和拆机说明，请查看 [拆机教程](docs/disassembly_tutorial.md)
 * 想要了解开发板硬件和接口细节，请查看 [硬件总览](./docs/hardware_overview)
@@ -60,5 +66,10 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 ## 联系我们
 
 * 如果有任何开发和使用问题，您可添加 [GitHub Issues](https://github.com/espressif/esp-box/issues) 或到 [esp32.com](https://esp32.com/) 论坛寻求帮助；
+
 * 如果你对 ESP-BOX 项目感兴趣，欢迎到论坛 [ESP-BOX 版块](https://www.esp32.com/viewforum.php?f=43) 交流想法；
-* 我们欢迎任何软件或硬件相关的开源贡献，您可直接提交 [Pull Requests](https://github.com/espressif/esp-box/pulls) 贡献代码。
+
+
+## 贡献示例 
+
+我们欢迎任何软件或硬件相关的开源贡献，如果您有任何要与我们分享的示例，请参考 [贡献指南](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/contribute/index.html) 后提交  [Pull Requests](https://github.com/espressif/esp-box/pulls) 贡献代码。

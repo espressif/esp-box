@@ -1,5 +1,10 @@
 # Hello World Example
 
+| Board             | Support Status |
+| ----------------- | -------------- |
+| ESP32-S3-BOX      | YES            |
+| ESP32-S3-BOX-Lite | NO             |
+
 LVGL official demos.
 
 ## How to use example

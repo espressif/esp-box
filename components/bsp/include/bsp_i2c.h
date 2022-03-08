@@ -1,22 +1,7 @@
-/**
- * @file bsp_i2c.h
- * @brief 
- * @version 0.1
- * @date 2021-06-25
- * 
- * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
+/*
+ * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
- *
- *               http://www.apache.org/licenses/LICENSE-2.0
- *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
@@ -42,11 +27,20 @@ extern "C" {
  * 
  * @param i2c_num I2C port num
  * @param clk_speed I2C clock speed 
+ * @param scl_io 
+ * @param sda_io 
  * @return 
  *    - ESP_OK: Success
  *    - Others: Fail
  */
-esp_err_t bsp_i2c_init(i2c_port_t i2c_num, uint32_t clk_speed);
+esp_err_t bsp_i2c_init(i2c_port_t i2c_num, uint32_t clk_speed, gpio_num_t scl_io, gpio_num_t sda_io);
+
+/**
+ * @brief Deinitialize I2C bus
+ * 
+ * @return esp_err_t 
+ */
+esp_err_t bsp_i2c_deinit(void);
 
 /**
  * @brief Prob given address on I2C bus

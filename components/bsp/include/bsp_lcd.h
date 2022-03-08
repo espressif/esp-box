@@ -1,22 +1,7 @@
-/**
- * @file bsp_lcd.h
- * @brief 
- * @version 0.1
- * @date 2021-07-05
- * 
- * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
+/*
+ * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
- *
- *               http://www.apache.org/licenses/LICENSE-2.0
- *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 #pragma once
@@ -24,8 +9,6 @@
 #include <stdbool.h>
 #include "bsp_board.h"
 #include "esp_err.h"
-#include "esp_lcd_panel_io.h"
-#include "esp_lcd_types.h"
 #include "freertos/FreeRTOS.h"
 
 #ifdef __cplusplus
@@ -90,17 +73,6 @@ esp_err_t bsp_lcd_flush_wait_done(TickType_t ticks_to_wait);
 esp_err_t bsp_lcd_set_cb(bool (*trans_done_cb)(void *), void *data);
 
 /**
- * @brief Init LCD with SPI interface
- * 
- * @param p_io_handle LCD panel IO handle
- * @param trans_done_cb callback function when a single flush transaction is finished
- * @return 
- *    - ESP_OK: Success
- *    - Others: Fail
- */
-esp_err_t bsp_spi_lcd_init(esp_lcd_panel_io_handle_t *p_io_handle, bsp_lcd_trans_cb_t trans_done_cb);
-
-/**
  * @brief Deinit LCD with SPI interface
  * 
  * @return 
@@ -108,6 +80,17 @@ esp_err_t bsp_spi_lcd_init(esp_lcd_panel_io_handle_t *p_io_handle, bsp_lcd_trans
  *    - Others: Fail
  */
 esp_err_t bsp_spi_lcd_deinit(void);
+
+/**
+ * @brief Set backlight
+ * 
+ * @param en 0: OFF, other: ON
+ * 
+ * @return 
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t bsp_lcd_set_backlight(bool en);
 
 #ifdef __cplusplus
 }
