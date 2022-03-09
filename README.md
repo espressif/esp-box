@@ -35,21 +35,13 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 ## Features
 
 * Supports far-field voice interaction with 2 mics
-
 * Offline voice wake-up with high wake-up rate
-
 * Offline speech commands recognition in Chinese and English languages with high recognition rate
-
 * Reconfigurable 200+ speech commands in Chinese and English languages
-
 * Continuous Identification and Wakeup Interrupt
-
 * Flexible and reusable GUI framework
-
 * End-to-end AIoT dvelopment framwork ESP-RainMaker
-
 * Pmod™ compatible headers support expand peripheral modules
-
 
 ## Open-Source Content
 
@@ -62,13 +54,13 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 
 ## User Guide
 
-* For getting start of BOX serial development boards, please refer to the [Getting Started](./docs/getting_started.md)
-* For experiencing voice assistant, please refer to the [Voice Assistance Control and Customization](./docs/getting_started.md#offline-voice-assistant-with-your-device)
-* For experiencing a more humanized interactive experience, please refer to the [Continuous Speech Recognition](./docs/getting_started.md#continuous-recognition)
-* For defining the speech commands by mobile APP, please refer to the [ESP-BOX APP User Guide](./docs/getting_started.md#voice-command-customization)
-* For product exploded-view and disassembly tutorial, please refer to [Disassembly Tutorial](docs/disassembly_tutorial.md)
+* For getting start of BOX serial development boards, please refer to the [Getting Started](./docs/getting_started.md).
+* For experiencing voice assistant, please refer to the [Voice Assistance Control and Customization](./docs/getting_started.md#offline-voice-assistant-with-your-device).
+* For experiencing a more humanized interactive experience, please refer to the [Continuous Speech Recognition](./docs/getting_started.md#continuous-recognition).
+* For defining the speech commands by mobile APP, please refer to the [ESP-BOX APP User Guide](./docs/getting_started.md#voice-command-customization).
+* For product exploded-view and disassembly tutorial, please refer to [Disassembly Tutorial](docs/disassembly_tutorial.md).
 * For more detils of hardware information, please refer to the [Hardware Overview](./docs/hardware_overview).
-* For latest version firmware, please refer to the [Firmware Update](./docs/firmware_update.md)
+* For latest version firmware, please refer to the [Firmware Update](./docs/firmware_update.md).
 
 ## Developer Guide
 
@@ -83,9 +75,7 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 ## Contact Us
 
 * If you have any technical issues, please submit issue tickets at [GitHub Issues](https://github.com/espressif/esp-box/issues) or forum [esp32.com](https://esp32.com/) for help.
-
 * If you are interested in ESP-BOX project, welcome to the [ESP-BOX forum](https://esp32.com/viewforum.php?f=44) to share with us your ideas.
-
 
 ## Contributing Examples
 

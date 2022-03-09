@@ -1,13 +1,32 @@
 * [中文版本](./firmware_update_cn.md)
 
-# Update ESP32-S3-BOX Firmware
+# Update Firmware
 
-ESP32-S3-BOX supports updating firmware through USB, you just need:
+The BOX series development boards support updating firmware through USB, you just need:
 
 1. USB Type-C cable
-2. [Latest firmware bin file](https://github.com/espressif/esp-box/releases)
+2. Latest firmware bin file
+
+**Important Note:**
+> If USB download fails, please hold down `Boot` button and then press `Reset` button to initiates Firmware Download mode.
 
 ## Latest Firmware Download
+
+We have two kinds of firmware, the latest developing firmware and the latest release firmware. Flashing developing firmware, you can experiance the new features, flashing latest release firmware, which is more stable than the developing firmware but does not contain new features.
+
+### Latest developing firmware
+
+For the developing firmware, please refer to: https://github.com/espressif/esp-box/actions
+
+1. Click the `Action`
+2. Choose the latest the workflow
+3. Download the `factory-firmware`
+
+<div align="center">
+<img src="_static/Action.jpg" width="500px">
+</div>
+
+### Latest release firmware
 
 For the latest firmware, please refer to: https://github.com/espressif/esp-box/releases
 
@@ -21,7 +40,7 @@ For the latest firmware, please refer to: https://github.com/espressif/esp-box/r
 
 ## Firmware update
 
-Please follow the link below correspond to your OS to update the ESP-S3-BOX firmware.
+Please follow the link below correspond to your OS to update the firmware.
 
 | [Windows](#firmware-update-for-windows) | [Linux](#firmware-update-for-linux) | [macOS](#firmware-update-for-macos) |
 |:----:|:----:|:----:|
@@ -31,13 +50,8 @@ Please follow the link below correspond to your OS to update the ESP-S3-BOX firm
 
 We recommend using `Windows 10` and above system. Under `Windows 10` system, the driver of `USB-Serial-Jtag` will be downloaded automatically. If you use the `Windows 7`, please download and install [USB-Serial-JTAG drive](https://dl.espressif.com/dl/idf-driver/idf-driver-esp32-usb-jtag-2021-07-15.zip) manually.
 
-1. [Download latest firmware](https://github.com/espressif/esp-box/releases)
-2. Connect ESP32-S3-BOX to the computer through USB Type-C cable.
-
-   <div align="center">
-   <img src="_static/plug_power.png">
-   </div>
-
+1. [Download latest firmware](#latest-firmware-download)
+2. Connect your development board to the computer through USB Type-C cable.
 3. Please make sure the computer is connected to the Internet first. When the driver is installed, you can find two new devices appear on `Device Manager` list, `COMX` (`COM2` for example) and `USB JTAG/serial debug unit`, the former is used to download firmware or output program logs, the latter is used for JTAG debugging.
 
    <div align="center">
@@ -69,8 +83,8 @@ We recommend using `Windows 10` and above system. Under `Windows 10` system, the
 
 #### Firmware update for Linux 
 
-1. [Download latest firmware](https://github.com/espressif/esp-box/releases)
-2. Connect ESP32-S3-BOX to the computer through USB Type-C cable, there is no need to install the driver of `USB-Serial-Jtag` under Linux system.
+1. [Download latest firmware](#latest-firmware-download)
+2. Connect your development board to the computer through USB Type-C cable, there is no need to install the driver of `USB-Serial-Jtag` under Linux system.
 3. Install `esptool`, input the following commands in `Terminal` (`pip` can be specified as `pip3`) :
 
     ```
@@ -98,9 +112,9 @@ We recommend using `Windows 10` and above system. Under `Windows 10` system, the
 
 #### Firmware update for macOS
 
-1. [Download latest firmware](https://github.com/espressif/esp-box/releases)
+1. [Download latest firmware](#latest-firmware-download)
 
-2. Connect ESP32-S3-BOX to the computer through USB Type-C cable, there is no need to install the driver of `USB-Serial-Jtag` under macOS.
+2. Connect your development board to the computer through USB Type-C cable, there is no need to install the driver of `USB-Serial-Jtag` under macOS.
 
 3. Install `esptool`, input the following codes in `Terminal` (`pip3` can be specified as `pip`) :
 

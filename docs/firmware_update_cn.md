@@ -1,15 +1,34 @@
 * [English Version](./firmware_update.md)
 
-# 更新 ESP32-S3-BOX 固件
+# 更新固件
 
-ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
+BOX 系列开发板支持使用 USB 接口更新固件，你仅需要准备：
 
 1. 一根 USB Type-C 数据线
 2. 最新版本固件（bin 文件）
 
+**需要提醒:**
+> 如遇 USB 下载失败，请按住 `Boot` 按键的同时按一下 `Reset` 按键进入“固件下载”模式。
+
 ## 下载最新版本固件
 
-请下载最新版本固件，固件下载链接为：https://github.com/espressif/esp-box/releases
+我们有两种版本的最新固件，一个是开发中的固件，您可以下载后体验新功能，另外一个是正式发布的固件，相比于开发中的固件，正式发布的固件不包含最新功能但是会更稳定。
+
+### 开发中的固件
+
+下载最新开发中的固件，请访问：https://github.com/espressif/esp-box/actions
+
+1. 点击工具栏的 `Action`
+2. 选择最新的 workflow
+3. 下载 `factory-firmware`
+
+<div align="center">
+<img src="_static/Action.jpg" width="500px">
+</div>
+
+### 正式发布的固件
+
+下载最新发布固件，请访问：https://github.com/espressif/esp-box/releases
 
 1. 请先选择一个固件（建议使用最新 release）
 2. 点击 `Assets` 展开下载链接
@@ -31,13 +50,8 @@ ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
 
 我们推荐使用 `Windows 10` 及以上版本，在该系统下 `USB-Serial-Jtag` 的驱动将联网自动下载。如果使用 `Windows 7` 系统，请手动下载 [USB-Serial-JTAG 驱动](https://dl.espressif.com/dl/idf-driver/idf-driver-esp32-usb-jtag-2021-07-15.zip) 并安装。
 
-1. [下载最新版本固件](https://github.com/espressif/esp-box/releases)
-2. 使用 USB Type-C 数据线将 ESP32-S3-BOX 接入电脑
-
-   <div align="center">
-   <img src="_static/plug_power.png">
-   </div>
-
+1. [下载最新版本固件](#下载最新版本固件)
+2. 使用 USB Type-C 数据线将开发板接入电脑
 3. 初次使用，请确保电脑已联网，驱动正常自动安装后，我们能在设备管理器看到以下设备。这里将多出两个新的设备 `COMX`(此电脑为 `COM2` ) 和 `USB JTAG/serial debug unit`，前者用于下载固件和输出程序日志，后者用于 JTAG 调试
 
    <div align="center">
@@ -69,13 +83,8 @@ ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
 
 #### Linux 系统更新固件说明
 
-1. [下载最新版本固件](https://github.com/espressif/esp-box/releases)
-2. 使用 USB Type-C 数据线将 ESP32-S3-BOX 接入电脑，`USB-Serial-Jtag` 在 Linux 系统下无需安装驱动
-
-   <div align="center">
-   <img src="_static/plug_power.png">
-   </div>
-
+1. [下载最新版本固件](#下载最新版本固件)
+2. 使用 USB Type-C 数据线将开发板接入电脑，`USB-Serial-Jtag` 在 Linux 系统下无需安装驱动
 3. 安装下载工具 `esptool`，请打开 `终端` ，并输入以下指令（`pip` 也可指定为 `pip3`）：
 
     ```
@@ -103,13 +112,8 @@ ESP32-S3-BOX 支持使用 USB 接口更新固件，你仅需要准备：
 
 #### macOS 系统更新固件说明
 
-1. [下载最新版本固件](https://github.com/espressif/esp-box/releases)
-2. 使用 USB Type-C 数据线将 ESP32-S3-BOX 接入电脑，`USB-Serial-Jtag` 在 macOS 系统下无需安装驱动
-
-   <div align="center">
-   <img src="_static/plug_power.png">
-   </div>
-
+1. [下载最新版本固件](#下载最新版本固件)
+2. 使用 USB Type-C 数据线将开发板接入电脑，`USB-Serial-Jtag` 在 macOS 系统下无需安装驱动
 3. 安装下载工具 `esptool`，请打开 `终端` ，并输入以下指令（`pip3` 也可指定为 `pip`）：
 
     ```
