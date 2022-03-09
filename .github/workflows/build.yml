@@ -6,14 +6,37 @@ on:
   pull_request:
 
 jobs:
-  build-release-v4_4:
+  Build-examples:
     runs-on: ubuntu-latest
+    env:
+      PROJECT_PATH: examples/factory_demo
+      BIN_FILE: ESP-Box_Demo_V0.3.0.bin
+    container: espressif/idf:release-v4.4
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
       with:
         submodules: 'recursive'
     - name: esp-idf build
-      uses: espressif/esp-idf-ci-action@release-v4.4
+      run: |
+        pwd
+        ls -al
+        cd /opt/esp/idf
+        git checkout 2bdea81b2a
+        git submodule update --init --recursive
+        ./install.sh
+        source ./export.sh
+        cd $GITHUB_WORKSPACE/$PROJECT_PATH
+        idf.py build
+        esptool.py --chip esp32s3 merge_bin -o build/$BIN_FILE --flash_mode dio --flash_size 16MB 0x0 build/bootloader/bootloader.bin 0x20000 build/factory_demo.bin 0x8000 build/partition_table/partition-table.bin 0x16000 build/ota_data_initial.bin 0x3bd000 build/storage.bin 0x647000 build/model.bin
+      shell: bash
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.0.0
       with:
-        path: 'examples/factory_demo'
+        # Artifact name
+        name: factory-firmware
+        # A file, directory or wildcard pattern that describes what to upload
+        path: |
+          examples/factory_demo/build/ESP-*.bin
+        retention-days: 90

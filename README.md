@@ -2,7 +2,16 @@
 
 # ESP-BOX AIoT Development Framework
 
-[![Build examples](https://github.com/espressif/esp-box/actions/workflows/build.yml/badge.svg)](https://github.com/espressif/esp-box/actions/workflows/build.yml)
+<p align="left">
+    <a href="https://github.com/espressif/esp-box/blob/master/LICENSE" alt="Build examples">
+        <img alt="GitHub" src="https://img.shields.io/github/license/espressif/esp-box"></a>
+    <a href="https://github.com/espressif/esp-box/actions/workflows/build.yml" alt="Build examples">
+        <img src="https://github.com/espressif/esp-box/actions/workflows/build.yml/badge.svg" /></a>
+    <a href="https://github.com/espressif/esp-box/graphs/contributors" alt="Contributors">
+        <img src="https://img.shields.io/github/contributors/espressif/esp-box" /></a>
+    <a href="https://github.com/espressif/esp-box/releases" alt="GitHub all releases">
+        <img src="https://img.shields.io/github/downloads/espressif/esp-box/total" /></a>
+</p>
 
 **Important Note:**
 
