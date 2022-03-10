@@ -43,7 +43,10 @@ build_demo_cmake:
     - cd mp3_demo
     - idf.py fullclean
     - idf.py build
-    - cd ../../
+    - cd ../
+    - cd watering_demo
+    - idf.py fullclean
+    - idf.py build
 
 push_to_github:
   stage: deploy
