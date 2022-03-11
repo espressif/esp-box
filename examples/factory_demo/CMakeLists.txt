@@ -19,4 +19,4 @@ set(EXTRA_COMPONENT_DIRS
 
 add_compile_options(-fdiagnostics-color=always)
 
-project(lite_demo)
+project(factory_demo)
