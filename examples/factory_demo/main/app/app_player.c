@@ -24,6 +24,7 @@
 #include "bsp_i2s.h"
 #include "bsp_codec.h"
 #include "mp3dec.h"
+#include "settings.h"
 #include "file_manager.h"
 
 static const char *TAG = "player";
@@ -342,6 +343,9 @@ esp_err_t app_player_play_index(size_t index)
 /* **************** START AUDIO PLAYER **************** */
 esp_err_t app_player_start(char *file_path)
 {
+    sys_param_t *param = settings_get_parameter();
+    bsp_codec_set_voice_volume(param->volume);
+
     ESP_RETURN_ON_FALSE(NULL != file_path, ESP_ERR_INVALID_ARG, TAG,  "Invalid base path");
     BaseType_t ret_val = xTaskCreatePinnedToCore(audio_task, "Audio Task", 4 * 1024, file_path, configMAX_PRIORITIES - 5, NULL, 1);
     ESP_RETURN_ON_FALSE(pdPASS == ret_val, ESP_FAIL, TAG,  "Failed create audio task");

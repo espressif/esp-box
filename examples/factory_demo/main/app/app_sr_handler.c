@@ -99,7 +99,7 @@ void sr_handler_task(void *pvParam)
     esp_err_t ret;
     FILE *fp;
     const sys_param_t *param = settings_get_parameter();
-    char *files[2][3] = {
+    const char *files[2][3] = {
         {"/spiffs/echo_en_wake.wav", "/spiffs/echo_en_ok.wav", "/spiffs/echo_en_end.wav"},
         {"/spiffs/echo_cn_wake.wav", "/spiffs/echo_cn_ok.wav", "/spiffs/echo_cn_end.wav"},
     };

@@ -11,31 +11,36 @@
 #include "lvgl/lvgl.h"
 #include "bsp_btn.h"
 #include "ui_main.h"
+#include "settings.h"
 
 static bool g_media_is_playing = false;
-static int g_volume = 7;
 lv_obj_t *g_lab_file = NULL;
 static void (*g_player_end_cb)(void) = NULL;
 
 static void ui_player_page_vol_inc_click_cb(lv_event_t *e)
 {
     lv_obj_t *obj = lv_event_get_user_data(e);
-    if (g_volume < 10) {
-        g_volume++;
+    sys_param_t *param = settings_get_parameter();
+    uint8_t v = param->volume / 10;
+    if (v < 10) {
+        v++;
     }
-    bsp_codec_set_voice_volume(10 * g_volume);
-    lv_bar_set_value(obj, g_volume, LV_ANIM_ON);
+    param->volume = v * 10;
+    bsp_codec_set_voice_volume(param->volume);
+    lv_bar_set_value(obj, v, LV_ANIM_ON);
 }
 
 static void ui_player_page_vol_dec_click_cb(lv_event_t *e)
 {
     lv_obj_t *obj = lv_event_get_user_data(e);
-    if (g_volume > 0) {
-        g_volume -= 1;
+    sys_param_t *param = settings_get_parameter();
+    uint8_t v = param->volume / 10;
+    if (v > 0) {
+        v -= 1;
     }
-
-    bsp_codec_set_voice_volume(10 * g_volume);
-    lv_bar_set_value(obj, g_volume, LV_ANIM_ON);
+    param->volume = v * 10;
+    bsp_codec_set_voice_volume(param->volume);
+    lv_bar_set_value(obj, v, LV_ANIM_ON);
 }
 
 static void ui_player_page_pause_click_cb(lv_event_t *e)
@@ -86,6 +91,7 @@ static void ui_player_page_return_click_cb(lv_event_t *e)
         lv_indev_set_button_points(ui_get_button_indev(), NULL);
     }
     app_player_callback_register(NULL, NULL);
+    settings_write_parameter_to_nvs(); // save volume to nvs
     lv_obj_del(obj);
     if (g_player_end_cb) {
         g_player_end_cb();
@@ -204,12 +210,13 @@ void ui_media_player(void (*fn)(void))
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_align(lab_btn_text, LV_ALIGN_LEFT_MID, 10, 0);
 
+    sys_param_t *param = settings_get_parameter();
+    bsp_codec_set_voice_volume(param->volume);
     lv_obj_t *vol_bar = lv_bar_create(vol_panel);
     lv_obj_set_size(vol_bar, 100, 4);
     lv_bar_set_range(vol_bar, 0, 10);
-    lv_bar_set_value(vol_bar, g_volume, LV_ANIM_OFF);
+    lv_bar_set_value(vol_bar, param->volume / 10, LV_ANIM_OFF);
     lv_obj_align(vol_bar, LV_ALIGN_CENTER, 20, 0);
-    bsp_codec_set_voice_volume(10 * g_volume);
 
     lv_obj_t *btn_vol_inc = lv_btn_create(vol_panel);
     lv_obj_set_size(btn_vol_inc, 36, 36);
