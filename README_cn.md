@@ -64,9 +64,13 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 
 ## 开发指引
 
+esp-box 集成了 AIOT 开发中常用的组件，您可以利用这些组件构建自己的应用。
+
+### 快速开始
+
 * **Step 1**. 如果您首次接触 ESP-IDF 开发，建议先浏览 [ESP-IDF 编程指南](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/index.html)，了解乐鑫已经提供的开源驱动和组件；
 * **Step 2**. 接下来您可以详细阅读 [ESP-IDF（release/v4.4） 环境搭建指引](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/get-started/index.html#installation-step-by-step)，一步一步完成开发环境搭建；
-* **Step 3**. 此外，请在当前 ESP-IDF 上打上补丁，详情请参考 [Patch for ESP-IDF](./idf_patch)；
+* **Step 3**. 使用指令 `git clone --recursive https://github.com/espressif/esp-box.git` 下载本项目的代码，然后需要将 esp-idf 版本切换到[指定的版本](#版本信息)；
 * **Step 4**. 小试牛刀，您可以尝试 [构建并烧录一个新的示例程序](./examples/image_display)；
 * **Step 5**. 更进一步，您可以阅读 [ESP-BOX 技术架构说明](./docs/technical_architecture_cn.md)，了解更多技术细节；
 * **Step 6**. 深入开发，您可以阅读 [ESP 语音识别应用开发指南](https://github.com/espressif/esp-sr)，[ESP RainMaker 编程指南](https://docs.espressif.com/projects/esp-rainmaker/en/latest/)，[LVGL UI 界面开发快速总览](https://docs.lvgl.io/8.1/get-started/index.html)；
