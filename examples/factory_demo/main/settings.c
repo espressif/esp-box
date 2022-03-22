@@ -24,12 +24,14 @@ static sys_param_t g_sys_param = {0};
 static const sys_param_t g_default_sys_param = {
     .need_hint = 1,
     .sr_lang = SR_LANG_EN,
+    .volume = 70, // default volume is 70% 
 };
 
 static esp_err_t settings_check(sys_param_t *param)
 {
     esp_err_t ret;
     ESP_GOTO_ON_FALSE(param->sr_lang < SR_LANG_MAX, ESP_ERR_INVALID_ARG, reset, TAG, "language incorrect");
+    ESP_GOTO_ON_FALSE(param->volume <= 100, ESP_ERR_INVALID_ARG, reset, TAG, "volume incorrect");
     return ret;
 reset:
     ESP_LOGW(TAG, "Set to default");

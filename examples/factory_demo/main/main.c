@@ -26,9 +26,13 @@
 
 static const char *TAG = "main";
 
+#define MEMORY_MONITOR 0
+
+#if MEMORY_MONITOR
 static void monitor_task(void *arg)
 {
     (void) arg;
+    const int STATS_TICKS = pdMS_TO_TICKS(2 * 1000);
 
     while (true) {
         ESP_LOGI(TAG, "System Info Trace");
@@ -43,7 +47,7 @@ static void monitor_task(void *arg)
                heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
                heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
 
-        vTaskDelay(pdMS_TO_TICKS(2 * 1000));
+        vTaskDelay(STATS_TICKS);
     }
 
     vTaskDelete(NULL);
@@ -51,12 +55,14 @@ static void monitor_task(void *arg)
 
 static void sys_monitor_start(void)
 {
-    BaseType_t ret_val = xTaskCreatePinnedToCore(monitor_task, "Monitor Task", 4 * 1024, NULL, 1, NULL, 0);
+    BaseType_t ret_val = xTaskCreatePinnedToCore(monitor_task, "Monitor Task", 4 * 1024, NULL, configMAX_PRIORITIES - 3, NULL, 0);
     ESP_ERROR_CHECK_WITHOUT_ABORT((pdPASS == ret_val) ? ESP_OK : ESP_FAIL);
 }
+#endif
 
 void app_main(void)
 {
+    ESP_LOGI(TAG, "Compile time: %s %s", __DATE__, __TIME__);
     /* Initialize NVS. */
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -65,7 +71,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
     ESP_ERROR_CHECK(settings_read_parameter_from_nvs());
-#if !SR_RUN_TEST
+#if !SR_RUN_TEST && MEMORY_MONITOR
     sys_monitor_start(); // Logs should be reduced during SR testing
 #endif
     ESP_ERROR_CHECK(bsp_board_init());
@@ -79,6 +85,7 @@ void app_main(void)
 
     const board_res_desc_t *brd = bsp_board_get_description();
     app_pwm_led_init(brd->PMOD2->row1[1], brd->PMOD2->row1[2], brd->PMOD2->row1[3]);
+    ESP_LOGI(TAG, "speech recognition start");
     app_sr_start(false);
     app_rmaker_start();
 }
