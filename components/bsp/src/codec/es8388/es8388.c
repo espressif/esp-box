@@ -52,7 +52,7 @@ void es8388_read_all()
     for (int i = 0; i < 50; i++) {
         uint8_t reg = 0;
         es_read_reg(i, &reg);
-        ets_printf("%x: %x\n", i, reg);
+        esp_rom_printf("%x: %x\n", i, reg);
     }
 }
 

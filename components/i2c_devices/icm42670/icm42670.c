@@ -56,7 +56,7 @@ static void platform_delay_ms(uint32_t ms)
 
 static void platform_delay_us(uint32_t us)
 {
-    ets_delay_us(us);
+    esp_rom_delay_us(us);
 }
 
 /*
