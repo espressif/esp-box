@@ -289,9 +289,8 @@ static void audio_task(void *pvParam)
     /**
      * @brief Initialize I2S and audio codec
      * 
-     * @note Actually the sampling rate can be reconfigured.
-     *       `MP3GetLastFrameInfo` can fill the `MP3FrameInfo`, which includes `samprate`.
-     *       So theoretically, the sampling rate can be dynamically changed according to the MP3 frame information.
+     * @note `MP3GetLastFrameInfo` is used to fill the `MP3FrameInfo`, which includes `samprate`,
+     *       and the sampling rate is updated during playback using this value.
      */
     bsp_codec_init(AUDIO_HAL_44K_SAMPLES);
     bsp_i2s_init(I2S_NUM_0, 44100);
