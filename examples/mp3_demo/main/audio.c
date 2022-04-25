@@ -235,6 +235,36 @@ static esp_err_t aplay_mp3(const char *path)
             /* Get MP3 frame info and configure I2S clock */
             MP3GetLastFrameInfo(mp3_decoder, &frame_info);
 
+            // if mono, convert to stereo as es8311 requires stereo input
+            // even though it is mono output
+            if(frame_info.nChans ==  1) {
+                size_t new_output_sample_count = frame_info.outputSamps * 2;
+
+                // convert from back to front to allow conversion in-place
+                int16_t *out = (int16_t*)output + new_output_sample_count;
+                int16_t *in = (int16_t*)output + frame_info.outputSamps;
+                size_t samples = frame_info.outputSamps;
+                while(samples) {
+                    // write right channel
+                    *out = *in;
+                    out--;
+
+                    // write left channel
+                    *out = *in;
+                    out--;
+
+                    // move input buffer back and decrement samples
+                    in--;
+                    samples--;
+                }
+
+                // adjust channels to 2
+                frame_info.nChans = 2;
+
+                // recalculate output sample count as its calculated by (channels * samples per frame)
+                frame_info.outputSamps = new_output_sample_count;
+            }
+
             /* Configure I2S clock if sample rate changed. Always reconfigure at first frame */
             if (sample_rate != frame_info.samprate) {
                 sample_rate = frame_info.samprate;
