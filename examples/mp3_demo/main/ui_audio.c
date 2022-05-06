@@ -1,7 +1,5 @@
 /**
- * @file ui_audio.c
- * @author your name (you@domain.com)
- * @brief 
+ * @file
  * @version 0.1
  * @date 2021-11-10
  * 
