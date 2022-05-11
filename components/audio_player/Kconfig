@@ -1,0 +1,20 @@
+menu "Audio playback"
+
+    config AUDIO_PLAYER_ENABLE_MP3
+        bool "Enable mp3 decoding."
+        default y
+        help
+            The audio player can play mp3 files using libhelix-mp3.
+    config AUDIO_PLAYER_ENABLE_WAV
+        bool "Enable wav file playback"
+        default y
+        help
+            Audio player can decode wave files.
+
+    config AUDIO_PLAYER_LOG_LEVEL
+        int "Audio Player log level (0 none - 3 highest)"
+        default 0
+        range 0 3
+        help
+            Specify the verbosity of Audio Player log output.
+endmenu
