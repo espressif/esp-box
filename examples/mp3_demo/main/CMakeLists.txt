@@ -1,7 +1,6 @@
 idf_component_register(
     SRCS 
         "mp3_demo.c"
-        "audio.c"
         "ui_audio.c"
     INCLUDE_DIRS
         "include")

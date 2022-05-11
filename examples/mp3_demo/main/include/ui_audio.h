@@ -20,15 +20,17 @@
 
 #pragma once
 
+#include "file_iterator.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
  * @brief Create audio player UI
- * 
+ *
  */
-void ui_audio_start(void);
+void ui_audio_start(file_iterator_instance_t *i);
 
 #ifdef __cplusplus
 }
