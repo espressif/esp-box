@@ -19,13 +19,15 @@
  */
 
 #include "lvgl.h"
-#include "audio.h"
-#include "playlist.h"
+#include "audio_player.h"
+#include "file_iterator.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "es8311.h"
 
 static const char *TAG = "ui_audio";
+
+static file_iterator_instance_t* file_iterator;
 
 #if CONFIG_ESP32_S3_BOX_LITE_BOARD
 static void register_button_callback(lv_obj_t *btn_list[]);
@@ -36,12 +38,13 @@ static void btn_play_pause_cb(lv_event_t *event)
     lv_obj_t *btn = (lv_obj_t *) event->target;
     lv_obj_t *lab = (lv_obj_t *) btn->user_data;
 
-    if (lv_obj_has_state(btn, LV_STATE_CHECKED)) {
-        lv_label_set_text_static(lab, LV_SYMBOL_PLAY);
-        audio_pause();
-    } else {
+    audio_player_state_t state = audio_player_get_state();
+    if(state == AUDIO_PLAYER_STATE_PAUSE) {
         lv_label_set_text_static(lab, LV_SYMBOL_PAUSE);
-        audio_resume();
+        audio_player_resume();
+    } else if(state == AUDIO_PLAYER_STATE_PLAYING) {
+        lv_label_set_text_static(lab, LV_SYMBOL_PLAY);
+        audio_player_pause();
     }
 }
 
@@ -49,7 +52,7 @@ static void play_index(int index) {
     ESP_LOGI(TAG, "play_index(%d)", index);
 
     char filename[128];
-    int retval = playlist_get_full_path_from_index(index, filename, sizeof(filename));
+    int retval = file_iterator_get_full_path_from_index(file_iterator, index, filename, sizeof(filename));
     if(retval == 0) {
         ESP_LOGE(TAG, "unable to retrieve filename");
         return;
@@ -60,7 +63,7 @@ static void play_index(int index) {
     FILE* fp = fopen(filename, "rb");
     if(fp) {
         ESP_LOGI(TAG, "Playing '%s'", filename);
-        audio_play(fp);
+        audio_player_play(fp);
     } else {
         ESP_LOGE(TAG, "unable to open index %d, filename '%s'", index, filename);
     }
@@ -71,17 +74,22 @@ static void btn_prev_next_cb(lv_event_t *event)
     bool is_next = (bool) event->user_data;
 
     if (is_next) {
-        playlist_next();
+        ESP_LOGI(TAG, "btn next");
+        file_iterator_next(file_iterator);
     } else {
-        playlist_prev();
+        ESP_LOGI(TAG, "btn prev");
+        file_iterator_prev(file_iterator);
     }
 
     audio_player_state_t state = audio_player_get_state();
     if(state == AUDIO_PLAYER_STATE_IDLE) {
         // nothing to do, changing songs while not playing
         // doesn't start or stop playback
+        ESP_LOGI(TAG, "idle, nothing to do");
     } else if(state == AUDIO_PLAYER_STATE_PLAYING) {
-        play_index(playlist_get_index());
+        int index = file_iterator_get_index(file_iterator);
+        ESP_LOGI(TAG, "playing index '%d'", index);
+        play_index(index);
     }
 }
 
@@ -100,13 +108,13 @@ static void build_file_list(lv_obj_t *music_list)
 
     size_t i = 0;
     while (true) {
-        const char *file_name = playlist_get_name_from_index(i);
+        const char *file_name = file_iterator_get_name_from_index(file_iterator, i);
         if (NULL != file_name) {
             lv_dropdown_add_option(music_list, file_name, i);
         } else {
             lv_dropdown_set_selected(music_list, 0);
             lv_label_set_text_static(label_title,
-                playlist_get_name_from_index(0));
+                file_iterator_get_name_from_index(file_iterator, 0));
             break;
         }
         i++;
@@ -120,20 +128,22 @@ static void audio_callback(audio_player_cb_ctx_t *ctx)
     lv_obj_t *btn_play_pause = (lv_obj_t *) label_title->user_data;
     lv_obj_t *label_play_pause = (lv_obj_t *) btn_play_pause->user_data;
 
-    if(ctx->audio_event == AUDIO_PLAYER_STATE_IDLE)
+    if(ctx->audio_event == AUDIO_PLAYER_CALLBACK_EVENT_IDLE)
     {
-        playlist_next();
-        play_index(playlist_get_index());
+        ESP_LOGI(TAG, "audio_callback IDLE");
+        file_iterator_next(file_iterator);
+        play_index(file_iterator_get_index(file_iterator));
     }
 
-    size_t index = playlist_get_index();
+    size_t index = file_iterator_get_index(file_iterator);
 
     lv_dropdown_set_selected(music_list, index);
 
     lv_label_set_text_static(label_title,
-        playlist_get_name_from_index(index));
+        file_iterator_get_name_from_index(file_iterator, index));
 
-    if(ctx->audio_event == AUDIO_PLAYER_STATE_PLAYING) {
+    if((ctx->audio_event == AUDIO_PLAYER_CALLBACK_EVENT_PLAYING) ||
+       (ctx->audio_event == AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT)) {
             lv_obj_clear_state(btn_play_pause, LV_STATE_CHECKED);
             lv_label_set_text_static(label_play_pause, LV_SYMBOL_PAUSE);
     } else {
@@ -150,13 +160,15 @@ static void music_list_cb(lv_event_t *event)
     if(audio_player_get_state() == AUDIO_PLAYER_STATE_PLAYING) {
         uint16_t selected = lv_dropdown_get_selected(music_list);
         ESP_LOGI(TAG, "switching index to '%d'", selected);
-        playlist_set_index(selected);
+        file_iterator_set_index(file_iterator, selected);
         play_index(selected);
     }
 }
 
-void ui_audio_start(void)
+void ui_audio_start(file_iterator_instance_t *i)
 {
+    file_iterator = i;
+
     /* Create audio control button */
     lv_obj_t *btn_play_pause = lv_btn_create(lv_scr_act());
     lv_obj_align(btn_play_pause, LV_ALIGN_CENTER, 0, 40);
@@ -223,14 +235,14 @@ void ui_audio_start(void)
 
     build_file_list(music_list);
 
-    audio_callback_register(audio_callback, (void *) music_list);
+    audio_player_callback_register(audio_callback, (void *) music_list);
 
 #if CONFIG_ESP32_S3_BOX_LITE_BOARD
     register_button_callback((lv_obj_t *[]) { label_prev, label_next, btn_play_pause });
 #endif
 
     // initiate playback
-    play_index(playlist_get_index());
+    play_index(file_iterator_get_index(file_iterator));
 }
 
 #if CONFIG_ESP32_S3_BOX_LITE_BOARD
