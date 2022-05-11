@@ -20,9 +20,12 @@
 
 #include "lvgl.h"
 #include "audio.h"
+#include "playlist.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "es8311.h"
+
+static const char *TAG = "ui_audio";
 
 #if CONFIG_ESP32_S3_BOX_LITE_BOARD
 static void register_button_callback(lv_obj_t *btn_list[]);
@@ -38,7 +41,28 @@ static void btn_play_pause_cb(lv_event_t *event)
         audio_pause();
     } else {
         lv_label_set_text_static(lab, LV_SYMBOL_PAUSE);
-        audio_play();
+        audio_resume();
+    }
+}
+
+static void play_index(int index) {
+    ESP_LOGI(TAG, "play_index(%d)", index);
+
+    char filename[128];
+    int retval = playlist_get_full_path_from_index(index, filename, sizeof(filename));
+    if(retval == 0) {
+        ESP_LOGE(TAG, "unable to retrieve filename");
+        return;
+    }
+
+    ESP_LOGI(TAG, "opening file '%s'", filename);
+
+    FILE* fp = fopen(filename, "rb");
+    if(fp) {
+        ESP_LOGI(TAG, "Playing '%s'", filename);
+        audio_play(fp);
+    } else {
+        ESP_LOGE(TAG, "unable to open index %d, filename '%s'", index, filename);
     }
 }
 
@@ -47,9 +71,17 @@ static void btn_prev_next_cb(lv_event_t *event)
     bool is_next = (bool) event->user_data;
 
     if (is_next) {
-        audio_play_next();
+        playlist_next();
     } else {
-        audio_play_prev();
+        playlist_prev();
+    }
+
+    audio_player_state_t state = audio_player_get_state();
+    if(state == AUDIO_PLAYER_STATE_IDLE) {
+        // nothing to do, changing songs while not playing
+        // doesn't start or stop playback
+    } else if(state == AUDIO_PLAYER_STATE_PLAYING) {
+        play_index(playlist_get_index());
     }
 }
 
@@ -60,51 +92,67 @@ static void volume_slider_cb(lv_event_t *event)
     es8311_codec_set_voice_volume(volume);
 }
 
-static void audio_callback(audio_cb_ctx_t *ctx)
+static void build_file_list(lv_obj_t *music_list)
 {
-    audio_event_t event = ctx->audio_event;
+    lv_obj_t *label_title = (lv_obj_t *) music_list->user_data;
 
+    lv_dropdown_clear_options(music_list);
+
+    size_t i = 0;
+    while (true) {
+        const char *file_name = playlist_get_name_from_index(i);
+        if (NULL != file_name) {
+            lv_dropdown_add_option(music_list, file_name, i);
+        } else {
+            lv_dropdown_set_selected(music_list, 0);
+            lv_label_set_text_static(label_title,
+                playlist_get_name_from_index(0));
+            break;
+        }
+        i++;
+    }
+}
+
+static void audio_callback(audio_player_cb_ctx_t *ctx)
+{
     lv_obj_t *music_list = (lv_obj_t *) ctx->user_ctx;
     lv_obj_t *label_title = (lv_obj_t *) music_list->user_data;
     lv_obj_t *btn_play_pause = (lv_obj_t *) label_title->user_data;
     lv_obj_t *label_play_pause = (lv_obj_t *) btn_play_pause->user_data;
 
-    if (AUDIO_EVENT_FILE_SCAN_DONE == event) {
-        lv_dropdown_clear_options(music_list);
-
-        size_t i = 0;
-        while (true) {
-            char *file_name = audio_get_name_from_index(i, NULL);
-            if (NULL != file_name) {
-                lv_dropdown_add_option(music_list, file_name, i);
-            } else {
-                lv_dropdown_set_selected(music_list, 0);
-                lv_label_set_text_static(label_title,
-                    audio_get_name_from_index(0, NULL));
-                break;
-            }
-            i++;
-        }
+    if(ctx->audio_event == AUDIO_PLAYER_STATE_IDLE)
+    {
+        playlist_next();
+        play_index(playlist_get_index());
     }
 
-    if (AUDIO_EVENT_CHANGE == event) {
-        lv_dropdown_set_selected(music_list, audio_get_index());
-        lv_label_set_text_static(label_title,
-            audio_get_name_from_index(audio_get_index(), NULL));
-    
-        /* Update play button */
-        if (lv_obj_has_state(btn_play_pause, LV_STATE_CHECKED)) {
+    size_t index = playlist_get_index();
+
+    lv_dropdown_set_selected(music_list, index);
+
+    lv_label_set_text_static(label_title,
+        playlist_get_name_from_index(index));
+
+    if(ctx->audio_event == AUDIO_PLAYER_STATE_PLAYING) {
             lv_obj_clear_state(btn_play_pause, LV_STATE_CHECKED);
             lv_label_set_text_static(label_play_pause, LV_SYMBOL_PAUSE);
-            lv_obj_invalidate(btn_play_pause);
-        }
+    } else {
+            lv_obj_add_state(btn_play_pause, LV_STATE_CHECKED);
+            lv_label_set_text_static(label_play_pause, LV_SYMBOL_PLAY);
     }
+
+    lv_obj_invalidate(btn_play_pause);
 }
 
 static void music_list_cb(lv_event_t *event)
 {
     lv_obj_t *music_list = (lv_obj_t *) event->target;
-    audio_play_index(lv_dropdown_get_selected(music_list));
+    if(audio_player_get_state() == AUDIO_PLAYER_STATE_PLAYING) {
+        uint16_t selected = lv_dropdown_get_selected(music_list);
+        ESP_LOGI(TAG, "switching index to '%d'", selected);
+        playlist_set_index(selected);
+        play_index(selected);
+    }
 }
 
 void ui_audio_start(void)
@@ -173,11 +221,16 @@ void ui_audio_start(void)
     lv_obj_set_user_data(music_list, (void *) lab_title);
     lv_obj_add_event_cb(music_list, music_list_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
+    build_file_list(music_list);
+
     audio_callback_register(audio_callback, (void *) music_list);
 
 #if CONFIG_ESP32_S3_BOX_LITE_BOARD
     register_button_callback((lv_obj_t *[]) { label_prev, label_next, btn_play_pause });
 #endif
+
+    // initiate playback
+    play_index(playlist_get_index());
 }
 
 #if CONFIG_ESP32_S3_BOX_LITE_BOARD
