@@ -19,7 +19,7 @@
  */
 
 #include "lvgl.h"
-#include "audio.h"
+#include "audio_player.h"
 #include "playlist.h"
 #include "esp_err.h"
 #include "esp_log.h"
@@ -36,12 +36,13 @@ static void btn_play_pause_cb(lv_event_t *event)
     lv_obj_t *btn = (lv_obj_t *) event->target;
     lv_obj_t *lab = (lv_obj_t *) btn->user_data;
 
-    if (lv_obj_has_state(btn, LV_STATE_CHECKED)) {
-        lv_label_set_text_static(lab, LV_SYMBOL_PLAY);
-        audio_pause();
-    } else {
+    audio_player_state_t state = audio_player_get_state();
+    if(state == AUDIO_PLAYER_STATE_PAUSE) {
         lv_label_set_text_static(lab, LV_SYMBOL_PAUSE);
-        audio_resume();
+        audio_player_resume();
+    } else if(state == AUDIO_PLAYER_STATE_PLAYING) {
+        lv_label_set_text_static(lab, LV_SYMBOL_PLAY);
+        audio_player_pause();
     }
 }
 
@@ -60,7 +61,7 @@ static void play_index(int index) {
     FILE* fp = fopen(filename, "rb");
     if(fp) {
         ESP_LOGI(TAG, "Playing '%s'", filename);
-        audio_play(fp);
+        audio_player_play(fp);
     } else {
         ESP_LOGE(TAG, "unable to open index %d, filename '%s'", index, filename);
     }
@@ -71,8 +72,10 @@ static void btn_prev_next_cb(lv_event_t *event)
     bool is_next = (bool) event->user_data;
 
     if (is_next) {
+        ESP_LOGI(TAG, "btn next");
         playlist_next();
     } else {
+        ESP_LOGI(TAG, "btn prev");
         playlist_prev();
     }
 
@@ -80,8 +83,11 @@ static void btn_prev_next_cb(lv_event_t *event)
     if(state == AUDIO_PLAYER_STATE_IDLE) {
         // nothing to do, changing songs while not playing
         // doesn't start or stop playback
+        ESP_LOGI(TAG, "idle, nothing to do");
     } else if(state == AUDIO_PLAYER_STATE_PLAYING) {
-        play_index(playlist_get_index());
+        int index = playlist_get_index();
+        ESP_LOGI(TAG, "playing index '%d'", index);
+        play_index(index);
     }
 }
 
@@ -120,8 +126,9 @@ static void audio_callback(audio_player_cb_ctx_t *ctx)
     lv_obj_t *btn_play_pause = (lv_obj_t *) label_title->user_data;
     lv_obj_t *label_play_pause = (lv_obj_t *) btn_play_pause->user_data;
 
-    if(ctx->audio_event == AUDIO_PLAYER_STATE_IDLE)
+    if(ctx->audio_event == AUDIO_PLAYER_CALLBACK_EVENT_IDLE)
     {
+        ESP_LOGI(TAG, "audio_callback IDLE");
         playlist_next();
         play_index(playlist_get_index());
     }
@@ -133,7 +140,8 @@ static void audio_callback(audio_player_cb_ctx_t *ctx)
     lv_label_set_text_static(label_title,
         playlist_get_name_from_index(index));
 
-    if(ctx->audio_event == AUDIO_PLAYER_STATE_PLAYING) {
+    if((ctx->audio_event == AUDIO_PLAYER_CALLBACK_EVENT_PLAYING) ||
+       (ctx->audio_event == AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT)) {
             lv_obj_clear_state(btn_play_pause, LV_STATE_CHECKED);
             lv_label_set_text_static(label_play_pause, LV_SYMBOL_PAUSE);
     } else {
@@ -223,7 +231,7 @@ void ui_audio_start(void)
 
     build_file_list(music_list);
 
-    audio_callback_register(audio_callback, (void *) music_list);
+    audio_player_callback_register(audio_callback, (void *) music_list);
 
 #if CONFIG_ESP32_S3_BOX_LITE_BOARD
     register_button_callback((lv_obj_t *[]) { label_prev, label_next, btn_play_pause });

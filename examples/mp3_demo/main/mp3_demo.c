@@ -18,16 +18,45 @@
  *      limitations under the License.
  */
 
-#include "audio.h"
+#include "audio_player.h"
 #include "bsp_board.h"
 #include "bsp_lcd.h"
 #include "bsp_storage.h"
+#include "bsp_i2s.h"
+#include "bsp_codec.h"
 #include "esp_err.h"
+#include "esp_log.h"
+#include "esp_check.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "lv_port.h"
 #include "lvgl.h"
 #include "ui_audio.h"
+#include "playlist.h"
+#include "es8311.h"
+
+static const char *TAG = "mp3_demo";
+
+static int last_volume;
+
+static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting) {
+    ESP_LOGI(TAG, "mute setting %d", setting);
+    int volume;
+
+    ESP_RETURN_ON_ERROR(es8311_codec_get_voice_volume(&volume), TAG, "get voice volume");
+    if(volume != 0) {
+        last_volume = volume;
+    }
+
+    ESP_RETURN_ON_ERROR(es8311_set_voice_mute(setting == AUDIO_PLAYER_MUTE ? true : false), TAG, "set voice mute");
+
+    // restore the voice volume upon unmuting
+    if(setting == AUDIO_PLAYER_UNMUTE) {
+        es8311_codec_set_voice_volume(last_volume);
+    }
+
+    return ESP_OK;
+}
 
 void app_main(void)
 {
@@ -38,8 +67,28 @@ void app_main(void)
     ESP_ERROR_CHECK(lv_port_init());
     bsp_lcd_set_backlight(true);
 
+    ESP_ERROR_CHECK(playlist_init("/spiffs"));
+
+    /**
+     * @brief Initialize I2S and audio codec
+     *
+     * @note `MP3GetLastFrameInfo` is used to fill the `MP3FrameInfo`, which includes `samprate`,
+     *       and the sampling rate is updated during playback using this value.
+     */
+    esp_err_t ret = bsp_codec_init(AUDIO_HAL_44K_SAMPLES);
+    if(ret != ESP_OK) {
+        ESP_LOGE(TAG, "bsp_codec_init failed with %d", ret);
+        return;
+    }
+
+    bsp_i2s_init(I2S_NUM_0, 44100);
+    // TODO: original code isn't checking return value here, this is failing with a value of 0x103 which is
+    // who the heck knows what error
+//    ESP_RETURN_ON_ERROR(ret, TAG, "bsp_i2s_init");
+
+    ESP_ERROR_CHECK(audio_player_new(I2S_NUM_0, audio_mute_function));
+
     ui_audio_start();
-    ESP_ERROR_CHECK(mp3_player_start("/spiffs"));
 
     do {
         lv_task_handler();
