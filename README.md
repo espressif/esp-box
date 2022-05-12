@@ -59,14 +59,18 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 * For experiencing a more humanized interactive experience, please refer to the [Continuous Speech Recognition](./docs/getting_started.md#continuous-recognition).
 * For defining the speech commands by mobile APP, please refer to the [ESP-BOX APP User Guide](./docs/getting_started.md#voice-command-customization).
 * For product exploded-view and disassembly tutorial, please refer to [Disassembly Tutorial](docs/disassembly_tutorial.md).
-* For more detils of hardware information, please refer to the [Hardware Overview](./docs/hardware_overview).
+* For more details of hardware information, please refer to the [Hardware Overview](./docs/hardware_overview).
 * For latest version firmware, please refer to the [Firmware Update](./docs/firmware_update.md).
 
 ## Developer Guide
 
+ESP-BOX integrates components commonly used in AIOT development that you can leverage to build your own applications.
+
+### Quick Start
+
 * **Step 1**. ESP-IDF (Espressif IoT Development Framework) is required to build the application. If this is your first time using the ESP-IDF, please refer to [ESP-IDF development guide](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/index.html) to understand the open-source drivers and components provided by Espressif.
 * **Step 2**. Next, setting up development environment. Please refer to [ESP-IDF(release/v4.4) Installation Step by Step](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/get-started/index.html#installation-step-by-step).
-* **Step 3**. Additionally, apply the patch files on current ESP-IDF, please refer [Patch for ESP-IDF](./idf_patch) for details.
+* **Step 3**. Run command `git clone --recursive https://github.com/espressif/esp-box.git` to download the code of this project and then switch the ESP-IDF version to [specified version](#versions);
 * **Step 4**. Take a small step, you can [build and flash a simple example](./examples/image_display).
 * **Step 5**. Moving further, please read [ESP-BOX technical architecture](./docs/technical_architecture.md) to understand the technical details.
 * **Step 6**. Going deeper, please read [ESP Speech Recognition Application Guide](https://github.com/espressif/esp-sr), [ESP RainMaker Programming Guide](https://docs.espressif.com/projects/esp-rainmaker/en/latest/), [LVGL GUI Quick overview](https://docs.lvgl.io/8.1/get-started/index.html).
