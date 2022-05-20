@@ -12,7 +12,8 @@
 #include "app_led.h"
 #include "app_sr.h"
 #include "file_manager.h"
-#include "app_player.h"
+#include "audio_player.h"
+#include "file_iterator.h"
 #include "driver/i2s.h"
 #include "bsp_board.h"
 #include "bsp_codec.h"
@@ -24,6 +25,8 @@
 static const char *TAG = "sr_handler";
 
 static bool b_audio_playing = false;
+
+extern file_iterator_instance_t* file_iterator;
 
 typedef enum {
     AUDIO_WAKE,
@@ -117,7 +120,7 @@ void sr_handler_task(void *pvParam)
     }
     (void)ret;
 
-    player_state_t last_player_state = PLAYER_STATE_IDLE;
+    audio_player_state_t last_player_state = AUDIO_PLAYER_STATE_IDLE;
     while (true) {
         sr_result_t result;
         app_sr_get_result(&result, portMAX_DELAY);
@@ -133,16 +136,16 @@ void sr_handler_task(void *pvParam)
             sr_echo_play(AUDIO_END);
 #endif
             sr_anim_stop();
-            if (PLAYER_STATE_PLAYING == last_player_state) {
-                app_player_play();
+            if (AUDIO_PLAYER_STATE_PLAYING == last_player_state) {
+                audio_player_resume();
             }
             continue;
         }
 
         if (AFE_FETCH_WWE_DETECTED == result.fetch_mode) {
             sr_anim_start();
-            last_player_state = app_player_get_state();
-            app_player_pause();
+            last_player_state = audio_player_get_state();
+            audio_player_pause();
 
             if (SR_LANG_EN == param->sr_lang) {
                 sr_anim_set_text("Say command");
@@ -189,15 +192,15 @@ void sr_handler_task(void *pvParam)
                 app_pwm_led_set_all_hsv(h, s, v);
             } break;
             case SR_CMD_NEXT:
-                app_player_play_next();
+                file_iterator_next(file_iterator);
                 break;
             case SR_CMD_PLAY:
-                app_player_play();
-                last_player_state = PLAYER_STATE_PLAYING;
+                audio_player_resume();
+                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
                 break;
             case SR_CMD_PAUSE:
-                app_player_pause();
-                last_player_state = PLAYER_STATE_PAUSE;
+                audio_player_pause();
+                last_player_state = AUDIO_PLAYER_STATE_PAUSE;
                 break;
             default:
                 ESP_LOGE(TAG, "Unknow cmd");

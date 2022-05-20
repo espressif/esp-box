@@ -7,15 +7,20 @@
 #include "esp_log.h"
 #include "bsp_board.h"
 #include "bsp_codec.h"
-#include "app_player.h"
+#include "audio_player.h"
+#include "file_iterator.h"
 #include "lvgl/lvgl.h"
 #include "bsp_btn.h"
 #include "ui_main.h"
 #include "settings.h"
 
+static const char *TAG = "ui_player";
+
 static bool g_media_is_playing = false;
 lv_obj_t *g_lab_file = NULL;
 static void (*g_player_end_cb)(void) = NULL;
+
+extern file_iterator_instance_t *file_iterator;
 
 static void ui_player_page_vol_inc_click_cb(lv_event_t *e)
 {
@@ -43,15 +48,27 @@ static void ui_player_page_vol_dec_click_cb(lv_event_t *e)
     lv_bar_set_value(obj, v, LV_ANIM_ON);
 }
 
+static void play_present() {
+    char filename[128];
+    file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
+    FILE* fp = fopen(filename, "rb");
+    if(!fp) {
+        ESP_LOGE(TAG, "unable to open '%s'", filename);
+        return;
+    }
+
+    audio_player_play(fp);
+}
+
 static void ui_player_page_pause_click_cb(lv_event_t *e)
 {
     lv_obj_t *obj = lv_event_get_user_data(e);
 
     if (g_media_is_playing) {
-        app_player_pause();
+        audio_player_pause();
         lv_label_set_text_static(obj, LV_SYMBOL_PLAY);
     } else {
-        app_player_play();
+        play_present();
         lv_label_set_text_static(obj, LV_SYMBOL_PAUSE);
     }
     g_media_is_playing = !g_media_is_playing;
@@ -60,8 +77,9 @@ static void ui_player_page_pause_click_cb(lv_event_t *e)
 static void ui_player_page_prev_click_cb(lv_event_t *e)
 {
     lv_obj_t *obj = lv_event_get_user_data(e);
-    app_player_play_prev();
-    lv_label_set_text_static(g_lab_file, app_player_get_name_from_index(app_player_get_index()));
+    file_iterator_prev(file_iterator);
+    play_present();
+    lv_label_set_text_static(g_lab_file, file_iterator_get_name_from_index(file_iterator, file_iterator_get_index(file_iterator)));
     lv_event_t event = {
         .user_data = obj,
     };
@@ -72,8 +90,8 @@ static void ui_player_page_prev_click_cb(lv_event_t *e)
 static void ui_player_page_next_click_cb(lv_event_t *e)
 {
     lv_obj_t *obj = lv_event_get_user_data(e);
-    app_player_play_next();
-    lv_label_set_text_static(g_lab_file, app_player_get_name_from_index(app_player_get_index()));
+    file_iterator_next(file_iterator);
+    lv_label_set_text_static(g_lab_file, file_iterator_get_name_from_index(file_iterator, file_iterator_get_index(file_iterator)));
     lv_event_t event = {
         .user_data = obj,
     };
@@ -90,7 +108,7 @@ static void ui_player_page_return_click_cb(lv_event_t *e)
     if (ui_get_button_indev()) {
         lv_indev_set_button_points(ui_get_button_indev(), NULL);
     }
-    app_player_callback_register(NULL, NULL);
+    audio_player_callback_register(NULL, NULL);
     settings_write_parameter_to_nvs(); // save volume to nvs
     lv_obj_del(obj);
     if (g_player_end_cb) {
@@ -98,12 +116,18 @@ static void ui_player_page_return_click_cb(lv_event_t *e)
     }
 }
 
-static void audio_cb(player_cb_ctx_t *ctx)
+static void audio_cb(audio_player_cb_ctx_t *ctx)
 {
-    if (AUDIO_EVENT_CHANGE == ctx->audio_event) {
+    if (AUDIO_PLAYER_CALLBACK_EVENT_IDLE == ctx->audio_event) {
         ui_acquire();
-        lv_label_set_text_static(g_lab_file, app_player_get_name_from_index(app_player_get_index()));
+        lv_label_set_text_static(g_lab_file, file_iterator_get_name_from_index(file_iterator, file_iterator_get_index(file_iterator)));
         ui_release();
+        g_media_is_playing = false;
+    }
+
+    if((AUDIO_PLAYER_CALLBACK_EVENT_PLAYING == ctx->audio_event) ||
+       (AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT == ctx->audio_event)) {
+        g_media_is_playing = true;
     }
 }
 
@@ -136,7 +160,7 @@ void ui_media_player(void (*fn)(void))
     lv_obj_align(img, LV_ALIGN_TOP_RIGHT, -10, 35);
 
     g_lab_file = lv_label_create(page);
-    lv_label_set_text_static(g_lab_file, app_player_get_name_from_index(app_player_get_index()));
+    lv_label_set_text_static(g_lab_file, file_iterator_get_name_from_index(file_iterator, file_iterator_get_index(file_iterator)));
     lv_obj_set_size(g_lab_file, 240, 32);
     lv_obj_set_style_text_font(g_lab_file, &lv_font_montserrat_24, LV_STATE_DEFAULT);
     lv_label_set_long_mode(g_lab_file, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -158,7 +182,7 @@ void ui_media_player(void (*fn)(void))
     lv_obj_set_style_radius(btn_play_pause, 18, LV_STATE_DEFAULT);
     lv_obj_align(btn_play_pause, LV_ALIGN_CENTER, 0, 0);
     lv_obj_t *lab_play_pause = lv_label_create(btn_play_pause);
-    g_media_is_playing = (app_player_get_state() == PLAYER_STATE_PLAYING);
+    g_media_is_playing = (audio_player_get_state() == AUDIO_PLAYER_STATE_PLAYING);
     if (g_media_is_playing) {
         lv_label_set_text_static(lab_play_pause, LV_SYMBOL_PAUSE);
     } else {
@@ -263,6 +287,6 @@ void ui_media_player(void (*fn)(void))
         points_array[0].y = (a.y1 + a.y2) / 2;
         lv_indev_set_button_points(ui_get_button_indev(), points_array);
     }
-    app_player_callback_register(audio_cb, NULL);
+    audio_player_callback_register(audio_cb, NULL);
 }
 
