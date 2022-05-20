@@ -10,6 +10,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "esp_check.h"
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "bsp_board.h"
@@ -21,10 +22,14 @@
 #include "app_led.h"
 #include "app_rmaker.h"
 #include "app_sr.h"
-#include "app_player.h"
+#include "audio_player.h"
+#include "file_iterator.h"
 #include "gui/ui_main.h"
+#include "es8311.h"
 
 static const char *TAG = "main";
+
+file_iterator_instance_t *file_iterator;
 
 #define MEMORY_MONITOR 0
 
@@ -60,6 +65,29 @@ static void sys_monitor_start(void)
 }
 #endif
 
+static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting) {
+    // Volume saved when muting and restored when unmuting. Restoring volume is necessary
+    // as es8311_set_voice_mute(true) results in voice volume (REG32) being set to zero.
+    static int last_volume;
+
+    ESP_LOGI(TAG, "mute setting %d", setting);
+    int volume;
+
+    ESP_RETURN_ON_ERROR(es8311_codec_get_voice_volume(&volume), TAG, "get voice volume");
+    if(volume != 0) {
+        last_volume = volume;
+    }
+
+    ESP_RETURN_ON_ERROR(es8311_set_voice_mute(setting == AUDIO_PLAYER_MUTE ? true : false), TAG, "set voice mute");
+
+    // restore the voice volume upon unmuting
+    if(setting == AUDIO_PLAYER_UNMUTE) {
+        es8311_codec_set_voice_volume(last_volume);
+    }
+
+    return ESP_OK;
+}
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Compile time: %s %s", __DATE__, __TIME__);
@@ -81,7 +109,12 @@ void app_main(void)
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 2));
     ESP_ERROR_CHECK(ui_main_start());
     bsp_lcd_set_backlight(true);  // Turn on the backlight after gui initialize
-    ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
+    file_iterator = file_iterator_new("/spiffs/mp3");
+    assert(file_iterator != NULL);
+    audio_player_config_t config = { .port = I2S_NUM_0,
+                                     .mute_fn = audio_mute_function,
+                                     .priority = 1 };
+    ESP_ERROR_CHECK(audio_player_new(config));
 
     const board_res_desc_t *brd = bsp_board_get_description();
     app_pwm_led_init(brd->PMOD2->row1[1], brd->PMOD2->row1[2], brd->PMOD2->row1[3]);
