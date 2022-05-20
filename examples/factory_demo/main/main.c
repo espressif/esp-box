@@ -21,8 +21,10 @@
 #include "app_led.h"
 #include "app_rmaker.h"
 #include "app_sr.h"
-#include "app_player.h"
+#include "audio_player.h"
+#include "playlist.h"
 #include "gui/ui_main.h"
+#include "es8311.h"
 
 static const char *TAG = "main";
 
@@ -60,6 +62,13 @@ static void sys_monitor_start(void)
 }
 #endif
 
+static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting) {
+    ESP_LOGI(TAG, "setting %d", setting);
+
+    esp_err_t retval = es8311_set_voice_mute(setting == AUDIO_PLAYER_MUTE ? true : false);
+    return retval;
+}
+
 void app_main(void)
 {
     ESP_LOGI(TAG, "Compile time: %s %s", __DATE__, __TIME__);
@@ -81,7 +90,8 @@ void app_main(void)
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 2));
     ESP_ERROR_CHECK(ui_main_start());
     bsp_lcd_set_backlight(true);  // Turn on the backlight after gui initialize
-    ESP_ERROR_CHECK(app_player_start("/spiffs/mp3"));
+    ESP_ERROR_CHECK(playlist_init("/spiffs/mp3"));
+    ESP_ERROR_CHECK(audio_player_new(I2S_NUM_0, audio_mute_function));
 
     const board_res_desc_t *brd = bsp_board_get_description();
     app_pwm_led_init(brd->PMOD2->row1[1], brd->PMOD2->row1[2], brd->PMOD2->row1[3]);
