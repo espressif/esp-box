@@ -102,6 +102,12 @@
     <td class="tg-zr06">10</td>
   </tr>
   <tr>
+    <td class="tg-ycr8">Driver IC</td>
+    <td class="tg-ycr8">ILI9342C</td>
+    <td class="tg-ycr8"></td>
+    <td class="tg-ycr8"></td>
+  </tr>
+  <tr>
     <td class="tg-o2c7" colspan="4"><span style="font-weight:bold">Microphone</span></td>
   </tr>
   <tr>
