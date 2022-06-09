@@ -12,22 +12,6 @@ The BOX series development boards support updating firmware through USB, you jus
 
 ## Latest Firmware Download
 
-We have two kinds of firmware, the latest developing firmware and the latest release firmware. Flashing developing firmware, you can experiance the new features, flashing latest release firmware, which is more stable than the developing firmware but does not contain new features.
-
-### Latest developing firmware
-
-For the developing firmware, please refer to: https://github.com/espressif/esp-box/actions
-
-1. Click the `Action`
-2. Choose the latest the workflow
-3. Download the `factory-firmware`
-
-<div align="center">
-<img src="_static/Action.jpg" width="500px">
-</div>
-
-### Latest release firmware
-
 For the latest firmware, please refer to: https://github.com/espressif/esp-box/releases
 
 1. Choose the latest release version

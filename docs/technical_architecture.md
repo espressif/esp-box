@@ -32,7 +32,7 @@ ESP-SR is a speech recognition framework developed by Espressif for the field of
 
 ESP-HMI is a human-computer interaction solution designed by Espressif based on the open-source GUI framework LVGL. With the powerful computing and peripheral resources in ESP32-S3, it can achieve excellent data visualization, touch control, and other functions:
 
-1. Screen driver library: compatible with a variety of mainstream 8080, SPI, I2C interface color screens, monochrome screens, touch screens, and provide a uniform display driver interface. Developers can directly use the adapted screen controller or add their screens according to the display driver interface. And the UI interface can be deployed to a variety of screens.
+1. Screen driver library: compatible with a variety of mainstream RGB, 8080, SPI, I2C interface color screens, monochrome screens, touch screens, and provide a uniform display driver interface. Developers can directly use the adapted screen controller or add their screens according to the display driver interface. And the UI interface can be deployed to a variety of screens.
 2. Open source UI templates: Espressif has designed multiple open source UI templates suitable for IoT control panels, multimedia players, voice assistants, and other different IoT scenarios, which can help developers carry out more professional secondary development.
 3. Hardware design reference: Espressif provides hardware reference designs, circuit schematics, and development guides related to screen applications to help developers quickly complete hardware designs.
 
@@ -50,5 +50,11 @@ With the help of ESP32-S3 Xtensa® 32bit LX7 dual-core CPU and AI / DSP extended
 
 **Device Drivers**
 
+Device driver is the foundation base of the framework layer, which provides the interface for the framework layer to control peripheral devices. [ESP-IoT-Solution](https://github.com/espressif/esp-iot-solution) provides rich
+open source device drivers for the development of IoT system, which works as extra components of ESP-IDF and much easier to start. It contains device drivers for sensors, display, audio, input, USB, etc.
+
 ### Application Layer
 
+**Voice Assistance**
+
+The voice assistance allows the user to control the light on/off, change color, play/pause the music player and switch songs through voice commands. More interestingly, the device supports continuous recognition of multiple command words after wake-up. Continuous recognition means that the user can talk to the device continuously once it is woken up.

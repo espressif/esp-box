@@ -12,23 +12,7 @@ BOX 系列开发板支持使用 USB 接口更新固件，你仅需要准备：
 
 ## 下载最新版本固件
 
-我们有两种版本的最新固件，一个是开发中的固件，您可以下载后体验新功能，另外一个是正式发布的固件，相比于开发中的固件，正式发布的固件不包含最新功能但是会更稳定。
-
-### 开发中的固件
-
-下载最新开发中的固件，请访问：https://github.com/espressif/esp-box/actions
-
-1. 点击工具栏的 `Action`
-2. 选择最新的 workflow
-3. 下载 `factory-firmware`
-
-<div align="center">
-<img src="_static/Action.jpg" width="500px">
-</div>
-
-### 正式发布的固件
-
-下载最新发布固件，请访问：https://github.com/espressif/esp-box/releases
+下载最新发布的固件，请访问：https://github.com/espressif/esp-box/releases
 
 1. 请先选择一个固件（建议使用最新 release）
 2. 点击 `Assets` 展开下载链接

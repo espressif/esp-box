@@ -96,6 +96,12 @@
     <td class="tg-zr06">40 MHz</td>
   </tr>
     <tr>
+    <td class="tg-ycr8">Driver IC:</td>
+    <td class="tg-ycr8">ST7789V</td>
+    <td class="tg-ycr8"></td>
+    <td class="tg-ycr8"></td>
+  </tr>
+    <tr>
     <td class="tg-o2c7" colspan="4"><span style="font-weight:bold">Microphone</span></td>
   </tr>
   <tr>
