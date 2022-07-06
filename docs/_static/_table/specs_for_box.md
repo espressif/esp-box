@@ -58,7 +58,7 @@
   </tr>
   <tr>
     <td class="tg-ycr8">PSRAM Speed:</td>
-    <td class="tg-ycr8">120 MHz</td>
+    <td class="tg-ycr8">120 MHz (In development)</td>
     <td class="tg-ycr8"></td>
     <td class="tg-ycr8"></td>
   </tr>
