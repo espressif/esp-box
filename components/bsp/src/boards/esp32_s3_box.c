@@ -123,9 +123,9 @@ static const char *TAG = "board";
 __attribute__((weak)) void mute_btn_handler(void *arg)
 {
     if (g_board_s3_box_res.GPIO_MUTE_LEVEL == gpio_get_level(g_board_s3_box_res.GPIO_MUTE_NUM)) {
-        ets_printf(DRAM_STR("Mute Off"));
+        esp_rom_printf(DRAM_STR("Mute Off"));
     } else {
-        ets_printf(DRAM_STR("Mute On"));
+        esp_rom_printf(DRAM_STR("Mute On"));
     }
 }
 

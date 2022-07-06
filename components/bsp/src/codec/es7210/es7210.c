@@ -529,6 +529,6 @@ void es7210_read_all(void)
 {
     for (int i = 0; i <= 0x4E; i++) {
         uint8_t reg = es7210_read_reg(i);
-        ets_printf("REG:%02x, %02x\n", reg, i);
+        esp_rom_printf("REG:%02x, %02x\n", reg, i);
     }
 }
