@@ -13,7 +13,7 @@ endif(DEFINED ENV{RMAKER_PATH})
 
 set(EXTRA_COMPONENT_DIRS
     ../../components
-    $ENV{IDF_PATH}/examples/common_components/led_strip
+    $ENV{IDF_PATH}/examples/common_components
     ${RMAKER_PATH}/components
     )
 

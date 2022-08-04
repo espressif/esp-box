@@ -1,3 +1,12 @@
+if("${IDF_VERSION_MAJOR}.${IDF_VERSION_MINOR}" VERSION_GREATER_EQUAL "5.0")
+    set(PRIVREQ esp_adc)
+else()
+    set(PRIVREQ esp_adc_cal)
+endif()
+
 idf_component_register(SRCS "button_adc.c" "button_gpio.c" "iot_button.c"
                         INCLUDE_DIRS include
-                        PRIV_REQUIRES esp_adc_cal)
+                        REQUIRES driver
+                        PRIV_REQUIRES ${PRIVREQ})
+
+target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format")
