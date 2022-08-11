@@ -44,6 +44,7 @@ void app_main(void)
     ESP_ERROR_CHECK(bsp_spiffs_init_default());
 
     ESP_ERROR_CHECK(lv_port_init());
+    ESP_ERROR_CHECK(lv_port_fs_init());
     bsp_lcd_set_backlight(true);
     image_display();
 
