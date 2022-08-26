@@ -230,5 +230,23 @@ The BOX series of development boards are equipped with Espressif proprietary AI 
 >* Length of commands: A command should consists of 2-8 words. When creating a series of commands, please try to keep them at similar lengths.
 >* Avoid repeating: Please do not include shorter commands in longer commands, or shorter commands will not be recognized. For example, if you create both "turn on" and "turn on the light" commands, "turn on" will not be recognized.
 
+## FCC Regulations:
+
+This device complies with part 15 of the FCC Rules. Operation is subject to the following two conditions: (1) This device may not cause harmful interference, and (2) this device must accept any interference received, including interference that may cause undesired operation. This device has been tested and found to comply with the limits for a Class B digital device, pursuant to Part 15 of the FCC Rules. These limits are designed to provide reasonable protection against harmful interference in a residential installation. This equipment generates, uses and can radiated radio frequency energy and, if not installed and used in accordance with the instructions, may cause harmful interference to radio communications. However, there is no guarantee that interference will not occur in a particular installation. If this equipment does cause harmful interference to radio or television reception, which can be determined by turning the equipment off and on, the user is encouraged to try to correct the interference by one or more of the following measures:
+
+- Reorient or relocate the receiving antenna.
+- Increase the separation between the equipment and receiver.
+- Connect the equipment into an outlet on a circuit different from that to which the receiver is connected.
+- Consult the dealer or an experienced radio/TV technician for help.
+
+**FCC Note** Caution: Changes or modifications not expressly approved by the party responsible for compliance could void the user‘s authority to operate the equipment.
+
+## RF Exposure Information
+
+This device meets the government’s requirements for exposure to radio waves.
+
+This device is designed and manufactured not to exceed the emission limits for exposure to radio frequency (RF) energy set by the Federal Communications Commission of the U.S. Government.
+
+This device complies with FCC radiation exposure limits set forth for an uncontrolled environment. In order to avoid the possibility of exceeding the FCC radio frequency exposure limits, human proximity to the antenna shall not be less than 20 cm during normal operation.
 
 The guide only gives you a brief idea of how to use the latest firmware on your BOX series of development boards. Now, you may start writing programs, and embark on your IoT journey!
