@@ -5,6 +5,7 @@
 */
 
 #include <string.h>
+#include <inttypes.h>
 #include <esp_log.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -250,7 +251,7 @@ static void rainmaker_event_handler(void *arg, esp_event_base_t event_base,
             ESP_LOGI(TAG, "MQTT Published. Msg id: %d.", *((int *)event_data));
             break;
         default:
-            ESP_LOGW(TAG, "Unhandled RainMaker Common Event: %d", event_id);
+            ESP_LOGW(TAG, "Unhandled RainMaker Common Event: %"PRIi32"", event_id);
         }
     } else {
         ESP_LOGW(TAG, "Invalid event received!");

@@ -83,10 +83,11 @@ esp_err_t app_audio_beep_play_start(void)
 {
     if (NULL == audio_sem) {
         ESP_LOGE(TAG, "audio not initialized");
-        return;
+        return ESP_ERR_INVALID_STATE;
     }
 
     xSemaphoreGive(audio_sem);
+    return ESP_OK;
 }
 
 bool app_audio_beep_is_playing(void)

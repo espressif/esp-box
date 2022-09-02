@@ -1,7 +1,9 @@
+set(PRIVREQ esp_timer)
+
 if("${IDF_VERSION_MAJOR}.${IDF_VERSION_MINOR}" VERSION_GREATER_EQUAL "5.0")
-    set(PRIVREQ esp_adc)
+    list(APPEND PRIVREQ esp_adc)
 else()
-    set(PRIVREQ esp_adc_cal)
+    list(APPEND PRIVREQ esp_adc_cal)
 endif()
 
 idf_component_register(SRCS "button_adc.c" "button_gpio.c" "iot_button.c"
