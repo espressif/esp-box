@@ -20,6 +20,7 @@
 #include "ui_sr.h"
 #include "app_sr_handler.h"
 #include "settings.h"
+#include "es8311.h"
 
 
 static const char *TAG = "sr_handler";
@@ -79,10 +80,17 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     size_t len = g_audio_data[audio].len - sizeof(wav_header_t);
     len = len & 0xfffffffc;
     ESP_LOGD(TAG, "frame_rate=%d, ch=%d, width=%d", wav_head->SampleRate, wav_head->NumChannels, wav_head->BitsPerSample);
+    i2s_set_clk(I2S_NUM_0,wav_head->SampleRate,wav_head->BitsPerSample,I2S_CHANNEL_STEREO);
 
     i2s_zero_dma_buffer(I2S_NUM_0);
+    sys_param_t *param = settings_get_parameter();
+    bsp_codec_set_voice_volume(param->volume);
+    es8311_set_voice_mute(false);
+    ESP_LOGI(TAG, "bsp_codec_set_voice_volume=%d", param->volume);
+
     vTaskDelay(pdMS_TO_TICKS(50));
     bsp_board_power_ctrl(POWER_MODULE_AUDIO, true);// turn on the speaker
+
     size_t bytes_written = 0;
     b_audio_playing = true;
     i2s_write(I2S_NUM_0, p, len, &bytes_written, portMAX_DELAY);

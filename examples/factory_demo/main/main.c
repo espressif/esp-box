@@ -70,12 +70,9 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting) {
     // as es8311_set_voice_mute(true) results in voice volume (REG32) being set to zero.
     static int last_volume;
 
-    ESP_LOGI(TAG, "mute setting %d", setting);
-    int volume;
-
-    ESP_RETURN_ON_ERROR(es8311_codec_get_voice_volume(&volume), TAG, "get voice volume");
-    if(volume != 0) {
-        last_volume = volume;
+    sys_param_t *param = settings_get_parameter();
+    if(param->volume != 0) {
+        last_volume = param->volume;
     }
 
     ESP_RETURN_ON_ERROR(es8311_set_voice_mute(setting == AUDIO_PLAYER_MUTE ? true : false), TAG, "set voice mute");
@@ -84,6 +81,8 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting) {
     if(setting == AUDIO_PLAYER_UNMUTE) {
         es8311_codec_set_voice_volume(last_volume);
     }
+
+    ESP_LOGI(TAG, "mute setting %d, volume:%d", setting, last_volume);
 
     return ESP_OK;
 }
