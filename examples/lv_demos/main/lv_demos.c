@@ -23,7 +23,7 @@
 #include "bsp_lcd.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "lv_demo.h"
+#include "lv_demos.h"
 #include "lv_port.h"
 #include "lvgl.h"
 

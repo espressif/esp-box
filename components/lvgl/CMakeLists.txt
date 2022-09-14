@@ -18,7 +18,8 @@
 # Search for src files
 file(GLOB_RECURSE LVGL_SOURCES
     lvgl/src/*.c
-    lvgl/examples/*.c)
+    lvgl/examples/*.c
+    lvgl/demos/*.c)
 
 file(GLOB_RECURSE LV_PORT_SOURCES lv_port/*.c)
 
@@ -31,6 +32,7 @@ idf_component_register(
         "."
         "include"
         "lvgl/src"
+        "lvgl/demos"
         "lv_port"
     REQUIRES
         bsp
