@@ -33,29 +33,26 @@
 #include "lvgl.h"
 #include "ui_audio.h"
 #include "file_iterator.h"
-#include "es8311.h"
 
 static const char *TAG = "mp3_demo";
 
 static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting) {
     // Volume saved when muting and restored when unmuting. Restoring volume is necessary
     // as es8311_set_voice_mute(true) results in voice volume (REG32) being set to zero.
-    static int last_volume;
+    static uint8_t last_volume;
 
-    ESP_LOGI(TAG, "mute setting %d", setting);
-    int volume;
-
-    ESP_RETURN_ON_ERROR(es8311_codec_get_voice_volume(&volume), TAG, "get voice volume");
+    uint8_t volume = get_sys_volume();
     if(volume != 0) {
         last_volume = volume;
     }
-
-    ESP_RETURN_ON_ERROR(es8311_set_voice_mute(setting == AUDIO_PLAYER_MUTE ? true : false), TAG, "set voice mute");
+    
+    ESP_RETURN_ON_ERROR(bsp_codec_set_mute(setting == AUDIO_PLAYER_MUTE ? true : false), TAG, "set voice mute");
 
     // restore the voice volume upon unmuting
     if(setting == AUDIO_PLAYER_UNMUTE) {
-        es8311_codec_set_voice_volume(last_volume);
+        bsp_codec_set_voice_volume(last_volume);
     }
+    ESP_LOGI(TAG, "mute setting %d, volume:%d", setting, last_volume);
 
     return ESP_OK;
 }

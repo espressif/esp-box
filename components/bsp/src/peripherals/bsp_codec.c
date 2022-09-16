@@ -193,3 +193,13 @@ esp_err_t bsp_codec_set_voice_gain(uint8_t channel_mask, uint8_t volume)
     }
     return ESP_ERR_NOT_FOUND;
 }
+
+esp_err_t bsp_codec_set_mute(bool enable)
+{
+    if (bsp_codec_has_dev(CODEC_DEV_ES8311)) {
+        return es8311_set_voice_mute(enable);
+    } else if (bsp_codec_has_dev(CODEC_DEV_ES8156)) {
+        return es8156_codec_set_voice_mute(enable);
+    }
+    return ESP_ERR_NOT_FOUND;
+}

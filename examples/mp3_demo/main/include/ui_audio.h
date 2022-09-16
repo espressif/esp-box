@@ -32,6 +32,12 @@ extern "C" {
  */
 void ui_audio_start(file_iterator_instance_t *i);
 
+/**
+ * @brief get system volume
+ *
+ */
+uint8_t get_sys_volume();
+
 #ifdef __cplusplus
 }
 #endif

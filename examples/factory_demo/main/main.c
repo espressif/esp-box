@@ -13,6 +13,7 @@
 #include "esp_check.h"
 #include "nvs_flash.h"
 #include "nvs.h"
+#include "bsp_codec.h"
 #include "bsp_board.h"
 #include "bsp_lcd.h"
 #include "bsp_btn.h"
@@ -25,7 +26,6 @@
 #include "audio_player.h"
 #include "file_iterator.h"
 #include "gui/ui_main.h"
-#include "es8311.h"
 
 static const char *TAG = "main";
 
@@ -75,11 +75,11 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting) {
         last_volume = param->volume;
     }
 
-    ESP_RETURN_ON_ERROR(es8311_set_voice_mute(setting == AUDIO_PLAYER_MUTE ? true : false), TAG, "set voice mute");
+    ESP_RETURN_ON_ERROR(bsp_codec_set_mute(setting == AUDIO_PLAYER_MUTE ? true : false), TAG, "set voice mute");
 
     // restore the voice volume upon unmuting
     if(setting == AUDIO_PLAYER_UNMUTE) {
-        es8311_codec_set_voice_volume(last_volume);
+        bsp_codec_set_voice_volume(last_volume);
     }
 
     ESP_LOGI(TAG, "mute setting %d, volume:%d", setting, last_volume);

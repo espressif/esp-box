@@ -23,11 +23,12 @@
 #include "file_iterator.h"
 #include "esp_err.h"
 #include "esp_log.h"
-#include "es8311.h"
+#include "bsp_codec.h"
 
 static const char *TAG = "ui_audio";
 
 static file_iterator_instance_t* file_iterator;
+static uint8_t g_sys_volume;
 
 #if CONFIG_ESP32_S3_BOX_LITE_BOARD
 static void register_button_callback(lv_obj_t *btn_list[]);
@@ -97,7 +98,9 @@ static void volume_slider_cb(lv_event_t *event)
 {
     lv_obj_t *slider = (lv_obj_t *) event->target;
     int volume = lv_slider_get_value(slider);
-    es8311_codec_set_voice_volume(volume);
+    bsp_codec_set_voice_volume(volume);
+    g_sys_volume = volume;
+    ESP_LOGI(TAG, "volume '%d'", volume);
 }
 
 static void build_file_list(lv_obj_t *music_list)
@@ -165,9 +168,15 @@ static void music_list_cb(lv_event_t *event)
     }
 }
 
+uint8_t get_sys_volume()
+{
+    return g_sys_volume;
+}
+
 void ui_audio_start(file_iterator_instance_t *i)
 {
     file_iterator = i;
+    g_sys_volume = 60;
 
     /* Create audio control button */
     lv_obj_t *btn_play_pause = lv_btn_create(lv_scr_act());
@@ -206,7 +215,7 @@ void ui_audio_start(file_iterator_instance_t *i)
     lv_obj_set_ext_click_area(volume_slider, 15);
     lv_obj_align(volume_slider, LV_ALIGN_BOTTOM_MID, 0, -20);
     lv_slider_set_range(volume_slider, 0, 75);
-    lv_slider_set_value(volume_slider, 50, LV_ANIM_ON);
+    lv_slider_set_value(volume_slider, g_sys_volume, LV_ANIM_ON);
     lv_obj_add_event_cb(volume_slider, volume_slider_cb, LV_EVENT_VALUE_CHANGED, NULL);
 
     lv_obj_t *lab_vol_min = lv_label_create(lv_scr_act());
