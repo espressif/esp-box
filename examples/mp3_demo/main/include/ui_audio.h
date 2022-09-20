@@ -1,6 +1,5 @@
 /**
- * @file ui_audio.h
- * @brief 
+ * @file
  * @version 0.1
  * @date 2021-11-11
  * 
@@ -21,15 +20,23 @@
 
 #pragma once
 
+#include "file_iterator.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
  * @brief Create audio player UI
- * 
+ *
  */
-void ui_audio_start(void);
+void ui_audio_start(file_iterator_instance_t *i);
+
+/**
+ * @brief get system volume
+ *
+ */
+uint8_t get_sys_volume();
 
 #ifdef __cplusplus
 }

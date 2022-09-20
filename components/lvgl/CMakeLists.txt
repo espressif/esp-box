@@ -18,22 +18,21 @@
 # Search for src files
 file(GLOB_RECURSE LVGL_SOURCES
     lvgl/src/*.c
-    lvgl/examples/*.c)
+    lvgl/examples/*.c
+    lvgl/demos/*.c)
 
-file(GLOB_RECURSE LV_DEMOS_SOURCES lv_demos/src/*.c)
 file(GLOB_RECURSE LV_PORT_SOURCES lv_port/*.c)
 
 # Resister components
 idf_component_register(
     SRCS
         ${LVGL_SOURCES}
-        ${LV_DEMOS_SOURCES}
         ${LV_PORT_SOURCES}
     INCLUDE_DIRS
         "."
         "include"
         "lvgl/src"
-        "lv_demos"
+        "lvgl/demos"
         "lv_port"
     REQUIRES
         bsp

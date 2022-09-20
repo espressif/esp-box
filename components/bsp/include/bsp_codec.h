@@ -75,6 +75,17 @@ esp_err_t bsp_codec_set_voice_gain(uint8_t channel_mask, uint8_t volume);
  */
 esp_err_t bsp_codec_set_fmt(audio_hal_iface_format_t fmt);
 
+/**
+ * @brief Configure DAC mute or not. Basically you can use this function to mute the output or unmute
+ *
+ * @param enable enable(1) or disable(0)
+ * @return
+ *     - ESP_OK: Success
+ *     - ESP_FAIL: Fail
+ *     - ESP_ERR_NOT_FOUND: Codec not detected on I2C bus
+ */
+esp_err_t bsp_codec_set_mute(bool enable);
+
 #ifdef __cplusplus
 }
 #endif
