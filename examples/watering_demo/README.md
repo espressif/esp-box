@@ -1,68 +1,170 @@
 # Watering System Example
 
-| Board             | Support Status |
-| ----------------- | -------------- |
-| ESP32-S3-BOX      | YES            |
-| ESP32-S3-BOX-Lite | YES            |
+The example is a prototype that simulates a smart watering system. The example utilizes ESP32-S3-BOX or ESP32-S3-BOX-Lite (both referred to as ESP-BOX in the following text) as a control panel, providing cloud connection capability as well as a voice control function. It also supports remote control from a mobile app using ESP RainMaker.
 
-The example is a prototype that simulates a smart watering system. The example utilizes ESP32-S3-BOX as a control panel, provides cloud connection capability as well as voice control function. It also supports interfacing with various peripherals for flexibly implementing the watering system.
+This is the overview of the watering system:
 
-## Features
+<div align=center>
+<img src="images/overall.png" width="300"/>
+</div>
 
-- Remote control works with ESP rainmaker
-- Off-line voice control
-- Soil humidity smart monitor
-- Scheduled watering task support
+You can press the button on the ESP-BOX screen to override the current status of the pump (controlled automatically depending on the reading from the soil humidity sensor) to start or stop watering.
 
-## Hardware Required
+<div align=center>
+<img src="images/screen.png" width="300"/>
+</div>
 
-- An ESP32-S3-BOX with power supply USB-C cable
-- A water pump
-- A relay
-- A soil humidity sensor
+The following photo shows the connection of the modules. For detailed connections, please refer to the connection diagram in [Required Hardware](#required-hardware).
 
-The required hardwares are shown in the following figure:
+<div align=center>
+<img src="images/top-view.png" width="300"/>
+</div>                
 
-<img src="images/1.png" alt="1" style="zoom:60%;float:left;" />
+## Table of Contents
 
+  - [Required Hardware](#required-hardware)
+  - [Hardware Connections](#hardware-connections)
+    - [Connection Diagram](#connection-diagram)
+    - [GPIO Allocation](#gpio-allocation)
+  - [Build Project](#build-project)
+    - [Build Project in ESP-IDF](#build-project-in-esp-idf)
+    - [Flash Binaries onto ESP-BOX](#flash-binaries-onto-esp-box)
+    - [Monitor the Output](#monitor-the-output)
+  - [Remote Control with ESP RainMaker](#remote-control-with-esp-rainmaker)
+    - [Install ESP RainMaker App](#install-esp-rainmaker-app)
+    - [Remote Control](#remote-control)
+  - [Voice Control](#voice-control)
 
-## Working Pattern
+## Required Hardware
 
-In this demo, the water pump is controlled by the relay , which using GPIO41（low level active）to control.
-The ESP32-S3-BOX uses ADC to acquire humidity data from the sensor, the ADC channel is ADC1_CHANNEL_8.
-When power up the device, the current humidity will be shown on the LCD screen, user can toggle the watering button to start/stop the watering, it may look like this:
+- ESP-BOX
+- USB-C cable
+- Power supply module (5 V and 3.3 V)
+- Relay module
+- Soil humidity sensor
+- Water pump
 
-<img src="images/2.png" alt="2" style="zoom:80%;float:left;" />
+## Hardware Connections
 
-## Remote control 
+### Connection Diagram
 
-The demo can be configured to connect ESP-Rainmaker via ESP-BOX App. User can configure the watering time or setup watering task schedule. User also can adjust the suitable lower limit of humidity, when the humidity is lower than a threshold, the irrigation system will be triggered to run automatically.
+<div align=center>
+<img src="images/connection_diagram.png" width="800"/>
+</div>
 
-<table class="tg" border=0px>
-<tbody>
-  <tr>
-    <td class="tg-wa1i"><img src="images/3.png" width=300 /></td>
-    <td class="tg-wa1i"><img src="images/4.png" width=300 /></td>
-  </tr>
-  <tr>
-    <td class="tg-wa1i"><img src="images/5.jpg" width=300 /></td>
-    <td class="tg-wa1i"><img src="images/6.jpg" width=300 /></td>
-    <td class="tg-wa1i"><img src="images/7.jpg" width=300 /></td>
-  </tr>
-</tbody>
-</table>
+### GPIO Allocation
 
+| ESP-BOX GPIO |Sensor     | Relay     | Description of GPIO Pin Functionality |
+|--------------|-----------|-----------|---------------------------------------|
+|GPIO9         |AUOT       |-          | Acquire ADC channel                   |
+|GPIO41        |-          |IN1        | Relay control                         |
 
+## Build Project
+
+### Build Project in ESP-IDF
+
+You can build this project in ESP-IDF, which is the official development framework for Espressif SoCs supported on Windows, Linux and macOS. Pleaser refer to [Get Started](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/index.html) to install ESP-IDF and set up tools. 
+
+Clone the [ESP-BOX repository](https://github.com/espressif/esp-box) using the following command:
+
+`git clone --recursive https://github.com/espressif/esp-box`
+
+Then connect your ESP-BOX to your computer and check under which serial port the board is visible using the following command:
+
+`ls /dev/cu*` for macOS  
+`ls /dev/ttyACM*` for Linux
+
+On Windows, you can check the port in the Windows Device Manager. For more information, please refer to [Establish Serial Connection with ESP32-S3](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/establish-serial-connection.html).
+
+Please note that the ESP-IDF supported by ESP-BOX is [ESP-IDF v4.4](https://github.com/espressif/esp-idf/tree/release/v4.4), and the corresponding commit ID is 2bdea81b2a. You need to switch to ESP-IDF v4.4 using the following command. For details, please refer to [Readme of ESP-BOX](https://github.com/espressif/esp-box):
+
+```
+cd esp-idf
+git checkout 2bdea81b2a
+```
+
+Navigate to your watering-demo directory, and set ESP32-S3 as the target using the following command:
+
+```
+cd watering-demo
+idf.py set-target esp32s3
+```
+
+Build the project by running:
+
+`idf.py build`
+
+This command will compile the application and all ESP-IDF components, then it will generate application binaries.
+
+### Flash Binaries onto ESP-BOX
+
+To flash the binaries that you just built for ESP-BOX in the previous step, you need to run the following command:
+
+`idf.py -p PORT flash`
+
+Replace PORT with your ESP-BOX's USB port name. 
+
+### Monitor the Output
+
+Check the running process of the watering-demo project by the following command:
+
+`idf.py -p PORT monitor`
+
+Replace PORT with your ESP-BOX's USB port name. 
+
+After powering up the device, you can see the current humidity on the LCD screen, and you can toggle the watering button to start or stop watering. The LCD screen looks like the following figure:
+
+<div align=center>
+<img src="images/lcd_screen.png" width="180" />
+</div>
+
+## Remote Control with ESP RainMaker
+
+### Install ESP RainMaker App
+
+It is recommended to use the ESP RainMaker app available for mobile phones to remotely control the pump. The app can be found here:
+
+- Android: [Google PlayStore](https://play.google.com/store/apps/details?id=com.espressif.rainmaker), [Direct APK](https://github.com/espressif/esp-rainmaker/wiki)
+- iOS: [Apple APP Store](https://apps.apple.com/app/esp-rainmaker/id1497491540)
+
+Follow the following steps on the phone app：
+
+- Sign in using any of the third party options available (or sign up using your email address and then sign in).
+- Click on `Add Device` (or if you already have a device added, then click `+` at the top right).
+- This will open the camera for QR code scanning. To get the QR code of ESP-BOX, you should run the following command on your terminal:
+  
+  `idf.py -p PORT monitor`
+
+  Then you may can see the QR code on the terminal. But if the QR code is not rendered properly or not visible, please copy and paste the given URL in a browser. Then you can see the clear QR code.
+
+- Follow the "Provision" workflow so that ESP-BOX can connect to your Wi-Fi network.
+
+- If everything goes well, you should see a "Switch" device added at the end.
+  
+- Tapping on the "Switch" icon will take you to the control page.
+  
+### Remote Control
+
+On the control page, you can acquire the soil humidity in real time. You also can adjust the lower limit of humidity. When the soil humidity is lower than this value, the irrigation system will be triggered automatically.
+
+<div align=center>
+<img src="images/esp_rainmaker.png" width="300" />
+</div>
+
+By adjusting the MaxDuration slider, you can control the maximum duration of the pump operation during each watering cycle. The current watering duration is shown below the slider.
+
+You can also see the soil humidity on the screen updated in real time.
+
+You can set the threshold of the humidity in the LowerHumidity. If the real-time soil humidity is lower than this value, the watering system will be triggered on automatically, and the button of AutoWatering will be switched on automatically.
 
 ## Voice Control
 
-The demo can be controlled by voice command, please 
+ESP-BOX supports voice control, so you can also control this watering system by voice commands. The following commands are available:
 
-say "hi, lexin" to wake up the ESP32-S3-BOX
+* "hi, lexin" -- wake up the ESP32-S3-BOX
 
-say "kai shi jiao shui" to start watering
+* "kai shi jiao shui" -- start watering
 
-say "ting zhi jiao shui" to stop watering
+* "ting zhi jiao shui" -- stop watering
 
 You can refer to this [example](https://github.com/espressif/esp-box/tree/master/examples/factory_demo) to define your favorite voice commands.
-
