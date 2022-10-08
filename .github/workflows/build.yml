@@ -25,6 +25,7 @@ jobs:
         git checkout 2bdea81b2a
         git submodule update --init --recursive
         tools/idf_tools.py --non-interactive install cmake
+        rm -f ${IDF_TOOLS_PATH}/idf-env.json
         ./install.sh
         source ./export.sh
         cd $GITHUB_WORKSPACE/$PROJECT_PATH
