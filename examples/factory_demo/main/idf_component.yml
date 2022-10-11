@@ -4,9 +4,9 @@ dependencies:
     version: "~2.0.0"
     rules:
       - if: "idf_version >=5.0"
-  chmorgan/esp-libhelix-mp3: "~1.0.1"
-  chmorgan/esp-file-iterator: "~1.0.0"
-  chmorgan/esp-audio-player: "~1.0.2"
+  chmorgan/esp-libhelix-mp3: "1.0.3"
+  chmorgan/esp-file-iterator: "1.0.0"
+  chmorgan/esp-audio-player: "1.0.3"
   ## Required IDF version
   idf:
     version: ">=4.1.0"
