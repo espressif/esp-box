@@ -42,7 +42,6 @@ static const board_res_desc_t g_board_s3_box_res = {
     .LCD_MIRROR_X =    (true),
     .LCD_MIRROR_Y =    (true),
     .LCD_COLOR_INV =   (false),
-    .LCD_COLOR_SPACE = ESP_LCD_COLOR_SPACE_BGR,
 
     .GPIO_LCD_BL =     (GPIO_NUM_45),
     .GPIO_LCD_BL_ON =  (1),

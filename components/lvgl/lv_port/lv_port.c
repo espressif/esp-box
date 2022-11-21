@@ -33,6 +33,9 @@
 
 #define LOG_LOCAL_LEVEL ESP_LOG_DEBUG
 
+#define LV_DISP_BUF_NUM     1
+#define LV_DISP_BUF_HEIGHT  10
+
 static lv_disp_drv_t disp_drv;
 static const char *TAG = "lv_port";
 static bool lv_port_use_fixed_buffer = false;
@@ -166,15 +169,15 @@ static void disp_flush(lv_disp_drv_t *disp_drv, const lv_area_t *area, lv_color_
 static void lv_port_disp_init(void)
 {
     static lv_disp_draw_buf_t draw_buf_dsc;
-    size_t disp_buf_height = 20;
+    size_t disp_buf_height = LV_DISP_BUF_HEIGHT;
     const board_res_desc_t *brd = bsp_board_get_description();
 
     /* Option 1 : Allocate memories from heap */
     uint32_t buf_alloc_caps = MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT;
-    lv_color_t *p_disp_buf = heap_caps_malloc(brd->LCD_WIDTH * disp_buf_height * sizeof(lv_color_t) * 2, buf_alloc_caps);
+    lv_color_t *p_disp_buf = heap_caps_malloc(brd->LCD_WIDTH * disp_buf_height * sizeof(lv_color_t) * LV_DISP_BUF_NUM, buf_alloc_caps);
     lv_color_t *p_disp_buf1 = p_disp_buf;
-    lv_color_t *p_disp_buf2 = p_disp_buf + brd->LCD_WIDTH * disp_buf_height;
-    ESP_LOGI(TAG, "Try allocate two %u * %u display buffer, size:%u Byte", brd->LCD_WIDTH, disp_buf_height, brd->LCD_WIDTH * disp_buf_height * sizeof(lv_color_t) * 2);
+    lv_color_t *p_disp_buf2 = NULL;
+    ESP_LOGI(TAG, "Try allocate one %u * %u display buffer, size:%u Byte", brd->LCD_WIDTH, disp_buf_height, brd->LCD_WIDTH * disp_buf_height * sizeof(lv_color_t) * LV_DISP_BUF_NUM);
     if (NULL == p_disp_buf) {
         ESP_LOGE(TAG, "No memory for LVGL display buffer");
         esp_system_abort("Memory allocation failed");

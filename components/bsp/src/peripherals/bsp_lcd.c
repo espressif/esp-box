@@ -119,9 +119,23 @@ esp_err_t bsp_lcd_init(void)
 
     esp_lcd_panel_dev_config_t panel_config = {
         .reset_gpio_num = brd->GPIO_LCD_RST,
-        .color_space = brd->LCD_COLOR_SPACE,
         .bits_per_pixel = 16,
     };
+
+    if(brd->BSP_INDEV_IS_TP){
+        #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+        panel_config.rgb_endian = LCD_RGB_ENDIAN_BGR;
+        #else
+        panel_config.color_space = ESP_LCD_COLOR_SPACE_BGR;
+        #endif
+    }
+    else{
+        #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+        panel_config.rgb_endian = LCD_RGB_ENDIAN_RGB;
+        #else
+        panel_config.color_space = ESP_LCD_COLOR_SPACE_RGB;
+        #endif
+    }
 
     if (!brd->LCD_DISP_IC_ST) {
         ESP_ERROR_CHECK(esp_lcd_new_panel_nt35510(io_handle, &panel_config, &panel_handle));
@@ -140,7 +154,9 @@ esp_err_t bsp_lcd_init(void)
     ret_val |= esp_lcd_panel_set_gap(panel_handle, 0, 0);
     ret_val |= esp_lcd_panel_swap_xy(panel_handle, brd->LCD_SWAP_XY);
     ret_val |= esp_lcd_panel_mirror(panel_handle, brd->LCD_MIRROR_X, brd->LCD_MIRROR_Y);
-
+    #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+    ret_val |= esp_lcd_panel_disp_on_off(panel_handle, true);
+    #endif
     /**
      * @brief Configure LCD backlight IO.
      *

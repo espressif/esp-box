@@ -38,7 +38,7 @@ static const board_res_desc_t g_board_s3_box_lite_res = {
     .LCD_DISP_IC_ST =  (1),
     .LCD_WIDTH =       (320),
     .LCD_HEIGHT =      (240),
-    .LCD_FREQ =        (80 * 1000 * 1000),
+    .LCD_FREQ =        (40 * 1000 * 1000),
     .LCD_CMD_BITS =    8,
     .LCD_PARAM_BITS =  8,
     .LCD_HOST =        (SPI2_HOST),
@@ -47,7 +47,6 @@ static const board_res_desc_t g_board_s3_box_lite_res = {
     .LCD_MIRROR_X =    (false),
     .LCD_MIRROR_Y =    (true),
     .LCD_COLOR_INV =   (true),
-    .LCD_COLOR_SPACE = ESP_LCD_COLOR_SPACE_RGB,
 
     .GPIO_LCD_BL =     (GPIO_NUM_45),
     .GPIO_LCD_BL_ON =  (0),

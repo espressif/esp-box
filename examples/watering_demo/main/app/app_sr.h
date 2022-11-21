@@ -15,6 +15,16 @@
 extern "C" {
 #endif
 
+
+#define SR_CONTINUE_DET 1
+#define SR_RUN_TEST 0 /**< Just for sr experiment in laboratory >*/
+#if SR_RUN_TEST
+#ifdef SR_CONTINUE_DET
+#undef SR_CONTINUE_DET
+#define SR_CONTINUE_DET 0
+#endif
+#endif
+
 /**
  * @brief Speech command string
  *
@@ -67,7 +77,7 @@ extern "C" {
 #endif
 
 typedef struct {
-    afe_fetch_mode_t fetch_mode;
+    wakenet_state_t wakenet_mode;
     esp_mn_state_t state;
     int command_id;
 } sr_result_t;

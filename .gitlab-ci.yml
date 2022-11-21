@@ -19,34 +19,31 @@ before_script:
   - git --version
   - git submodule update --init --recursive --force
 
-.build_examples_template: &build_examples_template
+.build_all_examples_script: &build_all_examples_script
+  - for EXAMPLE in $EXAMPLES; do
+  - cd $CI_PROJECT_DIR/examples/$EXAMPLE
+  - echo Building $EXAMPLE
+  - idf.py fullclean
+  - idf.py build
+  - echo Build Complete for $EXAMPLE
+  - done
+
+.build_template:
   stage: build
-  image: espressif/idf:release-v4.4
   tags:
     - build
-
-build_demo_cmake:
-  <<: *build_examples_template
+  variables:
+    EXAMPLES: "factory_demo image_display lv_demos mp3_demo watering_demo"
   script:
-    - cd examples/factory_demo
-    - idf.py fullclean
-    - idf.py build
-    - cd ../
-    - cd image_display
-    - idf.py fullclean
-    - idf.py build
-    - cd ../
-    - cd lv_demos
-    - idf.py fullclean
-    - idf.py build
-    - cd ../
-    - cd mp3_demo
-    - idf.py fullclean
-    - idf.py build
-    - cd ../
-    - cd watering_demo
-    - idf.py fullclean
-    - idf.py build
+    - *build_all_examples_script
+
+build_idf_v4.4:
+  extends: .build_template
+  image: espressif/idf:release-v4.4
+
+build_idf_v5.0:
+  extends: .build_template
+  image: espressif/idf:release-v5.0
 
 push_to_github:
   stage: deploy
