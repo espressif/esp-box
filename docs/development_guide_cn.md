@@ -104,12 +104,165 @@ idf.py -p PORT flash monitor
 | i2c_bus       | I2C 驱动                               |
 | i2c_devices   | 一些常用 I2C 设备驱动                  |
 | iot_button    | 按键驱动                               |
-| libhelix-mp3  | MP3 解码库                             |
 | lvgl          | LVGL 图形库                            |
-
+| audio         | 播放/文件管理/解码库                    |
 
 
 ### bsp 组件
+- boards
+
+  **bsp_board.c** 是系统调用文件，用以兼容不同硬件平台，目前 box 工程支持 [BOARD_S3_BOX](hardware_overview/esp32_s3_box/hardware_overview_for_box.md) 和 [BOARD_S3_BOX_LITE](hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) 两个硬件平台。系统初始化后，根据 iic detect 到的不同器件地址判断当前运行在哪个硬件平台，以分别调用不同的硬件初始化接口。
+
+  **esp32_s3_box.c** 和 **esp32_s3_box_lite.c** 分别是 `BOARD_S3_BOX` 和 `BOARD_S3_BOX_LITE` 的具体硬件管脚配置和初始化实现。
+
+- codec
+
+  **codec** 目录下为硬件所需要用到的 Micphoone 和 Speaker 驱动接口
+    |`BOARD_S3_BOX_LITE`|    |
+    | ------------- | -------|
+    | ADC Module    | ES7243 |
+    | Codec Module  | ES8153 |
+
+    |`BOARD_S3_BOX     `|    |
+    | ------------- | -------|
+    | ADC Module    | ES7210 |
+    | Codec Module  | ES8311 |
+
+- peripherals
+
+    **bsp_btn.c** 是 box 的按键处理接口，该接口和 **iot button** 组件协同工作。**iot button** 维护 button 事件注册链表，并建立 1ms 按键查询机制 `button_create_com` 。
+    定时器会依次轮询 `bsp_btn_register_callback` 注册的按键事件，并根据按键的事件匹配触发应用层注册的回调函数 `CALL_EVENT_CB(ev)` 。
+    - `BOARD_S3_BOX` 有 `boot` 1 个物理按键， 中间红色小圆点为TP虚拟按键。
+    boot 处理 wifi 的恢复出厂和中英文语言切换的触发功能。
+
+    - `BOARD_S3_BOX_LITE` 有 `boot` 1 个物理按键, `prev` `enter` `next` 3 个 ADC 按键。
+    boot 功能同上，3 个 ADC 按键作为功能切换的导航键。
+    ADC 按键设计使用一路 [ADC](../hardware/esp32_s3_box_lite_Button_V1.1/schematic/SCH_ESP32-S3-BOX-Lite_Button_V1.1_20211125.pdf)，分别接上不同电阻，用 ADC 值来区分哪一路按键被按下，这种方式节省了 IO 口资源。
+
+    **bsp_codec.c** 提供了上述 codec 的接口中间件，这里实现了对不同 codec 和 ADC 芯片的统一调用。
+
+    **bsp_i2c.c** 提供了 i2c_bus 接口中间件。
+
+    **bsp_i2s.c** 提供了 i2s 接口中间件。
+
+    **bsp_lcd.c** 提供了显示与硬件接口的中间件。
+    - `bsp_spi_lcd_init` 根据 board 定义的管脚初始化 LCD 的 SPI 接口。
+
+    - `lcd_trans_done_cb` 是 SPI 数据发送完成的回调函数，让 LVGL 的刷图逻辑保持同步。
+    `p_on_trans_done_cb(p_user_data)` -> `lv_port_flush_ready` 通知显示清除 `flushing` 标志位。
+
+    - `bsp_lcd_flush` 为 LVGL 通知驱动准备刷新接口，如果接口已经完成上一帧数据发送，接口会在此处调用 `esp_lcd_panel_ops.c/esp_lcd_panel_draw_bitmap` 将显示数据送至 SPI 接口。
+
+### esp-sr 组件</br>
+这里主要针对 SR 的一些应用接口展开介绍。</br>
+
+  * 配置文件介绍
+    ```
+    #define AFE_CONFIG_DEFAULT() { \
+    .aec_init = true, \                       //AEC 算法是否使能
+    .se_init = true, \                        //BSS/NS 算法是否使能
+    .vad_init = true, \                       //VAD 是否使能 ( 仅可在语音识别场景中使用 )
+    .wakenet_init = true, \                   //唤醒是否使能.
+    .voice_communication_init = false, \      //语音通话是否使能。与wakenet_init 不能同时使能.
+    .voice_communication_agc_init = false, \  //语音通话中AGC是否使能
+    .voice_communication_agc_gain = 15, \     //AGC的增益值，单位为dB
+    .vad_mode = VAD_MODE_3, \                 //VAD 检测的操作模式，越大越激进
+    .wakenet_model_name = NULL, \             //选择唤醒词模型
+    .wakenet_mode = DET_MODE_2CH_90, \        //唤醒的模式。对应为多少通道的唤醒，根据mic通道的数量选择
+    .afe_mode = SR_MODE_LOW_COST, \           //SR_MODE_LOW_COST: 量化版本，占用资源较少。
+                                              //SR_MODE_HIGH_PERF: 非量化版本，占用资源较多。
+    .afe_perferred_core = 0, \                //AFE 内部 BSS/NS/MISO 算法，运行在哪个 CPU 核
+    .afe_perferred_priority = 5, \            //AFE 内部 BSS/NS/MISO 算法，运行的task优先级。
+    .afe_ringbuf_size = 50, \                 //内部 ringbuf 大小的配置
+    .memory_alloc_mode = \
+          AFE_MEMORY_ALLOC_MORE_PSRAM, \      //绝大部分从外部psram分配
+    .agc_mode = AFE_MN_PEAK_AGC_MODE_2, \     //线性放大喂给后续multinet的音频，峰值处为 -4dB。
+    .pcm_config.total_ch_num = 3, \           //total_ch_num = mic_num + ref_num
+    .pcm_config.mic_num = 2, \                //音频的麦克风通道数。目前仅支持配置为 1 或 2。
+    .pcm_config.ref_num = 1, \                //音频的参考回路通道数，目前仅支持配置为 0 或 1。
+    }
+    ```
+  * 模型初始化以及设置介绍
+    ```
+    /* ESP_AFE_SR_HANDLE：语音识别模型
+     * ESP_AFE_VC_HANDLE：语音通话模型
+     */
+    afe_handle = &ESP_AFE_SR_HANDLE;
+    afe_config_t afe_config = AFE_CONFIG_DEFAULT();
+
+    /* 唤醒词模型命名方式为 wm*，命令词模型命名方式为mn*
+     * esp_srmodel_filter 是一个封装了 model 分区搜寻模型的接口
+     */
+    afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
+    afe_config.aec_init = false; //aec不使能
+
+    esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
+    ```
+  * 切换唤醒词和命令词模型</br>
+    ```
+    /* 唤醒词模型切换 */
+    wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, (SR_LANG_EN == g_sr_data->lang ? "hiesp" : "hilexin"));
+    g_sr_data->afe_handle->set_wakenet(g_sr_data->afe_data, wn_name); //设置唤醒词模型
+
+    /* 命令词模型切换 */
+    mn_name = esp_srmodel_filter(models, ESP_MN_PREFIX, ((SR_LANG_EN == g_sr_data->lang) ? ESP_MN_ENGLISH : ESP_MN_CHINESE));
+    esp_mn_iface_t *multinet = esp_mn_handle_from_name(mn_name);
+    model_iface_data_t *model_data = multinet->create(mn_name, 5760); //设置命令词模型
+    ```
+  * 命令词设置接口</br>
+    ```
+    /* 加载模型自带命令词模型
+     * 命令词模型可从 menuconfig 如下路径进行修改: TOP -> ESP_SPEECH_RECOGNITION -> commands
+     */
+    esp_mn_commands_update_from_sdkconfig(*multinet, *model_data);
+
+    /* 代码手动操作命令词
+     * 用户可调用如下 API 进行命令词的操作
+     */
+    esp_err_t esp_mn_commands_add(command_id, *phoneme_string);
+    esp_err_t esp_mn_commands_remove(*phoneme_string);
+    esp_err_t esp_mn_commands_modify(*old_phoneme_string, *new_phoneme_string);
+    esp_mn_error_t *esp_mn_commands_update(*multinet, *model_data);
+    ```
+  * rainmaker 与 sr 的接口</br>
+    `cmd_write_to_sr(&cmd)` 是 rainmaker 下发至 BOX 的语音指令修改接口。</br>
+    SR 控制命令按照如下规则：</br>
+      - 同一个控制命令最多对应 `8` 条命令词，如果超过 8 条，新增命令词将替换表中最后 1 条。
+
+      - 相同语音命令词不允许重复添加。
+### lvgl 组件
+这里主要介绍一下 LVGL 在 BOX_S3 上的移植接口。
+
+- 输入设备
+
+  * 输入设备硬件初始化， `indev_init_default()`
+
+    根据输入设备的类型，分别作不同初始化。如上方 `bsp_btn` 介绍，`BOARD_S3_BOX_LITE` 采用 3 个导航键按键，`BOARD_S3_BOX` 采用 TP 加 1 个 TP 的虚拟按键。
+
+    TP：目前工程移植了两款触摸芯片，`tt21100` 和 `ft5x06`。上电后通过 `tp_prob` 函数 detect 不同 IIC 地址来识别具体芯片，进行不同的初始化的初始化动作 `indev_tp_init`。
+
+    按键：在 `bsp_btn` 按键初始化时候初始化。
+
+  * 注册输入设备 `lv_port_indev_init()` -> `lv_indev_drv_register()`
+
+    注册设备需要 `type` 和 `read_cb` 两个参数。注册同时，内部会创建一个周期为 `LV_INDEV_DEF_READ_PERIOD` 的定时器，轮训外部输入事件。
+
+- 文件系统
+
+  * 重定向文件操作 API
+
+    主要是根据平台重定向 fopen，fclose，fwrite 等接口。LVGL 封装了 lv_fs_fatfs , lv_fs_posix , lv_fs_sdio , lv_fs_win32 可供参考和配置，用户可在 menuconfig 进行配置，也可以自己实现。
+
+  * 文件盘符配置
+
+    Espressif 的文件系统盘符为 `'S'` 。用户需要注意，`lv_fs` 在进行所有文件操作时，都会先判断操作盘符是否匹配。不匹配的盘符会收到 `LV_FS_RES_NOT_EX` 的返回值，影响对文件的正常操作。 
+
+- 显示接口
+
+  显示初始化主要分为两个部分:硬件接口初始化，注册显示设备。下图简单介绍了 BOX 用到的初始化模块和相关联系。
+  <div align="center">
+  <img src="./_static/development_guide_picture/LVGL_porting.png">
+  </div>
 
 
 

@@ -28,7 +28,7 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 
 |  ESP-BOX  |                        依赖的 ESP-IDF                        |                           分支信息                           | 支持状态                                                |
 | :-------: | :----------------------------------------------------------: | :----------------------------------------------------------: | ------------------------------------------------------- |
-|  master   |            release/v4.4<br/>commit id: 2bdea81b2a            | Latest developing firmware <br/>esp-sr version:  dev/v2.0<br/>commit id: c873a35 | 新功能开发分支，兼容  ESP32-S3-BOX 和 ESP32-S3-BOX-Lite |
+|  master   |            release/v4.4<br/>commit id: c8ce38e60c<br/>或者<br/>release/v5.0<br/>commit id: 94d9c529f3            | Latest developing firmware <br/>esp-sr version:  master<br/>commit id: 1c1ecda | 新功能开发分支，兼容  ESP32-S3-BOX 和 ESP32-S3-BOX-Lite |
 |  Tag 0.3.0   |            release/v4.4<br/>commit id: 2bdea81b2a            | esp-sr version: dev/v2.0<br/>commit id: c873a35 | 兼容  ESP32-S3-BOX 和 ESP32-S3-BOX-Lite |
 | Tag 0.2.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.2.1/idf_patch) |      esp-sr version: close v1.0<br/>commit id: 3ce34fe       | 仅支持 ESP32-S3-BOX                                     |
 | Tag 0.1.1 | Release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.1.1/idf_patch) |        esp-sr version: v0.9.6<br/>commit id: 3ce34fe         | 仅支持 ESP32-S3-BOX                                     |
@@ -70,7 +70,7 @@ esp-box 集成了 AIOT 开发中常用的组件，您可以利用这些组件构
 ### 快速开始
 
 * **Step 1**. 如果您首次接触 ESP-IDF 开发，建议先浏览 [ESP-IDF 编程指南](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/index.html)，了解乐鑫已经提供的开源驱动和组件；
-* **Step 2**. 接下来您可以详细阅读 [ESP-IDF（release/v4.4） 环境搭建指引](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/get-started/index.html#installation-step-by-step)，一步一步完成开发环境搭建；
+* **Step 2**. 接下来您可以详细阅读 [ESP-IDF（release/v4.4 或者 release/v5.0） 环境搭建指引](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/get-started/index.html#installation-step-by-step)，一步一步完成开发环境搭建;
 * **Step 3**. 使用指令 `git clone --recursive https://github.com/espressif/esp-box.git` 下载本项目的代码，然后需要将 esp-idf 版本切换到[指定的版本](#版本信息)；
 * **Step 4**. 小试牛刀，您可以尝试 [构建并烧录一个新的示例程序](./examples/image_display)；
 * **Step 5**. 更进一步，您可以阅读 [ESP-BOX 技术架构说明](./docs/technical_architecture_cn.md)，了解更多技术细节；
