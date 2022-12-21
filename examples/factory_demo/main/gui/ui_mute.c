@@ -97,10 +97,10 @@ void mute_btn_handler(void *arg)
     (void) arg;
     const board_res_desc_t *brd = bsp_board_get_description();
     if (brd->GPIO_MUTE_LEVEL == gpio_get_level(brd->GPIO_MUTE_NUM)) {
-        ets_printf(DRAM_STR("Mute Off"));
+        esp_rom_printf(DRAM_STR("Mute Off"));
         ui_mute_set_state(0);
     } else {
-        ets_printf(DRAM_STR("Mute On"));
+        esp_rom_printf(DRAM_STR("Mute On"));
         ui_mute_set_state(1);
     }
 }

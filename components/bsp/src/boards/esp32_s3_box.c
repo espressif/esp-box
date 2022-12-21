@@ -42,7 +42,6 @@ static const board_res_desc_t g_board_s3_box_res = {
     .LCD_MIRROR_X =    (true),
     .LCD_MIRROR_Y =    (true),
     .LCD_COLOR_INV =   (false),
-    .LCD_COLOR_SPACE = ESP_LCD_COLOR_SPACE_BGR,
 
     .GPIO_LCD_BL =     (GPIO_NUM_45),
     .GPIO_LCD_BL_ON =  (1),
@@ -123,9 +122,9 @@ static const char *TAG = "board";
 __attribute__((weak)) void mute_btn_handler(void *arg)
 {
     if (g_board_s3_box_res.GPIO_MUTE_LEVEL == gpio_get_level(g_board_s3_box_res.GPIO_MUTE_NUM)) {
-        ets_printf(DRAM_STR("Mute Off"));
+        esp_rom_printf(DRAM_STR("Mute Off"));
     } else {
-        ets_printf(DRAM_STR("Mute On"));
+        esp_rom_printf(DRAM_STR("Mute On"));
     }
 }
 

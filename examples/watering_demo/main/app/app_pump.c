@@ -97,7 +97,7 @@ void app_pump_auto_watering(void *args)
     }
 }
 
-static void pump_timer_cb(xTimerHandle tmr)
+static void pump_timer_cb(TimerHandle_t tmr)
 {
     app_pump_t *ref = (app_pump_t *) pvTimerGetTimerID(tmr);
     if (++ref->curr_watering_time < ref->max_watering_time) {

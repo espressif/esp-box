@@ -104,7 +104,6 @@ void app_main(void)
     ESP_ERROR_CHECK(bsp_board_init());
     ESP_ERROR_CHECK(bsp_board_power_ctrl(POWER_MODULE_AUDIO, true));
     ESP_ERROR_CHECK(lv_port_init());
-    ESP_ERROR_CHECK(bsp_spiffs_init("model", "/srmodel", 4));
     ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 2));
     ESP_ERROR_CHECK(ui_main_start());
     bsp_lcd_set_backlight(true);  // Turn on the backlight after gui initialize
@@ -112,7 +111,7 @@ void app_main(void)
     assert(file_iterator != NULL);
     audio_player_config_t config = { .port = I2S_NUM_0,
                                      .mute_fn = audio_mute_function,
-                                     .priority = 1 };
+                                     .priority = 5 };
     ESP_ERROR_CHECK(audio_player_new(config));
 
     const board_res_desc_t *brd = bsp_board_get_description();

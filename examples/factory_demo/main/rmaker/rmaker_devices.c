@@ -23,7 +23,7 @@ static const char* TAG = "rmaker_devices";
 esp_rmaker_device_t* esp_box_device;
 TimerHandle_t report_delay_timer = NULL;
 
-static void report_cb(xTimerHandle tmr)
+static void report_cb(TimerHandle_t tmr)
 {
     esp_rmaker_device_t* device = (esp_rmaker_device_t*)pvTimerGetTimerID(tmr);
     esp_rmaker_param_t* name = esp_rmaker_device_get_param_by_name((esp_rmaker_device_t*)device, ESP_RMAKER_DEF_POWER_NAME);

@@ -60,7 +60,7 @@ esp_err_t tt21100_tp_init(void)
     } while (0x0002 != reg_val);
 
     gpio_config_t io_conf_key;
-    io_conf_key.intr_type = GPIO_PIN_INTR_DISABLE;
+    io_conf_key.intr_type = GPIO_INTR_DISABLE;
     io_conf_key.mode = GPIO_MODE_INPUT;
     io_conf_key.pin_bit_mask = 1ULL << GPIO_NUM_3;
     io_conf_key.pull_down_en = GPIO_PULLDOWN_DISABLE;

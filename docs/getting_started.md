@@ -230,6 +230,14 @@ The BOX series of development boards are equipped with Espressif proprietary AI 
 >* Length of commands: A command should consists of 2-8 words. When creating a series of commands, please try to keep them at similar lengths.
 >* Avoid repeating: Please do not include shorter commands in longer commands, or shorter commands will not be recognized. For example, if you create both "turn on" and "turn on the light" commands, "turn on" will not be recognized.
 
+   **3. switch CN and EN voice model：**
+
+3.1. Click on your ESP-BOX `About Us` device icon to enter the `About Us` details page. In this page, press `Boot` button, the device will enter `factory Mode` language setting page, and then you can select the voice wake-up model by yourself.
+
+   <div align="center">
+   <img src="_static/_get_started_static/language_select.png"width="300" />
+   </div>
+
 ## FCC Regulations:
 
 This device complies with part 15 of the FCC Rules. Operation is subject to the following two conditions: (1) This device may not cause harmful interference, and (2) this device must accept any interference received, including interference that may cause undesired operation. This device has been tested and found to comply with the limits for a Class B digital device, pursuant to Part 15 of the FCC Rules. These limits are designed to provide reasonable protection against harmful interference in a residential installation. This equipment generates, uses and can radiated radio frequency energy and, if not installed and used in accordance with the instructions, may cause harmful interference to radio communications. However, there is no guarantee that interference will not occur in a particular installation. If this equipment does cause harmful interference to radio or television reception, which can be determined by turning the equipment off and on, the user is encouraged to try to correct the interference by one or more of the following measures:

@@ -25,15 +25,20 @@
 #include "esp_mn_models.h"
 #include "app_sr_handler.h"
 
+#include "model_path.h"
+#include "esp_mn_speech_commands.h"
+#include "esp_process_sdkconfig.h"
 
 #define I2S_CHANNEL_NUM     (2)
 
 static const char *TAG = "app_sr";
 
 static model_iface_data_t *model_data = NULL;
-static const esp_mn_iface_t *multinet = &MULTINET_MODEL;
-static const esp_afe_sr_iface_t *afe_handle = &ESP_AFE_HANDLE;
+static const esp_mn_iface_t *multinet = NULL;
+static const esp_afe_sr_iface_t *afe_handle = NULL;
 static QueueHandle_t g_result_que = NULL;
+
+static srmodel_list_t *models = NULL;
 
 static FILE *fp = NULL;
 static bool b_record_en = false;
@@ -83,34 +88,30 @@ static void audio_detect_task(void *pvParam)
     esp_afe_sr_data_t *afe_data = (esp_afe_sr_data_t *) pvParam;
 
     /* Allocate buffer for detection */
-    size_t afe_chunk_size = afe_handle->get_fetch_chunksize(afe_data);
-    int16_t *detect_buff = heap_caps_malloc(afe_chunk_size * sizeof(int16_t), MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-    if (NULL == detect_buff) {
-        ESP_LOGE(TAG, "Expect : %zu, avaliable : %zu",
-                 afe_chunk_size * sizeof(int16_t),
-                 heap_caps_get_free_size(MALLOC_CAP_INTERNAL));
-        esp_system_abort("No mem for detect buffer");
-    }
+    int afe_chunksize = afe_handle->get_fetch_chunksize(afe_data);
 
-    /* Check for chunk size */
-    if (afe_chunk_size != multinet->get_samp_chunksize(model_data)) {
-        esp_system_abort("Invalid chunk size");
-    }
+    int mu_chunksize = multinet->get_samp_chunksize(model_data);
+    int chunk_num = multinet->get_samp_chunknum(model_data);
+    assert(mu_chunksize == afe_chunksize);
+    ESP_LOGI(TAG, "------------detect start------------\n");
 
     while (true) {
-        afe_fetch_mode_t ret_val = afe_handle->fetch(afe_data, detect_buff);
+        afe_fetch_result_t* res = afe_handle->fetch(afe_data);
+        if (!res || res->ret_value == ESP_FAIL) {
+            ESP_LOGE(TAG, "fetch error!");
+            //break;
+        }
 
-        if (AFE_FETCH_WWE_DETECTED == ret_val) {
+        if (res->wakeup_state == WAKENET_DETECTED) {
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Wakeword detected");
             sr_result_t result = {
-                .fetch_mode = ret_val,
+                .wakenet_mode = WAKENET_DETECTED,
                 .state = ESP_MN_STATE_DETECTING,
                 .command_id = 0,
             };
             xQueueSend(g_result_que, &result, 10);
         }
-
-        if (AFE_FETCH_CHANNEL_VERIFIED == ret_val) {
+        else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Channel verified");
             detect_flag = true;
             afe_handle->disable_wakenet(afe_data);
@@ -119,12 +120,12 @@ static void audio_detect_task(void *pvParam)
         if (true == detect_flag) {
             /* Save audio data to file if record enabled */
             if (b_record_en && (NULL != fp)) {
-                fwrite(detect_buff, 1, afe_chunk_size * sizeof(int16_t), fp);
+                fwrite(res->data, 1, afe_chunksize * sizeof(int16_t), fp);
             }
 
             esp_mn_state_t mn_state = ESP_MN_STATE_DETECTING;
             if (false == app_audio_beep_is_playing()) {
-                mn_state = multinet->detect(model_data, detect_buff);
+                mn_state = multinet->detect(model_data, res->data);
             } else {
                 continue;
             }
@@ -136,7 +137,7 @@ static void audio_detect_task(void *pvParam)
             if (ESP_MN_STATE_TIMEOUT == mn_state) {
                 ESP_LOGW(TAG, "Time out");
                 sr_result_t result = {
-                    .fetch_mode = ret_val,
+                    .wakenet_mode = WAKENET_NO_DETECT,
                     .state = mn_state,
                     .command_id = 0,
                 };
@@ -146,7 +147,7 @@ static void audio_detect_task(void *pvParam)
                 continue;
             }
 
-            if (ESP_MN_STATE_DETECTED <= mn_state) {
+            if (ESP_MN_STATE_DETECTED == mn_state) {
                 esp_mn_results_t *mn_result = multinet->get_results(model_data);
                 for (int i = 0; i < mn_result->num; i++) {
                     ESP_LOGI(TAG, "TOP %d, command_id: %d, phrase_id: %d, prob: %f",
@@ -156,14 +157,15 @@ static void audio_detect_task(void *pvParam)
                 int sr_command_id = mn_result->command_id[0];
                 ESP_LOGI(TAG, "Deteted command : %d", sr_command_id);
                 sr_result_t result = {
-                    .fetch_mode = ret_val,
+                    .wakenet_mode = WAKENET_NO_DETECT,
                     .state = mn_state,
                     .command_id = sr_command_id,
                 };
                 xQueueSend(g_result_que, &result, 10);
+ #if !SR_CONTINUE_DET
                 afe_handle->enable_wakenet(afe_data);
-                detect_flag = 0;
-
+                detect_flag = false;
+#endif
                 if (b_record_en && (NULL != fp)) {
                     ESP_LOGI(TAG, "File saved");
                     fclose(fp);
@@ -212,11 +214,22 @@ esp_err_t app_sr_start(bool record_en)
         ESP_LOGI(TAG, "File created at %s", file_name);
     }
 
+    models = esp_srmodel_init("model");
+
+    afe_handle = &ESP_AFE_SR_HANDLE;
     afe_config_t afe_config = AFE_CONFIG_DEFAULT();
+    afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
     afe_config.aec_init = false;
     // afe_config.vad_init = false;
+    ESP_LOGI(TAG, "load wakenet:%s", afe_config.wakenet_model_name);
     esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
-    model_data = multinet->create((const model_coeff_getter_t *) &MULTINET_COEFF, 5760);
+
+    char *mn_name = esp_srmodel_filter(models, ESP_MN_PREFIX, NULL);
+    multinet = esp_mn_handle_from_name(mn_name);
+    ESP_LOGI(TAG, "load multinet:%s", mn_name);
+    model_data = multinet->create(mn_name, 5760);
+
+    esp_mn_commands_update_from_sdkconfig(multinet, model_data);
 
     BaseType_t ret_val = xTaskCreatePinnedToCore(audio_feed_task, "Feed Task", 4 * 1024, afe_data, 5, NULL, 1);
     ESP_RETURN_ON_FALSE(pdPASS == ret_val, ESP_FAIL, TAG,  "Failed create audio feed task");
@@ -234,7 +247,7 @@ esp_err_t app_sr_reset_command_list(char *command_list)
 {
     char *err_id = heap_caps_malloc(1024, MALLOC_CAP_SPIRAM);
     ESP_RETURN_ON_FALSE(NULL != err_id, ESP_ERR_NO_MEM, TAG,  "memory is not enough");
-    multinet->reset(model_data, command_list, err_id);
+    //multinet->reset(model_data, command_list, err_id);
     free(err_id);
     return ESP_OK;
 }

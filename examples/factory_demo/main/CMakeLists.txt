@@ -14,6 +14,8 @@ idf_component_register(
         "app"
         "rmaker")
 
+target_compile_options(${COMPONENT_LIB} PRIVATE "-Wno-format")
+
 target_compile_definitions(${COMPONENT_TARGET} PRIVATE "-D RMAKER_DEMO_PROJECT_NAME=\"${CMAKE_PROJECT_NAME}\"")
 
 spiffs_create_partition_image(storage ../spiffs FLASH_IN_PROJECT)

@@ -31,7 +31,7 @@ extern "C" {
 #define SR_CMD_PHONEME_LEN_MAX 64
 
 typedef struct {
-    afe_fetch_mode_t fetch_mode;
+    wakenet_state_t wakenet_mode;
     esp_mn_state_t state;
     int command_id;
 } sr_result_t;

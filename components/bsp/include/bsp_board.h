@@ -63,7 +63,6 @@ typedef struct {
     bool LCD_MIRROR_X    ;
     bool LCD_MIRROR_Y    ;
     bool LCD_COLOR_INV   ;
-    esp_lcd_color_space_t LCD_COLOR_SPACE;
 
     int GPIO_LCD_BL     ;
     int GPIO_LCD_BL_ON  ;
