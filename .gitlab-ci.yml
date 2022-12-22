@@ -43,7 +43,7 @@ build_idf_v4.4:
 
 build_idf_v5.0:
   extends: .build_template
-  image: espressif/idf:release-v5.0
+  image: espressif/idf:v5.0
 
 push_to_github:
   stage: deploy
