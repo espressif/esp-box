@@ -4,6 +4,3 @@
 [submodule "components/esp-sr"]
 	path = components/esp-sr
 	url = https://github.com/espressif/esp-sr.git
-[submodule "components/esp-rainmaker"]
-	path = components/esp-rainmaker
-	url = https://github.com/espressif/esp-rainmaker.git
