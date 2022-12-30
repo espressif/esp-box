@@ -21,12 +21,10 @@ LV_FONT_DECLARE(font_en_16);
 LV_FONT_DECLARE(font_cn_gb1_16);
 
 
-static void hint_page_btn_prev_cb(void *arg)
+static void hint_page_btn_prev_cb(void *arg, void *data)
 {
-    button_dev_t *btn = (button_dev_t *) arg;
-    lv_obj_t *obj = (lv_obj_t *) btn->cb_user_data;
+    lv_obj_t *obj = (lv_obj_t *) data;
     uint16_t tab_index = lv_tabview_get_tab_act(obj);
-
     if (tab_index > 0) {
         tab_index --;
         ESP_LOGI(TAG, "hint previous");
@@ -37,12 +35,10 @@ static void hint_page_btn_prev_cb(void *arg)
         }
     }
 }
-static void hint_page_btn_next_cb(void *arg)
+static void hint_page_btn_next_cb(void *arg, void *data)
 {
-    button_dev_t *btn = (button_dev_t *) arg;
-    lv_obj_t *obj = (lv_obj_t *) btn->cb_user_data;
+    lv_obj_t *obj = (lv_obj_t *) data;
     uint16_t tab_index = lv_tabview_get_tab_act(obj);
-
     if (tab_index < HINT_PAGE_NUM - 1) {
         tab_index ++;
         ESP_LOGI(TAG, "hint next");
@@ -65,10 +61,7 @@ static void ui_hint_page_next_click_cb(lv_event_t *e)
         lv_obj_del(obj);
         g_hint_end_cb();
     } else {
-        button_dev_t btn = {
-            .cb_user_data = obj,
-        };
-        hint_page_btn_next_cb(&btn);
+        hint_page_btn_next_cb(NULL, obj);
     }
 }
 

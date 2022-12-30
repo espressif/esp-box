@@ -21,7 +21,7 @@ idf_component_register(
         "src/codec/es8388"
         "src/codec/include"
     REQUIRES
-        iot_button
+        button
         esp_hid
         esp_lcd
         fatfs

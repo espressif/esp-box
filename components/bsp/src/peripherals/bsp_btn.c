@@ -9,7 +9,7 @@
 #include "bsp_board.h"
 #include "driver/adc.h"
 #include "esp_err.h"
-#include "button.h"
+#include "iot_button.h"
 
 static const char *TAG = "bsp btn";
 
@@ -28,7 +28,7 @@ static esp_err_t adc_button_init(button_handle_t *handle, size_t btn_id, adc1_ch
     btn_cfg.adc_button_config.button_index = btn_id;
     btn_cfg.adc_button_config.min = voltage - voltage_err;
     btn_cfg.adc_button_config.max = voltage + voltage_err;
-    *handle = button_create(&btn_cfg);
+    *handle = iot_button_create(&btn_cfg);
 
     return ret_val;
 }
@@ -46,7 +46,7 @@ static esp_err_t gpio_btn_init(button_handle_t *handle, const gpio_num_t gpio, c
 
     btn_cfg.gpio_button_config.gpio_num = gpio;
     btn_cfg.gpio_button_config.active_level = active_level;
-    *handle = button_create(&btn_cfg);
+    *handle = iot_button_create(&btn_cfg);
 
     return ret_val;
 }
@@ -77,12 +77,10 @@ esp_err_t bsp_btn_register_callback(board_btn_id_t btn_id, button_event_t event,
     ESP_RETURN_ON_FALSE(btn_id < brd->BUTTON_TAB_LEN, ESP_ERR_INVALID_ARG, TAG,  "button id incorrect");
 
     if (NULL == callback) {
-        return button_unregister_cb(g_btn_handle[btn_id], event);
+        return iot_button_unregister_cb(g_btn_handle[btn_id], event);
     }
 
-    button_dev_t *btn = (button_dev_t *) g_btn_handle[btn_id];
-    btn->cb_user_data = user_data;
-    return button_register_cb(g_btn_handle[btn_id], event, callback);
+    return iot_button_register_cb(g_btn_handle[btn_id], event, callback, user_data);
 }
 
 esp_err_t bsp_btn_rm_all_callback(board_btn_id_t btn_id)
@@ -92,7 +90,7 @@ esp_err_t bsp_btn_rm_all_callback(board_btn_id_t btn_id)
     ESP_RETURN_ON_FALSE(btn_id < brd->BUTTON_TAB_LEN, ESP_ERR_INVALID_ARG, TAG,  "button id incorrect");
 
     for (size_t event = 0; event < BUTTON_EVENT_MAX; event++) {
-        button_unregister_cb(g_btn_handle[btn_id], event);
+        iot_button_unregister_cb(g_btn_handle[btn_id], event);
     }
     return ESP_OK;
 }
@@ -102,6 +100,7 @@ bool bsp_btn_get_state(board_btn_id_t btn_id)
     const board_res_desc_t *brd = bsp_board_get_description();
     ESP_RETURN_ON_FALSE(btn_id < brd->BUTTON_TAB_LEN, 0, TAG,  "button id incorrect");
 
-    button_dev_t *btn = (button_dev_t *) g_btn_handle[btn_id];
-    return btn->event == BUTTON_PRESS_DOWN ? 1 : 0;
+    button_event_t event = iot_button_get_event(g_btn_handle[btn_id]);
+
+    return event == BUTTON_PRESS_DOWN ? 1 : 0;
 }

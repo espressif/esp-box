@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 #include "esp_err.h"
-#include "button.h"
+#include "iot_button.h"
 
 #ifdef __cplusplus
 extern "C" {

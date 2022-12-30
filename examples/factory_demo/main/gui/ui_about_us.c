@@ -43,9 +43,7 @@ static void factory_end_cb(void)
 
 static void btn_factory_cb(void *arg)
 {
-    button_dev_t *btn = (button_dev_t *) arg;
-
-    lv_obj_t *obj = (lv_obj_t *) btn->cb_user_data;
+    lv_obj_t *obj = (lv_obj_t *) arg;
     ESP_LOGI(TAG, "enter factory mode");
     ui_acquire();
     if (ui_get_btn_op_group()) {
