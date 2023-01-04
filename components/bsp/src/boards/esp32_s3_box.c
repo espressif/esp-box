@@ -8,7 +8,7 @@
 #include "bsp_board.h"
 #include "bsp_i2s.h"
 #include "bsp_codec.h"
-#include "button.h"
+#include "iot_button.h"
 #include "bsp_btn.h"
 
 static const board_button_t g_btns[] = {

@@ -240,12 +240,21 @@ static lv_obj_t *g_lab_item = NULL;
 static lv_obj_t *g_led_item[5];
 static size_t g_item_size = sizeof(item) / sizeof(item[0]);
 
-static void btn_press_cb(void *arg)
+static void btn_press_prev_cb(void *arg, void *data)
 {
-    button_dev_t *btn = (button_dev_t *) arg;
-    lv_obj_t *obj = (lv_obj_t *) btn->cb_user_data;
+    lv_obj_t *obj = (lv_obj_t *) data;
     ui_acquire();
-    lv_event_send(obj, btn->event == BUTTON_PRESS_DOWN ? LV_EVENT_PRESSED : LV_EVENT_RELEASED, lv_indev_get_act());
+    bool state = bsp_btn_get_state(BOARD_BTN_ID_PREV);
+    lv_event_send(obj, state ? LV_EVENT_PRESSED : LV_EVENT_RELEASED, lv_indev_get_act());
+    ui_release();
+}
+
+static void btn_press_next_cb(void *arg, void *data)
+{
+    lv_obj_t *obj = (lv_obj_t *) data;
+    ui_acquire();
+    bool state = bsp_btn_get_state(BOARD_BTN_ID_NEXT);
+    lv_event_send(obj, state ? LV_EVENT_PRESSED : LV_EVENT_RELEASED, lv_indev_get_act());
     ui_release();
 }
 
@@ -387,8 +396,8 @@ static void ui_main_menu(int32_t index_id)
     lv_obj_center(label);
     lv_obj_add_event_cb(btn, menu_prev_cb, LV_EVENT_RELEASED, NULL);
     if (!brd->BSP_INDEV_IS_TP) {
-        bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_DOWN, btn_press_cb, btn);
-        bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_UP, btn_press_cb, btn);
+        bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_DOWN, btn_press_prev_cb, btn);
+        bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_UP, btn_press_prev_cb, btn);
     }
 
     btn = lv_btn_create(obj);
@@ -408,8 +417,8 @@ static void ui_main_menu(int32_t index_id)
     lv_obj_center(label);
     lv_obj_add_event_cb(btn, menu_next_cb, LV_EVENT_RELEASED, NULL);
     if (!brd->BSP_INDEV_IS_TP) {
-        bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_DOWN, btn_press_cb, btn);
-        bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_UP, btn_press_cb, btn);
+        bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_DOWN, btn_press_next_cb, btn);
+        bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_UP, btn_press_next_cb, btn);
     }
 }
 
