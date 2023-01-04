@@ -1,6 +1,3 @@
 [submodule "components/lvgl/lvgl"]
 	path = components/lvgl/lvgl
 	url = https://github.com/lvgl/lvgl.git
-[submodule "components/esp-sr"]
-	path = components/esp-sr
-	url = https://github.com/espressif/esp-sr.git

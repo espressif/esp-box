@@ -25,6 +25,7 @@ GPATH
 **/examples/**/sdkconfig
 **/examples/**/sdkconfig.old
 **/examples/**/build
+**/examples/**/target
 
 **/sdkconfig
 **/sdkconfig.old
