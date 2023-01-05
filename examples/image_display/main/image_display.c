@@ -1,36 +1,13 @@
-/**
- * @file image_display.c
- * @brief Display png image with LVGL
- * @version 0.1
- * @date 2021-10-19
- * 
- * @copyright Copyright 2021 Espressif Systems (Shanghai) Co. Ltd.
+/*
+ * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
  *
- *      Licensed under the Apache License, Version 2.0 (the "License");
- *      you may not use this file except in compliance with the License.
- *      You may obtain a copy of the License at
- *
- *               http://www.apache.org/licenses/LICENSE-2.0
- *
- *      Unless required by applicable law or agreed to in writing, software
- *      distributed under the License is distributed on an "AS IS" BASIS,
- *      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *      See the License for the specific language governing permissions and
- *      limitations under the License.
+ * SPDX-License-Identifier: CC0-1.0
  */
 
 #include <dirent.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+
+#include "bsp/esp-bsp.h"
 #include "esp_log.h"
-#include "bsp_board.h"
-#include "bsp_lcd.h"
-#include "bsp_btn.h"
-#include "bsp_lcd.h"
-#include "bsp_storage.h"
-#include "lv_port.h"
-#include "lv_port_fs.h"
-#include "lvgl.h"
 
 static const char *TAG = "main";
 
@@ -40,17 +17,19 @@ static void image_display(void);
 
 void app_main(void)
 {
-    ESP_ERROR_CHECK(bsp_board_init());
-    ESP_ERROR_CHECK(bsp_spiffs_init_default());
+    /* Initialize I2C (for touch and audio) */
+    bsp_i2c_init();
 
-    ESP_ERROR_CHECK(lv_port_init());
-    ESP_ERROR_CHECK(lv_port_fs_init());
-    bsp_lcd_set_backlight(true);
+    /* Initialize display and LVGL */
+    bsp_display_start();
+
+    /* Set display brightness to 100% */
+    bsp_display_backlight_on();
+
+    /* Mount SPIFFS */
+    bsp_spiffs_mount();
+
     image_display();
-
-    do {
-        lv_task_handler();
-    } while (vTaskDelay(1), true);
 }
 
 static void btn_event_cb(lv_event_t *event)
@@ -111,5 +90,4 @@ static void image_display(void)
             break;
         }
     }
-
 }
