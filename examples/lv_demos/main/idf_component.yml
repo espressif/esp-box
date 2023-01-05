@@ -1,0 +1,3 @@
+## IDF Component Manager Manifest File
+dependencies:
+  espressif/esp-box: "2.*"
