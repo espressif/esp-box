@@ -6,7 +6,7 @@
 
 #include "esp_log.h"
 #include "bsp_board.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "ui_main.h"
 
 static const char *TAG = "ui_sr";
@@ -195,4 +195,3 @@ void sr_anim_set_text(char *text)
 {
     lv_event_send(g_sr_label, LV_EVENT_VALUE_CHANGED, (void *) text);
 }
-

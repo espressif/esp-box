@@ -15,7 +15,6 @@
 #include "bsp_board.h"
 #include "driver/gpio.h"
 #include "driver/ledc.h"
-#include "driver/rmt.h"
 #include "led_strip.h"
 #include "ui_main.h"
 #include "ui_device_ctrl.h"
@@ -41,6 +40,10 @@ static led_state_t g_led_state = {
     .g = 180,
     .b = 180,
 };
+
+#define LED_CHANNEL_GREEN   LEDC_CHANNEL_3
+#define LED_CHANNEL_BLUE    LEDC_CHANNEL_2
+#define LED_CHANNEL_RED     LEDC_CHANNEL_0
 
 #define LEDPWM_CNT_TOP 256
 static uint8_t g_gamma_table[LEDPWM_CNT_TOP + 1];
@@ -164,7 +167,7 @@ esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio
 
     ledc_channel_config_t ledc_channel_red = {
         .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = LEDC_CHANNEL_0,
+        .channel        = LED_CHANNEL_RED,
         .timer_sel      = LEDC_TIMER_0,
         .intr_type      = LEDC_INTR_DISABLE,
         .gpio_num       = gpio_r,
@@ -175,7 +178,7 @@ esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio
 
     ledc_channel_config_t ledc_channel_green = {
         .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = LEDC_CHANNEL_1,
+        .channel        = LED_CHANNEL_GREEN,
         .timer_sel      = LEDC_TIMER_0,
         .intr_type      = LEDC_INTR_DISABLE,
         .gpio_num       = gpio_g,
@@ -186,7 +189,7 @@ esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio
 
     ledc_channel_config_t ledc_channel_blue = {
         .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = LEDC_CHANNEL_2,
+        .channel        = LED_CHANNEL_BLUE,
         .timer_sel      = LEDC_TIMER_0,
         .intr_type      = LEDC_INTR_DISABLE,
         .gpio_num       = gpio_b,
@@ -235,12 +238,12 @@ esp_err_t app_pwm_led_deinit(void)
 
 static void update_pwm_led(uint8_t r, uint8_t g, uint8_t b)
 {
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, r);
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1, g);
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2, b);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_1);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_2);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_RED, r);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_GREEN, g);
+    ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_BLUE, b);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_RED);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_GREEN);
+    ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_BLUE);
 }
 
 esp_err_t app_pwm_led_set_all(uint8_t red, uint8_t green, uint8_t blue)

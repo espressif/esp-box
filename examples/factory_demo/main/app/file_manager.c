@@ -229,21 +229,21 @@ size_t fm_get_file_size(const char *filepath)
 
 int fm_mkdir(const char *path)
 {
-  struct stat st;
-  int status = 0;
+    struct stat st;
+    int status = 0;
 
-  if (stat(path, &st) != 0) {
-    /* Directory does not exist. EEXIST for race condition */
-    ESP_LOGI(TAG, "Create dir [%s]", path);
-    if (mkdir(path, 0755) != 0 && errno != EEXIST) {
-      status = -1;
-      ESP_LOGE(TAG, "Create dir [%s] failed", path);
+    if (stat(path, &st) != 0) {
+        /* Directory does not exist. EEXIST for race condition */
+        ESP_LOGI(TAG, "Create dir [%s]", path);
+        if (mkdir(path, 0755) != 0 && errno != EEXIST) {
+            status = -1;
+            ESP_LOGE(TAG, "Create dir [%s] failed", path);
+        }
+    } else if (!S_ISDIR(st.st_mode)) {
+        errno = ENOTDIR;
+        status = -1;
+        ESP_LOGE(TAG, "Exist [%s] but not dir", path);
     }
-  } else if (!S_ISDIR(st.st_mode)) {
-    errno = ENOTDIR;
-    status = -1;
-    ESP_LOGE(TAG, "Exist [%s] but not dir", path);
-  }
 
-  return status;
+    return status;
 }

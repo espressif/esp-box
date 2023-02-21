@@ -93,9 +93,9 @@ void app_sntp_init(void)
         while (sntp_get_sync_status() == SNTP_SYNC_STATUS_IN_PROGRESS) {
             adjtime(NULL, &outdelta);
             ESP_LOGI(TAG, "Waiting for adjusting time ... outdelta = %li sec: %li ms: %li us",
-                (long)outdelta.tv_sec,
-                outdelta.tv_usec / 1000,
-                outdelta.tv_usec % 1000);
+                     (long)outdelta.tv_sec,
+                     outdelta.tv_usec / 1000,
+                     outdelta.tv_usec % 1000);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
     }

@@ -18,4 +18,3 @@ void app_sntp_init(void);
 #endif
 
 #endif
-

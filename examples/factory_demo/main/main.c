@@ -13,19 +13,17 @@
 #include "esp_check.h"
 #include "nvs_flash.h"
 #include "nvs.h"
-#include "bsp_codec.h"
-#include "bsp_board.h"
-#include "bsp_lcd.h"
-#include "bsp_btn.h"
 #include "bsp_storage.h"
 #include "settings.h"
-#include "lv_port.h"
 #include "app_led.h"
 #include "app_rmaker.h"
 #include "app_sr.h"
 #include "audio_player.h"
 #include "file_iterator.h"
 #include "gui/ui_main.h"
+
+#include "bsp_board.h"
+#include "bsp/esp-bsp.h"
 
 static const char *TAG = "main";
 
@@ -65,21 +63,23 @@ static void sys_monitor_start(void)
 }
 #endif
 
-static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting) {
+static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
+{
     // Volume saved when muting and restored when unmuting. Restoring volume is necessary
     // as es8311_set_voice_mute(true) results in voice volume (REG32) being set to zero.
     static int last_volume;
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
 
     sys_param_t *param = settings_get_parameter();
-    if(param->volume != 0) {
+    if (param->volume != 0) {
         last_volume = param->volume;
     }
 
-    ESP_RETURN_ON_ERROR(bsp_codec_set_mute(setting == AUDIO_PLAYER_MUTE ? true : false), TAG, "set voice mute");
+    codec_handle->mute_set_fn(setting == AUDIO_PLAYER_MUTE ? true : false);
 
     // restore the voice volume upon unmuting
-    if(setting == AUDIO_PLAYER_UNMUTE) {
-        bsp_codec_set_voice_volume(last_volume);
+    if (setting == AUDIO_PLAYER_UNMUTE) {
+        codec_handle->volume_set_fn(param->volume, NULL);
     }
 
     ESP_LOGI(TAG, "mute setting %d, volume:%d", setting, last_volume);
@@ -101,17 +101,24 @@ void app_main(void)
 #if !SR_RUN_TEST && MEMORY_MONITOR
     sys_monitor_start(); // Logs should be reduced during SR testing
 #endif
-    ESP_ERROR_CHECK(bsp_board_init());
-    ESP_ERROR_CHECK(bsp_board_power_ctrl(POWER_MODULE_AUDIO, true));
-    ESP_ERROR_CHECK(lv_port_init());
-    ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 2));
+    bsp_spiffs_mount();
+
+    bsp_i2c_init();
+    bsp_display_start();
+    bsp_board_init();
+
+    ESP_LOGI(TAG, "Display LVGL demo");
+    bsp_display_backlight_on();
     ESP_ERROR_CHECK(ui_main_start());
-    bsp_lcd_set_backlight(true);  // Turn on the backlight after gui initialize
+
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
     file_iterator = file_iterator_new("/spiffs/mp3");
     assert(file_iterator != NULL);
-    audio_player_config_t config = { .port = I2S_NUM_0,
-                                     .mute_fn = audio_mute_function,
-                                     .priority = 5 };
+    audio_player_config_t config = { .mute_fn = audio_mute_function,
+                                     .write_fn = codec_handle->i2s_write_fn,
+                                     .clk_set_fn = codec_handle->i2s_reconfig_clk_fn,
+                                     .priority = 5
+                                   };
     ESP_ERROR_CHECK(audio_player_new(config));
 
     const board_res_desc_t *brd = bsp_board_get_description();

@@ -24,7 +24,7 @@ static sys_param_t g_sys_param = {0};
 static const sys_param_t g_default_sys_param = {
     .need_hint = 1,
     .sr_lang = SR_LANG_EN,
-    .volume = 70, // default volume is 70% 
+    .volume = 70, // default volume is 70%
 };
 
 static esp_err_t settings_check(sys_param_t *param)

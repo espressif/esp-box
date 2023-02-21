@@ -18,7 +18,7 @@
 extern "C" {
 #endif
 
-#define SR_CONTINUE_DET 1 
+#define SR_CONTINUE_DET 1
 #define SR_RUN_TEST 0 /**< Just for sr experiment in laboratory >*/
 #if SR_RUN_TEST
 #ifdef SR_CONTINUE_DET

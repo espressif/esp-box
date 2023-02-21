@@ -6,12 +6,10 @@
 
 #include "esp_log.h"
 #include "bsp_board.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "ui_main.h"
 
-static const char *TAG = "ui_sr";
-
-static void (*g_sr_end_cb)(void) = NULL;
+// static void (*g_sr_end_cb)(void) = NULL;
 
 
 // static void ui_dev_ctrl_page_return_click_cb(lv_event_t *e)
@@ -261,8 +259,7 @@ void ui_sr_anim_init(void)
 
     g_sr_anim_count = 0;
     g_sr_anim_active = false;
-    static lv_timer_t *timer = NULL;
-    timer = lv_timer_create(ui_speech_anim_cb, 500, NULL);
+    lv_timer_create(ui_speech_anim_cb, 500, NULL);
 }
 
 void sr_anim_start(void)
@@ -279,4 +276,3 @@ void sr_anim_set_text(char *text)
 {
     lv_event_send(g_sr_label, LV_EVENT_VALUE_CHANGED, (void *) text);
 }
-

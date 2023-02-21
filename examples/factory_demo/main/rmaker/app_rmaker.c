@@ -18,7 +18,7 @@
 #include "esp_rmaker_utils.h"
 
 #include "bsp_board.h"
-#include "bsp_btn.h"
+#include "bsp/esp-bsp.h"
 #include <device_driver.h>
 #include "esp_check.h"
 #include "app_wifi.h"
@@ -197,7 +197,7 @@ static void rmaker_task(void *args)
     vTaskDelete(NULL);
 }
 
-static void wifi_credential_reset(void *arg)
+static void wifi_credential_reset(void *handle, void *arg)
 {
     ESP_LOGW(TAG, "WiFi credential reset");
     esp_rmaker_wifi_reset(0, 2);

@@ -22,6 +22,3 @@ int  app_humidity_get_value(void);
 #ifdef __cplusplus
 }
 #endif
-
-
-

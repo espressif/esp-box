@@ -1,9 +1,10 @@
 ## IDF Component Manager Manifest File
 dependencies:
-  chmorgan/esp-audio-player: "1.0.3"
+  chmorgan/esp-audio-player: "1.0.4"
   chmorgan/esp-file-iterator: "1.0.0"
   chmorgan/esp-libhelix-mp3: "1.0.3"
-
+  
+  espressif/esp-box: "~2.2.0"
   espressif/esp_rainmaker:
     path: components/esp_rainmaker
     git: https://github.com/espressif/esp-rainmaker.git

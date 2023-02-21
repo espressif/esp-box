@@ -7,71 +7,37 @@
 #include <stdbool.h>
 #include "esp_log.h"
 #include "bsp_board.h"
-#include "bsp_i2s.h"
-#include "bsp_codec.h"
-#include "iot_button.h"
-#include "bsp_btn.h"
 
-static const board_button_t g_btns[] = {
-    {BOARD_BTN_ID_BOOT, 0,      GPIO_NUM_0,  0},
-    {BOARD_BTN_ID_PREV, 2971UL, GPIO_NUM_NC, 0},
-    {BOARD_BTN_ID_ENTER, 2427UL, GPIO_NUM_NC, 0},
-    {BOARD_BTN_ID_NEXT, 957UL,  GPIO_NUM_NC, 0},
-};
+#include "esp_log.h"
+#include "esp_check.h"
+#include "hal/i2s_hal.h"
+
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
+#include "soc/soc_caps.h"
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
+#else
+#include "driver/adc.h"
+#include "esp_adc_cal.h"
+#endif
+
+#include "bsp_board.h"
+#include "iot_button.h"
+
 
 static const pmod_pins_t g_pmod[2] = {
     {
-        {9, 43, 44, 14},
-        {10, 11, 13, 12},
+        {BSP_PMOD2_IO5, BSP_PMOD2_IO6, BSP_PMOD2_IO7, BSP_PMOD2_IO8},
+        {BSP_PMOD2_IO1, BSP_PMOD2_IO2, BSP_PMOD2_IO3, BSP_PMOD2_IO4},
     },
     {
-        {38, 39, 40, 41},
-        {42, 21, 19, 20},
+        {BSP_PMOD1_IO5, BSP_PMOD1_IO6, BSP_PMOD1_IO7, BSP_PMOD1_IO8},
+        {BSP_PMOD1_IO1, BSP_PMOD1_IO2, BSP_PMOD1_IO3, BSP_PMOD1_IO4},
     },
 };
 
 static const board_res_desc_t g_board_s3_box_lite_res = {
-
-    .FUNC_LCD_EN =     (1),
-    .LCD_BUS_WIDTH =   (1),
-    .LCD_IFACE_SPI =   (1),
-    .LCD_DISP_IC_ST =  (1),
-    .LCD_WIDTH =       (320),
-    .LCD_HEIGHT =      (240),
-    .LCD_FREQ =        (40 * 1000 * 1000),
-    .LCD_CMD_BITS =    8,
-    .LCD_PARAM_BITS =  8,
-    .LCD_HOST =        (SPI2_HOST),
-
-    .LCD_SWAP_XY =     (true),
-    .LCD_MIRROR_X =    (false),
-    .LCD_MIRROR_Y =    (true),
-    .LCD_COLOR_INV =   (true),
-
-    .GPIO_LCD_BL =     (GPIO_NUM_45),
-    .GPIO_LCD_BL_ON =  (0),
-    .GPIO_LCD_CS =     (GPIO_NUM_5),
-    .GPIO_LCD_RST =    (GPIO_NUM_48),
-    .GPIO_LCD_DC =     (GPIO_NUM_4),
-    .GPIO_LCD_CLK =    (GPIO_NUM_7),
-    .GPIO_LCD_DIN =    (GPIO_NUM_6),
-    .GPIO_LCD_DOUT =   (GPIO_NUM_NC),
-
-    .BSP_INDEV_IS_TP =         (0),
-    .TOUCH_PANEL_SWAP_XY =     (0),
-    .TOUCH_PANEL_INVERSE_X =   (1),
-    .TOUCH_PANEL_INVERSE_Y =   (0),
-    .TOUCH_PANEL_I2C_ADDR = 0,
-    .TOUCH_WITH_HOME_BUTTON = 0,
-
-    .BSP_BUTTON_EN =   (1),
-    .BUTTON_ADC_CHAN =  ADC1_CHANNEL_0,
-    .BUTTON_TAB =  g_btns,
-    .BUTTON_TAB_LEN = sizeof(g_btns) / sizeof(g_btns[0]),
-
-    .FUNC_I2C_EN =     (1),
-    .GPIO_I2C_SCL =    (GPIO_NUM_18),
-    .GPIO_I2C_SDA =    (GPIO_NUM_8),
 
     .FUNC_SDMMC_EN =   (1),
     .SDMMC_BUS_WIDTH = (4),
@@ -100,34 +66,168 @@ static const board_res_desc_t g_board_s3_box_lite_res = {
     .GPIO_RMT_IR =         (GPIO_NUM_NC),
     .GPIO_RMT_LED =        (GPIO_NUM_39),
 
-    .FUNC_I2S_EN =         (1),
-    .GPIO_I2S_LRCK =       (GPIO_NUM_47),
-    .GPIO_I2S_MCLK =       (GPIO_NUM_2),
-    .GPIO_I2S_SCLK =       (GPIO_NUM_17),
-    .GPIO_I2S_SDIN =       (GPIO_NUM_16),
-    .GPIO_I2S_DOUT =       (GPIO_NUM_15),
-    .CODEC_I2C_ADDR = 0,
-    .AUDIO_ADC_I2C_ADDR = 0,
-
-    .IMU_I2C_ADDR = 0,
-
-    .FUNC_PWR_CTRL =       (1),
-    .GPIO_PWR_CTRL =       (GPIO_NUM_46),
-    .GPIO_PWR_ON_LEVEL =   (1),
-
-    .GPIO_MUTE_NUM =   GPIO_NUM_1,
-    .GPIO_MUTE_LEVEL = 1,
-
     .PMOD1 = &g_pmod[0],
     .PMOD2 = &g_pmod[1],
 };
 
+
+const button_config_t BOARD_BTN_ID_config[BOARD_BTN_ID_NUM] = {
+    {
+        .type = BUTTON_TYPE_GPIO,
+        .gpio_button_config.active_level = false,
+        .gpio_button_config.gpio_num = BOARD_BTN_ID_BOOT,
+    },
+    {
+        .type = BUTTON_TYPE_ADC,
+        .adc_button_config.adc_channel = ADC_CHANNEL_0, // ADC1 channel 0 is GPIO1
+        .adc_button_config.button_index = BOARD_BTN_ID_PREV,
+        .adc_button_config.min = 2286, // middle is 2386mV
+        .adc_button_config.max = 2486
+    },
+    {
+        .type = BUTTON_TYPE_ADC,
+        .adc_button_config.adc_channel = ADC_CHANNEL_0, // ADC1 channel 0 is GPIO1
+        .adc_button_config.button_index = BOARD_BTN_ID_ENTER,
+        .adc_button_config.min = 1863, // middle is 1963mV
+        .adc_button_config.max = 2063
+    },
+    {
+        .type = BUTTON_TYPE_ADC,
+        .adc_button_config.adc_channel = ADC_CHANNEL_0, // ADC1 channel 0 is GPIO1
+        .adc_button_config.button_index = BOARD_BTN_ID_NEXT,
+        .adc_button_config.min = 694, // middle is 794mV
+        .adc_button_config.max = 894
+    }
+};
+
+static button_handle_t *g_btn_handle = NULL;
+static bsp_codec_config_t g_codec_handle;
+
+static const boards_info_t g_boards_info = {
+    .id =           BOARD_S3_BOX_LITE,
+    .name =         "S3_BOX_LITE",
+    .board_desc =   &g_board_s3_box_lite_res
+};
+
+static i2s_chan_handle_t i2s_tx_chan;
+static i2s_chan_handle_t i2s_rx_chan;
+
 static const char *TAG = "board";
+
+
+esp_err_t bsp_btn_init(void)
+{
+    ESP_ERROR_CHECK((NULL != g_btn_handle));
+
+    g_btn_handle = calloc(sizeof(button_handle_t), BOARD_BTN_ID_NUM);
+    assert((g_btn_handle) && "memory is insufficient for button");
+
+    ESP_LOGI(TAG, "[+ Btn Init] ID");
+    /* Init buttons */
+    for (int i = 0; i < BOARD_BTN_ID_NUM; i++) {
+        g_btn_handle[i] = iot_button_create(&BOARD_BTN_ID_config[i]);
+        assert(g_btn_handle[i]);
+    }
+    return ESP_OK;
+}
+
+esp_err_t bsp_btn_register_callback(bsp_button_id_t btn, button_event_t event, button_cb_t callback, void *user_data)
+{
+    assert((g_btn_handle) && "button not initialized");
+    assert((btn < BOARD_BTN_ID_NUM) && "button id incorrect");
+
+    ESP_LOGI(TAG, "[+ register] ID:%d, event:%d", btn, event);
+
+    if (NULL == callback) {
+        return iot_button_unregister_cb(g_btn_handle[btn], event);
+    }
+
+    return iot_button_register_cb(g_btn_handle[btn], event, callback, user_data);
+}
+
+esp_err_t bsp_btn_rm_all_callback(bsp_button_id_t btn)
+{
+    assert((g_btn_handle) && "button not initialized");
+    assert((btn < BOARD_BTN_ID_NUM) && "button id incorrect");
+
+    ESP_LOGI(TAG, "[- register] ID:%d", btn);
+
+    for (size_t event = 0; event < BUTTON_EVENT_MAX; event++) {
+        iot_button_unregister_cb(g_btn_handle[btn], event);
+    }
+    return ESP_OK;
+}
+
+static esp_err_t bsp_i2s_read(void *audio_buffer, size_t len, size_t *bytes_read, uint32_t timeout_ms)
+{
+    esp_err_t ret = ESP_OK;
+    ret = i2s_channel_read(i2s_rx_chan, (char *)audio_buffer, len, bytes_read, timeout_ms);
+    return ret;
+}
+
+static esp_err_t bsp_i2s_write(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms)
+{
+    esp_err_t ret = ESP_OK;
+    ret = i2s_channel_write(i2s_tx_chan, (char *)audio_buffer, len, bytes_written, timeout_ms);
+    return ret;
+}
+
+static esp_err_t bsp_i2s_reconfig_clk(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch)
+{
+    esp_err_t ret = ESP_OK;
+    i2s_std_config_t std_cfg = {
+        .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(rate),
+        .slot_cfg = I2S_STD_PHILIP_SLOT_DEFAULT_CONFIG((i2s_data_bit_width_t)bits_cfg, (i2s_slot_mode_t)ch),
+        .gpio_cfg = BSP_I2S_GPIO_CFG,
+    };
+
+    ret |= i2s_channel_disable(i2s_tx_chan);
+    ret |= i2s_channel_reconfig_std_clock(i2s_tx_chan, &std_cfg.clk_cfg);
+    ret |= i2s_channel_reconfig_std_slot(i2s_tx_chan, &std_cfg.slot_cfg);
+    ret |= i2s_channel_enable(i2s_tx_chan);
+    return ret;
+}
+
+static esp_err_t bsp_codec_volume_set(int volume, int *volume_set)
+{
+    esp_err_t ret = ESP_OK;
+    return ret;
+}
+
+static esp_err_t bsp_codec_mute_set(bool enable)
+{
+    esp_err_t ret = ESP_OK;
+    return ret;
+}
+
+static esp_err_t bsp_codec_es7243_set()
+{
+    esp_err_t ret = ESP_OK;
+    return ret;
+}
+
+static void bsp_codec_init()
+{
+    /* Configure I2S peripheral and Power Amplifier */
+    i2s_std_config_t std_cfg = {
+        .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(16000),
+        .slot_cfg = I2S_STD_PHILIP_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO),
+        .gpio_cfg = BSP_I2S_GPIO_CFG,
+    };
+    bsp_audio_init(&std_cfg, &i2s_tx_chan, &i2s_rx_chan);
+    bsp_audio_poweramp_enable(true);
+
+    bsp_codec_config_t *codec_config = bsp_board_get_codec_handle();
+    codec_config->volume_set_fn = bsp_codec_volume_set;
+    codec_config->mute_set_fn = bsp_codec_mute_set;
+    codec_config->codec_reconfig_fn = bsp_codec_es7243_set;
+    codec_config->i2s_read_fn = bsp_i2s_read;
+    codec_config->i2s_write_fn = bsp_i2s_write;
+    codec_config->i2s_reconfig_clk_fn = bsp_i2s_reconfig_clk;
+}
 
 esp_err_t bsp_board_s3_box_lite_init(void)
 {
-    bsp_btn_init_default();
-
     /**
      * @brief Initialize I2S and audio codec
      *
@@ -135,48 +235,31 @@ esp_err_t bsp_board_s3_box_lite_init(void)
      *       `MP3GetLastFrameInfo` can fill the `MP3FrameInfo`, which includes `samprate`.
      *       So theoretically, the sampling rate can be dynamically changed according to the MP3 frame information.
      */
-    ESP_ERROR_CHECK(bsp_i2s_init(I2S_NUM_0, 16000));
-    ESP_ERROR_CHECK(bsp_codec_init(AUDIO_HAL_16K_SAMPLES));
-    return ESP_OK;
-}
-
-esp_err_t bsp_board_s3_box_lite_power_ctrl(power_module_t module, bool on)
-{
-    /* Config power control IO */
-    static esp_err_t bsp_io_config_state = ESP_FAIL;
-    if (ESP_OK != bsp_io_config_state) {
-        gpio_config_t io_conf;
-        io_conf.intr_type = GPIO_INTR_DISABLE;
-        io_conf.mode = GPIO_MODE_OUTPUT;
-        io_conf.pin_bit_mask = 1ULL << g_board_s3_box_lite_res.GPIO_PWR_CTRL;
-        io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-        io_conf.pull_up_en = GPIO_PULLUP_DISABLE;
-        bsp_io_config_state = gpio_config(&io_conf);
-    }
-
-    /* Checko IO config result */
-    if (ESP_OK != bsp_io_config_state) {
-        ESP_LOGE(TAG, "Failed initialize power control IO");
-        return bsp_io_config_state;
-    }
-
-    /* Control independent power domain */
-    switch (module) {
-    case POWER_MODULE_LCD:
-        gpio_set_level(g_board_s3_box_lite_res.GPIO_LCD_BL, on ? (g_board_s3_box_lite_res.GPIO_LCD_BL_ON) : (!g_board_s3_box_lite_res.GPIO_LCD_BL_ON));
-        break;
-    case POWER_MODULE_AUDIO:
-    case POWER_MODULE_ALL:
-        gpio_set_level(g_board_s3_box_lite_res.GPIO_PWR_CTRL, on ? (g_board_s3_box_lite_res.GPIO_PWR_ON_LEVEL) : (!g_board_s3_box_lite_res.GPIO_PWR_ON_LEVEL));
-        break;
-    default:
-        return ESP_ERR_INVALID_ARG;
-    }
+    bsp_codec_init();
 
     return ESP_OK;
 }
 
-const board_res_desc_t *bsp_board_s3_box_lite_get_res_desc(void)
+const boards_info_t *bsp_board_get_info(void)
 {
-    return &g_board_s3_box_lite_res;
+    return &g_boards_info;
+}
+
+const board_res_desc_t *bsp_board_get_description(void)
+{
+    return g_boards_info.board_desc;
+}
+
+bsp_codec_config_t *bsp_board_get_codec_handle(void)
+{
+    return &g_codec_handle;
+}
+
+esp_err_t bsp_board_init(void)
+{
+    esp_err_t ret = ESP_OK;
+
+    ret |= bsp_board_s3_box_lite_init();
+
+    return ret;
 }

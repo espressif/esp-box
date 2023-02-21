@@ -390,31 +390,6 @@ esp_err_t app_wifi_start(app_wifi_pop_type_t pop_type)
          * NULL = Open network
          * This is ignored when scheme is wifi_prov_scheme_ble
          */
-        const char *service_key = NULL;
-
-#ifdef CONFIG_APP_WIFI_PROV_TRANSPORT_BLE
-        /* This step is only useful when scheme is wifi_prov_scheme_ble. This will
-         * set a custom 128 bit UUID which will be included in the BLE advertisement
-         * and will correspond to the primary GATT service that provides provisioning
-         * endpoints as GATT characteristics. Each GATT characteristic will be
-         * formed using the primary service UUID as base, with different auto assigned
-         * 12th and 13th bytes (assume counting starts from 0th byte). The client side
-         * applications must identify the endpoints by reading the User Characteristic
-         * Description descriptor (0x2901) for each characteristic, which contains the
-         * endpoint name of the characteristic */
-        uint8_t custom_service_uuid[] = {
-            /* This is a random uuid. This can be modified if you want to change the BLE uuid. */
-            /* 12th and 13th bit will be replaced by internal bits. */
-            0xb4, 0xdf, 0x5a, 0x1c, 0x3f, 0x6b, 0xf4, 0xbf,
-            0xea, 0x4a, 0x82, 0x03, 0x04, 0x90, 0x1a, 0x02,
-        };
-        err = wifi_prov_scheme_ble_set_service_uuid(custom_service_uuid);
-        if (err != ESP_OK) {
-            ESP_LOGE(TAG, "wifi_prov_scheme_ble_set_service_uuid failed %d", err);
-            return err;
-        }
-#endif /* CONFIG_APP_WIFI_PROV_TRANSPORT_BLE */
-
         /* Start provisioning service */
         ESP_ERROR_CHECK(wifi_prov_mgr_start_provisioning(security, NULL, service_name, NULL));
         /* Print QR code for provisioning */
@@ -425,8 +400,6 @@ esp_err_t app_wifi_start(app_wifi_pop_type_t pop_type)
 #endif /* CONFIG_APP_WIFI_PROV_TRANSPORT_BLE */
         intro_print(provisioned);
         ESP_LOGI(TAG, "Provisioning Started. Name : %s, POP : %s", service_name, pop);
-        extern void app_debug(void);
-        app_debug();
     } else {
         ESP_LOGI(TAG, "Already provisioned, starting Wi-Fi STA");
         intro_print(provisioned);

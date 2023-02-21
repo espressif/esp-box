@@ -17,10 +17,10 @@
 #include "bsp_storage.h"
 #include "app_audio.h"
 #include "app_sr.h"
-#include "app_lvgl.h"
 #include "app_pump.h"
 #include "app_humidity.h"
 #include "app_rmaker.h"
+#include "gui/ui_main.h"
 
 static const char *TAG = "main";
 
@@ -78,11 +78,15 @@ void app_main(void)
     ESP_ERROR_CHECK(app_pump_init());
     ESP_ERROR_CHECK(app_humidity_init());
 
-    ESP_ERROR_CHECK(bsp_board_init());
-    ESP_ERROR_CHECK(bsp_board_power_ctrl(POWER_MODULE_AUDIO, true));
-    ESP_ERROR_CHECK(bsp_spiffs_init("storage", "/spiffs", 2));
+    bsp_i2c_init();
+    bsp_display_start();
+    bsp_board_init();
+    ESP_ERROR_CHECK(bsp_spiffs_mount());
 
-    ESP_ERROR_CHECK(app_lvgl_start());
+    ESP_LOGI(TAG, "Display LVGL demo");
+    bsp_display_backlight_on();
+    ui_main();
+
     ESP_ERROR_CHECK(app_audio_beep_init());
     ESP_ERROR_CHECK(app_sr_start(false));
     ESP_ERROR_CHECK(app_watering_rmaker_start());

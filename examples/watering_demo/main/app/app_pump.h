@@ -51,5 +51,3 @@ int app_pump_set_lower_humidity(int min);
 #ifdef __cplusplus
 }
 #endif
-
-

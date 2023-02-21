@@ -21,7 +21,6 @@
 #include <esp_rmaker_common_events.h>
 
 #include "bsp_board.h"
-#include "bsp_btn.h"
 
 #include "app_pump.h"
 #include "app_humidity.h"
@@ -77,12 +76,6 @@ static esp_err_t watering_write_cb(const esp_rmaker_device_t *device, const esp_
                  val.type, device_name, param_name);
     }
     esp_rmaker_param_update_and_report(param, val);
-    return ESP_OK;
-}
-
-static esp_err_t watering_read_cb(const esp_rmaker_device_t *device, const esp_rmaker_param_t *param,
-                                  void *priv_data, esp_rmaker_read_ctx_t *ctx)
-{
     return ESP_OK;
 }
 
@@ -299,14 +292,15 @@ static void rmaker_task(void *args)
     vTaskDelete(NULL);
 }
 
-static void wifi_credential_reset(void *arg)
+static void wifi_credential_reset(void *handle, void *arg)
 {
     ESP_LOGW(TAG, "WiFi credential reset");
     esp_rmaker_wifi_reset(0, 2);
     esp_rmaker_factory_reset(0, 2);
 }
 
-static void esp_watering_btn_click(void *arg)
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+static void esp_watering_btn_click(void *handle, void *arg)
 {
     if (app_pump_is_watering()) {
         app_pump_watering_stop();
@@ -314,13 +308,15 @@ static void esp_watering_btn_click(void *arg)
         app_pump_watering_start();
     }
 }
+#endif
 
 esp_err_t app_watering_rmaker_start(void)
 {
     bsp_btn_register_callback(BOARD_BTN_ID_BOOT, BUTTON_LONG_PRESS_START, wifi_credential_reset, NULL);
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
     bsp_btn_register_callback(BOARD_BTN_ID_ENTER, BUTTON_SINGLE_CLICK, esp_watering_btn_click, NULL);
+#endif
     BaseType_t ret_val = xTaskCreatePinnedToCore(rmaker_task, "RMaker Task", 6 * 1024, NULL, 1, NULL, 0);
     ESP_ERROR_CHECK_WITHOUT_ABORT((pdPASS == ret_val) ? ESP_OK : ESP_FAIL);
     return ESP_OK;
 }
-

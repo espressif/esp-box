@@ -6,8 +6,8 @@
 
 #include "esp_log.h"
 #include "bsp_board.h"
-#include "lvgl/lvgl.h"
-#include "bsp_btn.h"
+#include "bsp/esp-bsp.h"
+#include "lvgl.h"
 #include "ui_main.h"
 #include "settings.h"
 
@@ -21,6 +21,7 @@ LV_FONT_DECLARE(font_en_16);
 LV_FONT_DECLARE(font_cn_gb1_16);
 
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void hint_page_btn_prev_cb(void *arg, void *data)
 {
     lv_obj_t *obj = (lv_obj_t *) data;
@@ -35,6 +36,8 @@ static void hint_page_btn_prev_cb(void *arg, void *data)
         }
     }
 }
+#endif
+
 static void hint_page_btn_next_cb(void *arg, void *data)
 {
     lv_obj_t *obj = (lv_obj_t *) data;
@@ -49,6 +52,7 @@ static void hint_page_btn_next_cb(void *arg, void *data)
         }
     }
 }
+
 static void ui_hint_page_next_click_cb(lv_event_t *e)
 {
     lv_obj_t *obj = lv_event_get_user_data(e);
@@ -70,7 +74,6 @@ void ui_hint_start(void (*fn)(void))
 {
     g_hint_end_cb = fn;
 
-    const board_res_desc_t *brd = bsp_board_get_description();
     /*Create a Tab view object*/
     lv_obj_t *tabview = lv_tabview_create(lv_scr_act(), LV_DIR_TOP, 0);
     LV_IMG_DECLARE(hand_down);
@@ -83,6 +86,10 @@ void ui_hint_start(void (*fn)(void))
     hint_page = lv_tabview_add_tab(tabview, "Tab 1");
     lv_obj_set_scrollbar_mode(hint_page, LV_SCROLLBAR_MODE_OFF);
 
+    lv_obj_t *img, *lab_hint;
+
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    // For S3 BOX LITE
     static const char *hint_msg2[] = {
         "Go\n"
         "Backward",
@@ -92,36 +99,34 @@ void ui_hint_start(void (*fn)(void))
         "Forward",
     };
 
-    if (!brd->BSP_INDEV_IS_TP) {
-        // For S3 BOX LITE
-        for (int i = 0; i < 3; i++) {
-            lv_obj_t *lab_hint = lv_label_create(hint_page);
-            lv_label_set_text_static(lab_hint, hint_msg2[i]);
-            lv_obj_set_style_text_align(lab_hint, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
-            lv_obj_align(lab_hint, LV_ALIGN_CENTER, 100 * i - 100, -10);
-            lv_obj_t *img = lv_img_create(hint_page);
-            lv_img_set_src(img, &hand_down);
-            lv_obj_align_to(img, lab_hint, LV_ALIGN_BOTTOM_MID, 0, 60);
-        }
-
-        static const lv_point_t line_point[] = { {.x = 0, .y = 0}, {.x = 0, .y = 170} };
-        for (int i = 0; i < 2; i++) {
-            lv_obj_t *line = lv_line_create(hint_page);
-            lv_line_set_points(line, line_point, 2);
-            lv_obj_set_style_line_width(line, 1, LV_PART_MAIN);
-            lv_obj_set_style_line_color(line, lv_color_make(222, 230, 243), LV_STATE_DEFAULT);
-            lv_obj_align(line, LV_ALIGN_CENTER, 100 * i - 50, 0);
-        }
-    } else {
-        // For S3 BOX
-        lv_obj_t *lab_hint = lv_label_create(hint_page);
-        lv_label_set_text_static(lab_hint, "Touch to return");
+    for (int i = 0; i < 3; i++) {
+        lab_hint = lv_label_create(hint_page);
+        lv_label_set_text_static(lab_hint, hint_msg2[i]);
         lv_obj_set_style_text_align(lab_hint, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
-        lv_obj_align(lab_hint, LV_ALIGN_CENTER, 0, -10);
-        lv_obj_t *img = lv_img_create(hint_page);
+        lv_obj_align(lab_hint, LV_ALIGN_CENTER, 100 * i - 100, -10);
+        img = lv_img_create(hint_page);
         lv_img_set_src(img, &hand_down);
         lv_obj_align_to(img, lab_hint, LV_ALIGN_BOTTOM_MID, 0, 60);
     }
+
+    static const lv_point_t line_point[] = { {.x = 0, .y = 0}, {.x = 0, .y = 170} };
+    for (int i = 0; i < 2; i++) {
+        lv_obj_t *line = lv_line_create(hint_page);
+        lv_line_set_points(line, line_point, 2);
+        lv_obj_set_style_line_width(line, 1, LV_PART_MAIN);
+        lv_obj_set_style_line_color(line, lv_color_make(222, 230, 243), LV_STATE_DEFAULT);
+        lv_obj_align(line, LV_ALIGN_CENTER, 100 * i - 50, 0);
+    }
+#elif CONFIG_BSP_BOARD_ESP32_S3_BOX
+    // For S3 BOX
+    lab_hint = lv_label_create(hint_page);
+    lv_label_set_text_static(lab_hint, "Touch to return");
+    lv_obj_set_style_text_align(lab_hint, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
+    lv_obj_align(lab_hint, LV_ALIGN_CENTER, 0, -10);
+    img = lv_img_create(hint_page);
+    lv_img_set_src(img, &hand_down);
+    lv_obj_align_to(img, lab_hint, LV_ALIGN_BOTTOM_MID, 0, 60);
+#endif
 
     lv_obj_t *lab_index = lv_label_create(hint_page);
     lv_label_set_text_fmt(lab_index, "%d/%d", 1, HINT_PAGE_NUM);
@@ -150,14 +155,14 @@ void ui_hint_start(void (*fn)(void))
     // ======= Content of Tab2
     hint_page = lv_tabview_add_tab(tabview, "Tab 2");
     lv_obj_set_scrollbar_mode(hint_page, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_t *img = lv_img_create(hint_page);
+    img = lv_img_create(hint_page);
     lv_img_set_src(img, &hand_left);
     lv_obj_align(img, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_obj_t *lab_btn_name = lv_label_create(hint_page);
     lv_label_set_recolor(lab_btn_name, true);
     lv_label_set_text_static(lab_btn_name, "#000000 Function Button#");
     lv_obj_align_to(lab_btn_name, img, LV_ALIGN_OUT_RIGHT_MID, 10, 0);
-    lv_obj_t *lab_hint = lv_label_create(hint_page);
+    lab_hint = lv_label_create(hint_page);
     lv_label_set_text_static(lab_hint, "Customized by user");
     lv_obj_align_to(lab_hint, lab_btn_name, LV_ALIGN_OUT_BOTTOM_LEFT, 0, 0);
 
@@ -299,11 +304,9 @@ void ui_hint_start(void (*fn)(void))
     lv_obj_center(label);
     lv_obj_add_event_cb(btn_next, ui_hint_page_next_click_cb, LV_EVENT_RELEASED, tabview);
 
-    if (!brd->BSP_INDEV_IS_TP) {
-        bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_DOWN, hint_page_btn_prev_cb, tabview);
-        bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_DOWN, hint_page_btn_next_cb, tabview);
-    }
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_DOWN, hint_page_btn_prev_cb, (void *)tabview);
+    bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_DOWN, hint_page_btn_next_cb, (void *)tabview);
+#endif
 
 }
-
-

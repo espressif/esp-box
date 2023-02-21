@@ -11,10 +11,9 @@
 #include "esp_log.h"
 #include "esp_check.h"
 #include "bsp_board.h"
-#include "bsp_codec.h"
-#include "lvgl/lvgl.h"
+#include "bsp/esp-bsp.h"
+#include "lvgl.h"
 #include "lv_symbol_extra_def.h"
-#include "bsp_btn.h"
 #include "app_wifi.h"
 #include "app_rmaker.h"
 #include "settings.h"
@@ -32,10 +31,8 @@ static const char *TAG = "ui_main";
 
 LV_FONT_DECLARE(font_icon_16);
 
-static TaskHandle_t g_lvgl_task_handle;
 static int g_item_index = 0;
 static lv_group_t *g_btn_op_group = NULL;
-static lv_indev_t *g_button_indev = NULL;
 static button_style_t g_btn_styles;
 static lv_obj_t *g_page_menu = NULL;
 
@@ -50,39 +47,14 @@ static lv_obj_t *g_status_bar = NULL;
 static void ui_main_menu(int32_t index_id);
 static void ui_led_set_visible(bool visible);
 
-
-static void lvgl_task(void *pvParam)
-{
-    (void) pvParam;
-    g_guisemaphore = xSemaphoreCreateMutex();
-
-    do {
-        /* Try to take the semaphore, call lvgl related function on success */
-        if (pdTRUE == xSemaphoreTake(g_guisemaphore, portMAX_DELAY)) {
-            lv_task_handler();
-            xSemaphoreGive(g_guisemaphore);
-        }
-        vTaskDelay(pdMS_TO_TICKS(10));
-
-    } while (true);
-
-    vTaskDelete(NULL);
-}
-
 void ui_acquire(void)
 {
-    TaskHandle_t task = xTaskGetCurrentTaskHandle();
-    if (g_lvgl_task_handle != task) {
-        xSemaphoreTake(g_guisemaphore, portMAX_DELAY);
-    }
+    bsp_display_lock(0);
 }
 
 void ui_release(void)
 {
-    TaskHandle_t task = xTaskGetCurrentTaskHandle();
-    if (g_lvgl_task_handle != task) {
-        xSemaphoreGive(g_guisemaphore);
-    }
+    bsp_display_unlock();
 }
 
 
@@ -143,11 +115,6 @@ button_style_t *ui_button_styles(void)
 lv_group_t *ui_get_btn_op_group(void)
 {
     return g_btn_op_group;
-}
-
-lv_indev_t *ui_get_button_indev(void)
-{
-    return g_button_indev;
 }
 
 static void ui_status_bar_set_visible(bool visible)
@@ -240,12 +207,12 @@ static lv_obj_t *g_lab_item = NULL;
 static lv_obj_t *g_led_item[5];
 static size_t g_item_size = sizeof(item) / sizeof(item[0]);
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void btn_press_prev_cb(void *arg, void *data)
 {
     lv_obj_t *obj = (lv_obj_t *) data;
     ui_acquire();
-    bool state = bsp_btn_get_state(BOARD_BTN_ID_PREV);
-    lv_event_send(obj, state ? LV_EVENT_PRESSED : LV_EVENT_RELEASED, lv_indev_get_act());
+    lv_event_send(obj, LV_EVENT_PRESSED, lv_indev_get_act());
     ui_release();
 }
 
@@ -253,10 +220,10 @@ static void btn_press_next_cb(void *arg, void *data)
 {
     lv_obj_t *obj = (lv_obj_t *) data;
     ui_acquire();
-    bool state = bsp_btn_get_state(BOARD_BTN_ID_NEXT);
-    lv_event_send(obj, state ? LV_EVENT_PRESSED : LV_EVENT_RELEASED, lv_indev_get_act());
+    lv_event_send(obj, LV_EVENT_RELEASED, lv_indev_get_act());
     ui_release();
 }
+#endif
 
 static void menu_prev_cb(lv_event_t *e)
 {
@@ -321,7 +288,6 @@ static void menu_enter_cb(lv_event_t *e)
 
 static void ui_main_menu(int32_t index_id)
 {
-    const board_res_desc_t *brd = bsp_board_get_description();
     if (!g_page_menu) {
         g_page_menu = lv_obj_create(lv_scr_act());
         lv_obj_set_size(g_page_menu, lv_obj_get_width(lv_obj_get_parent(g_page_menu)), lv_obj_get_height(lv_obj_get_parent(g_page_menu)) - lv_obj_get_height(ui_main_get_status_bar()));
@@ -395,10 +361,10 @@ static void ui_main_menu(int32_t index_id)
     lv_obj_set_style_text_color(label, lv_color_make(5, 5, 5), LV_PART_MAIN);
     lv_obj_center(label);
     lv_obj_add_event_cb(btn, menu_prev_cb, LV_EVENT_RELEASED, NULL);
-    if (!brd->BSP_INDEV_IS_TP) {
-        bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_DOWN, btn_press_prev_cb, btn);
-        bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_UP, btn_press_prev_cb, btn);
-    }
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_DOWN, btn_press_prev_cb, (void *)btn);
+    bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_UP, btn_press_prev_cb, (void *)btn);
+#endif
 
     btn = lv_btn_create(obj);
     lv_obj_add_style(btn, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
@@ -416,10 +382,10 @@ static void ui_main_menu(int32_t index_id)
     lv_obj_set_style_text_color(label, lv_color_make(5, 5, 5), LV_PART_MAIN);
     lv_obj_center(label);
     lv_obj_add_event_cb(btn, menu_next_cb, LV_EVENT_RELEASED, NULL);
-    if (!brd->BSP_INDEV_IS_TP) {
-        bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_DOWN, btn_press_next_cb, btn);
-        bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_UP, btn_press_next_cb, btn);
-    }
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_DOWN, btn_press_next_cb, (void *)btn);
+    bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_UP, btn_press_next_cb, (void *)btn);
+#endif
 }
 
 static void ui_after_boot(void)
@@ -447,10 +413,6 @@ static void clock_run_cb(lv_timer_t *timer)
 
 esp_err_t ui_main_start(void)
 {
-    const board_res_desc_t *brd = bsp_board_get_description();
-    BaseType_t ret_val = xTaskCreatePinnedToCore(lvgl_task, "lvgl_Task", 6 * 1024, NULL, configMAX_PRIORITIES - 3, &g_lvgl_task_handle, 0);
-    ESP_ERROR_CHECK((pdPASS == ret_val) ? ESP_OK : ESP_FAIL);
-
     ui_acquire();
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(237, 238, 239), LV_STATE_DEFAULT);
     ui_button_style_init();
@@ -463,7 +425,8 @@ esp_err_t ui_main_start(void)
         lv_indev_set_group(indev, g_btn_op_group);
     } else if (lv_indev_get_type(indev) == LV_INDEV_TYPE_BUTTON) {
         ESP_LOGI(TAG, "Input device type have button");
-        g_button_indev = indev;
+    } else if (lv_indev_get_type(indev) == LV_INDEV_TYPE_POINTER) {
+        ESP_LOGI(TAG, "Input device type have pointer");
     }
 
     // Create status bar
@@ -495,9 +458,9 @@ esp_err_t ui_main_start(void)
     ui_sr_anim_init();
 
     boot_animate_start(ui_after_boot);
-    if (GPIO_NUM_NC != brd->GPIO_MUTE_NUM) {
-        ui_mute_init();
-    }
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+    ui_mute_init();
+#endif
     ui_release();
     return ESP_OK;
 }
@@ -518,15 +481,21 @@ static void ui_led_set_visible(bool visible)
 
 void ui_btn_rm_all_cb(void)
 {
-    const board_res_desc_t *brd = bsp_board_get_description();
-    for (size_t i = 0; i < brd->BUTTON_TAB_LEN; i++) {
-        if (BOARD_BTN_ID_NEXT == brd->BUTTON_TAB[i].id) {
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    for (size_t i = 0; i < BOARD_BTN_ID_NUM; i++) {
+        if (BOARD_BTN_ID_NEXT == i) {
             bsp_btn_rm_all_callback(BOARD_BTN_ID_NEXT);
-        } else if (BOARD_BTN_ID_PREV == brd->BUTTON_TAB[i].id) {
+        } else if (BOARD_BTN_ID_PREV == i) {
             bsp_btn_rm_all_callback(BOARD_BTN_ID_PREV);
-        } else if (BOARD_BTN_ID_ENTER == brd->BUTTON_TAB[i].id) {
+        } else if (BOARD_BTN_ID_ENTER == i) {
             bsp_btn_rm_all_callback(BOARD_BTN_ID_ENTER);
         }
     }
+#elif CONFIG_BSP_BOARD_ESP32_S3_BOX
+    for (size_t i = 0; i < BOARD_BTN_ID_NUM; i++) {
+        if (BOARD_BTN_ID_HOME == i) {
+            bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+        }
+    }
+#endif
 }
-

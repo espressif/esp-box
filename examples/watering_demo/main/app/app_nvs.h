@@ -25,4 +25,3 @@ esp_err_t app_nvs_get_auto_watering_enable(bool *on);
 #ifdef __cplusplus
 }
 #endif
-

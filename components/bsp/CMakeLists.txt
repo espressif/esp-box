@@ -1,30 +1,21 @@
+set(bsp_src "src/storage/bsp_sdcard.c")
 
+if (CONFIG_BSP_BOARD_ESP32_S3_BOX)
+    list(APPEND bsp_src "src/boards/esp32_s3_box.c")
+elseif (CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite)
+    list(APPEND bsp_src "src/boards/esp32_s3_box_lite.c")
+else()
+    #message(FATAL_ERROR "Platform unknown.")
+endif()
 
+set(priv_requires "es7210" "esp-box")
+
+set(requires "driver" "fatfs")
 
 idf_component_register(
-    SRC_DIRS
-        "src/boards"
-        "src/peripherals"
-        "src/storage"
-        "src/codec/es7210"
-        "src/codec/es7243e"
-        "src/codec/es8156"
-        "src/codec/es8311"
-        "src/codec/es8388" 
+    SRCS ${bsp_src}
     INCLUDE_DIRS
         "src/boards"
         "include"
-        "src/codec/es7210"
-        "src/codec/es7243e"
-        "src/codec/es8156"
-        "src/codec/es8311"
-        "src/codec/es8388"
-        "src/codec/include"
-    REQUIRES
-        button
-        esp_hid
-        esp_lcd
-        fatfs
-        i2c_bus
-        i2c_devices
-        spiffs)
+    PRIV_REQUIRES ${priv_requires}
+    REQUIRES ${requires})

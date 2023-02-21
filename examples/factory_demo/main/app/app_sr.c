@@ -13,14 +13,11 @@
 #include "freertos/queue.h"
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
-#include "driver/i2s.h"
 #include "esp_task_wdt.h"
 #include "esp_check.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "app_sr.h"
-#include "bsp_codec.h"
-#include "bsp_i2s.h"
 
 #include "esp_mn_speech_commands.h"
 #include "esp_process_sdkconfig.h"
@@ -33,7 +30,6 @@
 #include "app_sr_handler.h"
 #include "model_path.h"
 #include "bsp_board.h"
-#include "bsp_btn.h"
 #include "settings.h"
 
 static const char *TAG = "app_sr";
@@ -219,7 +215,8 @@ static void audio_feed_task(void *arg)
         }
 
         /* Read audio data from I2S bus */
-        i2s_read(I2S_NUM_0, audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
+        bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
+        codec_handle->i2s_read_fn((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
 
         /* Save audio data to file if record enabled */
         if (g_sr_data->b_record_en && (NULL != g_sr_data->fp)) {
@@ -246,7 +243,6 @@ static void audio_detect_task(void *arg)
     //int nch = afe_handle->get_channel_num(afe_data);
 
     int mu_chunksize = g_sr_data->multinet->get_samp_chunksize(g_sr_data->model_data);
-    int chunk_num = g_sr_data->multinet->get_samp_chunknum(g_sr_data->model_data);
     assert(mu_chunksize == afe_chunksize);
     ESP_LOGI(TAG, "------------detect start------------\n");
 
@@ -423,7 +419,7 @@ esp_err_t app_sr_start(bool record_en)
     BaseType_t ret_val;
 
     models = esp_srmodel_init("model");
-    afe_handle = &ESP_AFE_SR_HANDLE;
+    afe_handle = (esp_afe_sr_iface_t *)&ESP_AFE_SR_HANDLE;
     afe_config_t afe_config = AFE_CONFIG_DEFAULT();
 
     afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);

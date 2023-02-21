@@ -10,9 +10,7 @@
 #include "esp_log.h"
 #include "esp_check.h"
 #include "bsp_board.h"
-#include "bsp_codec.h"
-#include "lvgl/lvgl.h"
-#include "bsp_btn.h"
+#include "lvgl.h"
 #include "app_wifi.h"
 #include "nvs_flash.h"
 #include "nvs.h"
@@ -33,7 +31,6 @@ typedef struct {
 } ui_param_t;
 
 #define MAIN_UI_STATUS_BAR_H (36)
-static int g_item_index = 0;
 static lv_group_t *g_btn_op_group = NULL;
 static button_style_t g_btn_styles;
 
@@ -42,58 +39,7 @@ static lv_obj_t *g_lab_time = NULL;
 static lv_obj_t *g_lab_wifi = NULL;
 static lv_obj_t *g_status_bar = NULL;
 
-static void ui_led_set_visible(bool visible);
 static void ui_arc_animation_ctrl(int start);
-
-
-static void ui_button_style_init(void)
-{
-    /*Init the style for the default state*/
-
-    lv_style_init(&g_btn_styles.style);
-
-    lv_style_set_radius(&g_btn_styles.style, 5);
-
-    // lv_style_set_bg_opa(&g_btn_styles.style, LV_OPA_100);
-    lv_style_set_bg_color(&g_btn_styles.style, lv_color_make(255, 255, 255));
-    // lv_style_set_bg_grad_color(&g_btn_styles.style, lv_color_make(255, 255, 255));
-    // lv_style_set_bg_grad_dir(&g_btn_styles.style, LV_GRAD_DIR_VER);
-
-    lv_style_set_border_opa(&g_btn_styles.style, LV_OPA_30);
-    lv_style_set_border_width(&g_btn_styles.style, 2);
-    lv_style_set_border_color(&g_btn_styles.style, lv_palette_main(LV_PALETTE_GREY));
-
-    lv_style_set_shadow_width(&g_btn_styles.style, 7);
-    lv_style_set_shadow_color(&g_btn_styles.style, lv_color_make(0, 0, 0));
-    lv_style_set_shadow_ofs_x(&g_btn_styles.style, 0);
-    lv_style_set_shadow_ofs_y(&g_btn_styles.style, 0);
-
-    // lv_style_set_pad_all(&g_btn_styles.style, 10);
-
-    // lv_style_set_outline_width(&g_btn_styles.style, 1);
-    // lv_style_set_outline_opa(&g_btn_styles.style, LV_OPA_COVER);
-    // lv_style_set_outline_color(&g_btn_styles.style, lv_palette_main(LV_PALETTE_RED));
-
-
-    // lv_style_set_text_color(&g_btn_styles.style, lv_color_white());
-    // lv_style_set_pad_all(&g_btn_styles.style, 10);
-
-    /*Init the pressed style*/
-
-    lv_style_init(&g_btn_styles.style_pr);
-
-    lv_style_set_border_opa(&g_btn_styles.style_pr, LV_OPA_40);
-    lv_style_set_border_width(&g_btn_styles.style_pr, 2);
-    lv_style_set_border_color(&g_btn_styles.style_pr, lv_palette_main(LV_PALETTE_GREY));
-
-
-    lv_style_init(&g_btn_styles.style_focus);
-    lv_style_set_outline_color(&g_btn_styles.style_focus, lv_color_make(255, 0, 0));
-
-    lv_style_init(&g_btn_styles.style_focus_no_outline);
-    lv_style_set_outline_width(&g_btn_styles.style_focus_no_outline, 0);
-
-}
 
 button_style_t *ui_button_styles(void)
 {
@@ -132,35 +78,11 @@ typedef struct {
 LV_IMG_DECLARE(img_about_us_src)
 LV_IMG_DECLARE(img_network_src)
 
-static item_desc_t item[] = {
-    { .name = "Network",        .img_src = (void *) &img_network_src },
-    { .name = "About Us",       .img_src = (void *) &img_about_us_src },
-};
-
-
 static lv_timer_t *g_arc_timer = NULL;
 
-static lv_obj_t *g_img_item = NULL;
 static lv_obj_t *g_btn_item = NULL;
 static lv_obj_t *g_btn_label_item = NULL;
 static lv_obj_t *g_btn_arc_item = NULL;
-static lv_obj_t *g_lab_item = NULL;
-static lv_obj_t *g_led_item[5];
-static size_t g_item_size = sizeof(item) / sizeof(item[0]);
-
-
-static void btn_setting_handler(lv_event_t *e)
-{
-    ESP_LOGI(TAG, "switch to setting ui");
-    ui_net_config_start(NULL);
-}
-
-static void btn_watering_event_send(void *data)
-{
-    lv_obj_t *label = (lv_obj_t *) data;
-    lv_obj_t *btn = lv_obj_get_parent(label);
-    lv_event_send(btn, LV_EVENT_VALUE_CHANGED, label);
-}
 
 static void btn_watering_handler(lv_event_t *e)
 {
