@@ -14,27 +14,27 @@ extern "C" {
 #endif
 
 /**
- * @brief 
- * 
+ * @brief
+ *
  */
 void ui_sr_anim_init(void);
 
 /**
- * @brief 
- * 
+ * @brief
+ *
  */
 void sr_anim_start(void);
 
 /**
- * @brief 
- * 
+ * @brief
+ *
  */
 void sr_anim_stop(void);
 
 /**
- * @brief 
- * 
- * @param text 
+ * @brief
+ *
+ * @param text
  */
 void sr_anim_set_text(char *text);
 

@@ -13,14 +13,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
-#include "driver/i2s.h"
 #include "esp_check.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "app_audio.h"
 #include "app_sr.h"
-#include "bsp_codec.h"
-#include "bsp_i2s.h"
 #include "esp_afe_sr_models.h"
 #include "esp_mn_models.h"
 #include "app_sr_handler.h"
@@ -28,6 +25,7 @@
 #include "model_path.h"
 #include "esp_mn_speech_commands.h"
 #include "esp_process_sdkconfig.h"
+#include "bsp_board.h"
 
 #define I2S_CHANNEL_NUM     (2)
 
@@ -57,7 +55,8 @@ static void audio_feed_task(void *pvParam)
 
     while (true) {
         /* Read audio data from I2S bus */
-        i2s_read(I2S_NUM_0, audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
+        bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
+        codec_handle->i2s_read_fn((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
 
         /* Save audio data to file if record enabled */
         if (b_record_en && (NULL != fp)) {
@@ -91,12 +90,11 @@ static void audio_detect_task(void *pvParam)
     int afe_chunksize = afe_handle->get_fetch_chunksize(afe_data);
 
     int mu_chunksize = multinet->get_samp_chunksize(model_data);
-    int chunk_num = multinet->get_samp_chunknum(model_data);
     assert(mu_chunksize == afe_chunksize);
     ESP_LOGI(TAG, "------------detect start------------\n");
 
     while (true) {
-        afe_fetch_result_t* res = afe_handle->fetch(afe_data);
+        afe_fetch_result_t *res = afe_handle->fetch(afe_data);
         if (!res || res->ret_value == ESP_FAIL) {
             ESP_LOGE(TAG, "fetch error!");
             //break;
@@ -110,8 +108,7 @@ static void audio_detect_task(void *pvParam)
                 .command_id = 0,
             };
             xQueueSend(g_result_que, &result, 10);
-        }
-        else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
+        } else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Channel verified");
             detect_flag = true;
             afe_handle->disable_wakenet(afe_data);
@@ -162,7 +159,7 @@ static void audio_detect_task(void *pvParam)
                     .command_id = sr_command_id,
                 };
                 xQueueSend(g_result_que, &result, 10);
- #if !SR_CONTINUE_DET
+#if !SR_CONTINUE_DET
                 afe_handle->enable_wakenet(afe_data);
                 detect_flag = false;
 #endif

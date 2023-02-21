@@ -6,11 +6,9 @@
 
 #include "esp_log.h"
 #include "bsp_board.h"
-#include "bsp_codec.h"
 #include "audio_player.h"
 #include "file_iterator.h"
-#include "lvgl/lvgl.h"
-#include "bsp_btn.h"
+#include "lvgl.h"
 #include "ui_main.h"
 #include "settings.h"
 
@@ -31,7 +29,8 @@ static void ui_player_page_vol_inc_click_cb(lv_event_t *e)
         v++;
     }
     param->volume = v * 10;
-    bsp_codec_set_voice_volume(param->volume);
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
+    codec_handle->volume_set_fn(param->volume, NULL);
     lv_bar_set_value(obj, v, LV_ANIM_ON);
 }
 
@@ -44,15 +43,17 @@ static void ui_player_page_vol_dec_click_cb(lv_event_t *e)
         v -= 1;
     }
     param->volume = v * 10;
-    bsp_codec_set_voice_volume(param->volume);
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
+    codec_handle->volume_set_fn(param->volume, NULL);
     lv_bar_set_value(obj, v, LV_ANIM_ON);
 }
 
-static void play_present() {
+static void play_present()
+{
     char filename[128];
     file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
-    FILE* fp = fopen(filename, "rb");
-    if(!fp) {
+    FILE *fp = fopen(filename, "rb");
+    if (!fp) {
         ESP_LOGE(TAG, "unable to open '%s'", filename);
         return;
     }
@@ -66,12 +67,13 @@ static void ui_player_page_pause_click_cb(lv_event_t *e)
 
     if (g_media_is_playing) {
         audio_player_pause();
+        g_media_is_playing = false;
         lv_label_set_text_static(obj, LV_SYMBOL_PLAY);
     } else {
         play_present();
+        g_media_is_playing = true;
         lv_label_set_text_static(obj, LV_SYMBOL_PAUSE);
     }
-    g_media_is_playing = !g_media_is_playing;
 }
 
 static void ui_player_page_prev_click_cb(lv_event_t *e)
@@ -105,15 +107,23 @@ static void ui_player_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
-    if (ui_get_button_indev()) {
-        lv_indev_set_button_points(ui_get_button_indev(), NULL);
-    }
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+#endif
     audio_player_callback_register(NULL, NULL);
     settings_write_parameter_to_nvs(); // save volume to nvs
     lv_obj_del(obj);
     if (g_player_end_cb) {
         g_player_end_cb();
     }
+}
+
+static void btn_return_down_cb(void *handle, void *arg)
+{
+    lv_obj_t *obj = (lv_obj_t *) arg;
+    ui_acquire();
+    lv_event_send(obj, LV_EVENT_CLICKED, NULL);
+    ui_release();
 }
 
 static void audio_cb(audio_player_cb_ctx_t *ctx)
@@ -125,8 +135,8 @@ static void audio_cb(audio_player_cb_ctx_t *ctx)
         g_media_is_playing = false;
     }
 
-    if((AUDIO_PLAYER_CALLBACK_EVENT_PLAYING == ctx->audio_event) ||
-       (AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT == ctx->audio_event)) {
+    if ((AUDIO_PLAYER_CALLBACK_EVENT_PLAYING == ctx->audio_event) ||
+            (AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT == ctx->audio_event)) {
         g_media_is_playing = true;
     }
 }
@@ -153,6 +163,9 @@ void ui_media_player(void (*fn)(void))
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_center(lab_btn_text);
     lv_obj_add_event_cb(btn_return, ui_player_page_return_click_cb, LV_EVENT_CLICKED, page);
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+#endif
 
     LV_IMG_DECLARE(img_music)
     lv_obj_t *img = lv_img_create(page);
@@ -235,7 +248,8 @@ void ui_media_player(void (*fn)(void))
     lv_obj_align(lab_btn_text, LV_ALIGN_LEFT_MID, 10, 0);
 
     sys_param_t *param = settings_get_parameter();
-    bsp_codec_set_voice_volume(param->volume);
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
+    codec_handle->volume_set_fn(param->volume, NULL);
     lv_obj_t *vol_bar = lv_bar_create(vol_panel);
     lv_obj_set_size(vol_bar, 100, 4);
     lv_bar_set_range(vol_bar, 0, 10);
@@ -278,15 +292,5 @@ void ui_media_player(void (*fn)(void))
         lv_group_add_obj(ui_get_btn_op_group(), btn_vol_inc);
         lv_group_add_obj(ui_get_btn_op_group(), btn_return);
     }
-    if (ui_get_button_indev()) {
-        lv_obj_update_layout(btn_return);
-        lv_area_t a;
-        lv_obj_get_click_area(btn_return, &a);
-        static lv_point_t points_array[1];
-        points_array[0].x = (a.x1 + a.x2) / 2;
-        points_array[0].y = (a.y1 + a.y2) / 2;
-        lv_indev_set_button_points(ui_get_button_indev(), points_array);
-    }
     audio_player_callback_register(audio_cb, NULL);
 }
-

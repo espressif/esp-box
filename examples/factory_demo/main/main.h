@@ -9,7 +9,7 @@
 /** Major version number (X.x.x) */
 #define BOX_DEMO_VERSION_MAJOR 0
 /** Minor version number (x.X.x) */
-#define BOX_DEMO_VERSION_MINOR 3
+#define BOX_DEMO_VERSION_MINOR 4
 /** Patch version number (x.x.X) */
 #define BOX_DEMO_VERSION_PATCH 0
 

@@ -6,7 +6,7 @@
 
 #include "esp_log.h"
 #include "bsp_board.h"
-#include "lvgl/lvgl.h"
+#include "lvgl.h"
 #include "app_wifi.h"
 #include "ui_main.h"
 

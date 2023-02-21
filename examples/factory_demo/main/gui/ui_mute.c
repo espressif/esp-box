@@ -7,8 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "bsp_board.h"
-#include "bsp_codec.h"
-#include "driver/gpio.h"
+#include "bsp/esp-bsp.h"
 #include "ui_main.h"
 
 LV_IMG_DECLARE(mute_on)
@@ -35,8 +34,9 @@ static void mute_timer_cb(lv_timer_t *timer)
         } else if (disp_time != mute_disp_count) {
             lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
             lv_obj_move_foreground(obj);
-            if (mute_disp_count == 2) {
-                bsp_codec_init(AUDIO_HAL_16K_SAMPLES);
+            if ((mute_disp_count == 2) && (!mute_state)) {
+                bsp_codec_config_t *bsp_codec_config = bsp_board_get_codec_handle();
+                bsp_codec_config->codec_reconfig_fn();
             }
         } else {
             lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
@@ -92,15 +92,15 @@ static void ui_mute_set_state(bool mute)
  *
  * @param arg Unused
  */
-void mute_btn_handler(void *arg)
+void mute_btn_handler(void *handle, void *arg)
 {
-    (void) arg;
-    const board_res_desc_t *brd = bsp_board_get_description();
-    if (brd->GPIO_MUTE_LEVEL == gpio_get_level(brd->GPIO_MUTE_NUM)) {
-        esp_rom_printf(DRAM_STR("Mute Off"));
-        ui_mute_set_state(0);
-    } else {
-        esp_rom_printf(DRAM_STR("Mute On"));
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+    button_event_t event = (button_event_t)arg;
+
+    if (BUTTON_PRESS_DOWN == event) {
         ui_mute_set_state(1);
+    } else {
+        ui_mute_set_state(0);
     }
+#endif
 }

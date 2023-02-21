@@ -14,9 +14,8 @@
 #include "file_manager.h"
 #include "audio_player.h"
 #include "file_iterator.h"
-#include "driver/i2s.h"
 #include "bsp_board.h"
-#include "bsp_codec.h"
+#include "bsp/esp-bsp.h"
 #include "ui_sr.h"
 #include "app_sr_handler.h"
 #include "settings.h"
@@ -44,7 +43,7 @@ static audio_data_t g_audio_data[AUDIO_MAX];
 
 static esp_err_t sr_echo_play(audio_segment_t audio)
 {
-    bsp_board_power_ctrl(POWER_MODULE_AUDIO, false); // turn off the speaker to avoid play some noise
+    bsp_audio_poweramp_enable(false); // turn off the speaker to avoid play some noise
 
     typedef struct {
         // The "RIFF" chunk descriptor
@@ -68,6 +67,7 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     /**
      * read head of WAV file
      */
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
     if (NULL == strstr((char *)wav_head->Subchunk1ID, "fmt") &&
@@ -79,21 +79,20 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     size_t len = g_audio_data[audio].len - sizeof(wav_header_t);
     len = len & 0xfffffffc;
     ESP_LOGD(TAG, "frame_rate=%d, ch=%d, width=%d", wav_head->SampleRate, wav_head->NumChannels, wav_head->BitsPerSample);
-    i2s_set_clk(I2S_NUM_0, wav_head->SampleRate, wav_head->BitsPerSample, I2S_CHANNEL_STEREO);
+    codec_handle->i2s_reconfig_clk_fn(wav_head->SampleRate, wav_head->BitsPerSample, I2S_SLOT_MODE_STEREO);
 
-    i2s_zero_dma_buffer(I2S_NUM_0);
+    //i2s_zero_dma_buffer(I2S_NUM_0);
     sys_param_t *param = settings_get_parameter();
-    bsp_codec_set_voice_volume(param->volume);
-    bsp_codec_set_mute(false);
+    codec_handle->volume_set_fn(param->volume, NULL);
+    codec_handle->mute_set_fn(false);
     ESP_LOGD(TAG, "bsp_codec_set_voice_volume=%d", param->volume);
 
     vTaskDelay(pdMS_TO_TICKS(50));
-    bsp_board_power_ctrl(POWER_MODULE_AUDIO, true);// turn on the speaker
+    bsp_audio_poweramp_enable(true);
 
     size_t bytes_written = 0;
     b_audio_playing = true;
-    i2s_write(I2S_NUM_0, p, len, &bytes_written, portMAX_DELAY);
-    i2s_zero_dma_buffer(I2S_NUM_0);
+    codec_handle->i2s_write_fn((char *)p, len, &bytes_written, portMAX_DELAY);
     vTaskDelay(pdMS_TO_TICKS(20));
     b_audio_playing = false;
     return ESP_OK;

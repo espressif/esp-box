@@ -38,7 +38,7 @@ esp_err_t app_nvs_get_watering_time(int *time)
     }
     ret = nvs_open(NVS_NAMESPACE_APP_WATERING_CFG, NVS_READWRITE, &handle);
     ESP_RETURN_ON_ERROR(ret, TAG, "nvs open failed");
-    ret = nvs_get_i32(handle, "watering_time", time);
+    ret = nvs_get_i32(handle, "watering_time", (int32_t *) time);
     nvs_close(handle);
 
     if (ret == ESP_ERR_NVS_NOT_FOUND) {
@@ -73,7 +73,7 @@ esp_err_t app_nvs_get_lower_humidity(int *humidity)
     }
     ret = nvs_open(NVS_NAMESPACE_APP_WATERING_CFG, NVS_READWRITE, &handle);
     ESP_RETURN_ON_ERROR(ret, TAG, "nvs open failed");
-    ret = nvs_get_i32(handle, "lower_humidity", humidity);
+    ret = nvs_get_i32(handle, "lower_humidity", (int32_t *) humidity);
     nvs_close(handle);
 
     if (ret == ESP_ERR_NVS_NOT_FOUND) {

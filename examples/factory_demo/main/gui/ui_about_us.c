@@ -6,8 +6,8 @@
 
 #include "esp_log.h"
 #include "bsp_board.h"
-#include "lvgl/lvgl.h"
-#include "bsp_btn.h"
+#include "bsp/esp-bsp.h"
+#include "lvgl.h"
 #include "app_led.h"
 #include "app_sr.h"
 #include "settings.h"
@@ -26,14 +26,22 @@ static void ui_about_us_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
-    if (ui_get_button_indev()) {
-        lv_indev_set_button_points(ui_get_button_indev(), NULL);
-    }
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+#endif
     lv_obj_del(obj);
-    bsp_btn_register_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK, NULL, NULL);
+    bsp_btn_rm_all_callback(BOARD_BTN_ID_BOOT);
     if (g_about_us_end_cb) {
         g_about_us_end_cb();
     }
+}
+
+static void btn_return_down_cb(void *handle, void *arg)
+{
+    lv_obj_t *obj = (lv_obj_t *) arg;
+    ui_acquire();
+    lv_event_send(obj, LV_EVENT_CLICKED, NULL);
+    ui_release();
 }
 
 static void factory_end_cb(void)
@@ -41,7 +49,7 @@ static void factory_end_cb(void)
     ui_about_us_start(g_about_us_end_cb);
 }
 
-static void btn_factory_cb(void *arg)
+static void btn_factory_cb(void *handle, void *arg)
 {
     lv_obj_t *obj = (lv_obj_t *) arg;
     ESP_LOGI(TAG, "enter factory mode");
@@ -50,7 +58,7 @@ static void btn_factory_cb(void *arg)
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
     lv_obj_del(obj);
-    bsp_btn_register_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK, NULL, NULL);
+    bsp_btn_rm_all_callback(BOARD_BTN_ID_BOOT);
     ui_factory_start(factory_end_cb);
     ui_release();
 
@@ -81,17 +89,12 @@ void ui_about_us_start(void (*fn)(void))
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_center(lab_btn_text);
     lv_obj_add_event_cb(btn_return, ui_about_us_page_return_click_cb, LV_EVENT_CLICKED, page);
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+#endif
+
     if (ui_get_btn_op_group()) {
         lv_group_add_obj(ui_get_btn_op_group(), btn_return);
-    }
-    if (ui_get_button_indev()) {
-        lv_obj_update_layout(btn_return);
-        lv_area_t a;
-        lv_obj_get_click_area(btn_return, &a);
-        static lv_point_t points_array[1];
-        points_array[0].x = (a.x1 + a.x2) / 2;
-        points_array[0].y = (a.y1 + a.y2) / 2;
-        lv_indev_set_button_points(ui_get_button_indev(), points_array);
     }
 
     const sys_param_t *param = settings_get_parameter();
@@ -122,5 +125,5 @@ void ui_about_us_start(void (*fn)(void))
     lv_label_set_text(lab, msg);
     lv_obj_align(lab, LV_ALIGN_BOTTOM_LEFT, 0, -10);
 
-    bsp_btn_register_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK, btn_factory_cb, page);
+    bsp_btn_register_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK, btn_factory_cb, (void *)page);
 }

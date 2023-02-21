@@ -1,23 +1,12 @@
 menu "HMI Board Config"
 
-
-
-    choice LCD_INTERFACE
-        prompt "Select LCD interface"
-        depends on ESP_CUSTOM_BOARD
-        default LCD_INTERFACE_I80
-        help
-            Select LCD interface of custom board
-
-    config LCD_INTERFACE_I2C
-        bool "LCD_INTERFACE_I2C"
-    config LCD_INTERFACE_I80
-        bool "LCD_INTERFACE_I80"
-    config LCD_INTERFACE_SPI
-        bool "LCD_INTERFACE_SPI"
-
+    choice BSP_LCD_BOARD
+        prompt "Select BSP board"
+        default BSP_BOARD_ESP32_S3_BOX
+        config BSP_BOARD_ESP32_S3_BOX
+            bool "BSP board esp32_s3_box"
+        config BSP_BOARD_ESP32_S3_BOX_Lite
+            bool "BSP board esp32_s3_box_lite [Not Supported]"
     endchoice
-
-
    
 endmenu

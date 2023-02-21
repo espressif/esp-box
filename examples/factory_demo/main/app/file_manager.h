@@ -29,7 +29,7 @@ const char *fm_get_rootpath(void);
 const char *fm_get_filename(const char *file);
 size_t fm_get_file_size(const char *filepath);
 esp_err_t fm_file_table_create(char ***list_out, uint16_t *files_number, const char *filter_suffix);
-esp_err_t fm_file_table_free(char ***list,uint16_t files_number);
+esp_err_t fm_file_table_free(char ***list, uint16_t files_number);
 int fm_mkdir(const char *path);
 
 #ifdef __cplusplus
@@ -37,4 +37,3 @@ int fm_mkdir(const char *path);
 #endif
 
 #endif
-

@@ -7,12 +7,12 @@
 
 #include <stdbool.h>
 #include <stdio.h>
-#include "driver/i2s.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_heap_caps.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
+#include "bsp_board.h"
 
 static const char *TAG = "app_audio";
 static bool b_audio_playing = false;
@@ -24,11 +24,12 @@ static void audio_beep_task(void *pvParam)
 
     size_t bytes_written = 0;
     size_t bytes_to_write = heap_caps_get_allocated_size(audio_buffer);
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
 
     while (true) {
         xSemaphoreTake(audio_sem, portMAX_DELAY);
         b_audio_playing = true;
-        i2s_write(I2S_NUM_0, audio_buffer, bytes_to_write, &bytes_written, portMAX_DELAY);
+        codec_handle->i2s_write_fn((char *)audio_buffer, bytes_to_write, &bytes_written, portMAX_DELAY);
         b_audio_playing = false;
 
         /* It's useful if wake audio didn't finish playing when next wake word detetced */

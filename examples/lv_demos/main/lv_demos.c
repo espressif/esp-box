@@ -21,9 +21,9 @@ void app_main(void)
 
     /**
      * @brief Demos provided by LVGL.
-     * 
+     *
      * @note Only enable one demo every time.
-     * 
+     *
      */
 #if LV_USE_DEMO_WIDGETS
     lv_demo_widgets();      /* A widgets example. This is what you get out of the box */
