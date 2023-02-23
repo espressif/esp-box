@@ -14,6 +14,10 @@
         <img src="https://img.shields.io/github/downloads/espressif/esp-box/total" /></a>
 </p>
 
+<a href="https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml">
+    <img alt="Try it with ESP Launchpad" src="https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png" width="200" height="56">
+</a>
+
 **重要提醒：**
 > 我们建议您在第一次收到产品时[更新应用固件](./docs/firmware_update_cn.md)以获得最新功能和 bug 的修复，点此[链接](./docs/getting_started_cn.md)获取应用固件的使用说明。点击[此处](https://github.com/espressif/esp-box/releases)查看历史固件。
 

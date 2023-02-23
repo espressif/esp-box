@@ -26,9 +26,21 @@ For the latest firmware, please go to https://github.com/espressif/esp-box/relea
 
 Please follow the link below corresponding to your OS to update the firmware.
 
-| [<center> Windows </center>](#firmware-update-for-windows) | [<center> Linux </center>](#firmware-update-for-linux) | [<center> macOS </center>](#firmware-update-for-macos) |
-|:----:|:----:|:----:|
-| [<img src="_static/windows-logo.png" width="40" align="center" />](#firmware-update-for-windows) | [<img src="_static/linux-logo.png" width="40"  align="center" />](#firmware-update-for-linux) | [<img src="_static/macos-logo.jpg" width="40" align="center" />](#firmware-update-for-macos) |
+| [<center> ESP Launchpad </center>](#Updating-Firmware-with-ESP-Launchpad) | [<center> Windows </center>](#Updating-Firmware-for-Windows) | [<center> Linux </center>](#Updating-Firmware-for-Linux) | [<center> macOS </center>](#Updating-Firmware-for-macOS) |
+|:----:|:----:|:----:|:----:|
+|<img alt="Try it with ESP Launchpad" src="https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png" width="200" height="56"> | [<img src="_static/windows-logo.png" width="40" align="center" />](#Updating-Firmware-for-Windows) | [<img src="_static/linux-logo.png" width="40"  align="center" />](#Updating-Firmware-for-Linux) | [<img src="_static/macos-logo.jpg" width="40" align="center" />](#Updating-Firmware-for-macOS) |
+
+### Updating Firmware with ESP-Launchpad
+
+ESP Launchpad is a web based tool, available for flashing firmware application to the ESP32 device connected via USB serial port. You can just click [here](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml) to start.
+
+1. Connect your development board to the computer through a USB Type-C cable.
+2. `Connect` the device device follow indicated steps in the figure below.
+3. Choose a bin from `Select Application` and click `Flash` to update.
+
+   <div align="center">
+   <img src="_static/launchpad_en.png" width="580">
+   </div>
 
 ### Updating Firmware for Windows 
 
@@ -63,7 +75,6 @@ We recommend using `Windows 10` and above. Under `Windows 10` system, the driver
    <div align="center">
    <img src="_static/dl_tool_windows_3.png" width="300">
    </div>
-
 
 ### Updating Firmware for Linux 
 
