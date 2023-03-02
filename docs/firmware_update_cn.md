@@ -26,9 +26,21 @@ BOX 系列开发板支持使用 USB 接口更新固件，您仅需要准备：
 
 不同操作系统的固件更新方法，请参考以下链接：
 
-| [<center> Windows </center>](#windows-系统更新固件说明) | [<center> Linux </center>](#linux-系统更新固件说明) | [<center> macOS </center>](#macos-系统更新固件说明) |
-|:----:|:----:|:----:|
-| [<img src="_static/windows-logo.png" width="40" align="center" />](#windows-系统更新固件说明) | [<img src="_static/linux-logo.png" width="40" align="center" />](#linux-系统更新固件说明) | [<img src="_static/macos-logo.jpg" width="40" align="center" />](#macos-系统更新固件说明) |
+| [<center> ESP Launchpad </center>](#ESP-Launchpad-更新固件说明) | [<center> Windows </center>](#windows-系统更新固件说明) | [<center> Linux </center>](#linux-系统更新固件说明) | [<center> macOS </center>](#macos-系统更新固件说明) |
+|:----:|:----:|:----:|:----:|
+|[<img alt="Try it with ESP Launchpad" src="https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png" width="200" height="56">](#ESP-Launchpad-更新固件说明) | [<img src="_static/windows-logo.png" width="40" align="center" />](#windows-系统更新固件说明) | [<img src="_static/linux-logo.png" width="40"  align="center" />](#linux-系统更新固件说明) | [<img src="_static/macos-logo.jpg" width="40" align="center" />](#macos-系统更新固件说明) |
+
+### ESP-Launchpad 更新固件说明
+
+ESP Launchpad 是一个基于 web 的 ESP32 固件下载工具，用户可以通过 USB 接口直接在[网页](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml)上操作。
+
+1. 使用 USB Type-C 数据线将开发板接入电脑。
+2. 如下图所示，点击 `Connect` 选择并连接设备。
+3. 在 `Select Application` 下拉选择固件，点击 `Flash` 开始更新。
+
+   <div align="center">
+   <img src="_static/launchpad.png" width="580">
+   </div>
 
 ### Windows 系统更新固件说明
 
