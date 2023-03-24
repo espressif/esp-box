@@ -1,0 +1,18 @@
+{
+  "codename": "KaiTiCN20",
+  "ttf_path": "\\assets\\KaiTi.ttf",
+  "bin_path": "\\assets\\ui_font_KaiTiCN20.bin",
+  "c_path": "\\assets\\ui_font_KaiTiCN20.c",
+  "cfg_path": "\\assets\\ui_font_KaiTiCN20.fcfg",
+  "size": 20,
+  "bpp": 4,
+  "letters": 0,
+  "ranges": [
+    "0x4E00-0x9FA5",
+    "0x20-0x7F",
+    "0xFF01-0xFF5E"
+  ],
+  "symbols": "·~！@#￥%……&*（）——+-=【{】}、|；：’“，《。》/？",
+  "customparams": "--no-compress --no-prefilter",
+  "uploaded": false
+}
