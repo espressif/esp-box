@@ -1,5 +1,7 @@
 ## IDF Component Manager Manifest File
 dependencies:
+  idf: ">=5.0"
+
   chmorgan/esp-audio-player: "1.0.4"
   chmorgan/esp-file-iterator: "1.0.0"
   chmorgan/esp-libhelix-mp3: "1.0.3"
@@ -11,7 +13,7 @@ dependencies:
   espressif/esp_schedule:
     path: components/esp_schedule
     git: https://github.com/espressif/esp-rainmaker.git
-  espressif/esp-sr: ^1
+  espressif/esp-sr: =1.1.0
   espressif/led_strip:
     version: "~2.0.0"
     rules:
