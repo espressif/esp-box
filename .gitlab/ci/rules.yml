@@ -1,0 +1,96 @@
+############
+# Patterns #
+############
+
+# components folder, in the alphabetic order
+.patterns-components_bsp: &patterns-components_bsp
+  - "components/bsp/**/*"
+
+# examples folder, in the alphabetic order
+.patterns-example_factory_demo: &patterns-example_factory_demo
+  - "examples/factory_demo/**/*"
+
+.patterns-example_image_display: &patterns-example_image_display
+  - "examples/image_display/**/*"
+
+.patterns-example_lv_demos: &patterns-example_lv_demos
+  - "examples/lv_demos/**/*"
+
+.patterns-example_mp3_demo: &patterns-example_mp3_demo
+  - "examples/mp3_demo/**/*"
+
+.patterns-example_usb_headset: &patterns-example_usb_headset
+  - "examples/usb_headset/**/*"
+
+.patterns-example_watering_demo: &patterns-example_watering_demo
+  - "examples/watering_demo/**/*"
+
+##############
+# if anchors #
+##############
+.if-protected: &if-protected
+  if: '($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_BRANCH =~ /^release\/v/ || $CI_COMMIT_TAG =~ /^v\d+\.\d+(\.\d+)?($|-)/)'
+
+.if-dev-push: &if-dev-push
+  if: '$CI_COMMIT_REF_NAME != "master" && $CI_COMMIT_BRANCH !~ /^release\/v/ && $CI_COMMIT_TAG !~ /^v\d+\.\d+(\.\d+)?($|-)/ && ($CI_PIPELINE_SOURCE == "push" || $CI_PIPELINE_SOURCE == "merge_request_event")'
+
+##################
+# Auto Generated #
+##################
+.if-label-build: &if-label-build
+  if: '$CI_MERGE_REQUEST_LABELS =~ /^(?:[^,\n\r]+,)*build(?:,[^,\n\r]+)*$/i'
+
+# rules for examples
+.rules:build:example_factory_demo:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_factory_demo
+
+.rules:build:example_image_display:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_image_display
+
+.rules:build:example_lv_demos:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_lv_demos
+
+.rules:build:example_mp3_demo:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_mp3_demo
+
+.rules:build:example_usb_headset:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_usb_headset
+
+.rules:build:example_watering_demo:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_watering_demo

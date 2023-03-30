@@ -2,6 +2,21 @@ stages:
   - build
   - deploy
 
+workflow:
+  rules:
+    # Disable those non-protected push triggered pipelines
+    - if: '$CI_COMMIT_REF_NAME != "master" && $CI_COMMIT_BRANCH !~ /^release\/v/ && $CI_COMMIT_TAG !~ /^v\d+\.\d+(\.\d+)?($|-)/ && $CI_PIPELINE_SOURCE == "push"'
+      when: never
+    # when running merged result pipelines, it would create a temp commit id. use $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA instead of $CI_COMMIT_SHA.
+    # Please use PIPELINE_COMMIT_SHA at all places that require a commit sha
+    - if: $CI_OPEN_MERGE_REQUESTS != null
+      variables:
+        PIPELINE_COMMIT_SHA: $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA
+    - if: $CI_OPEN_MERGE_REQUESTS == null
+      variables:
+        PIPELINE_COMMIT_SHA: $CI_COMMIT_SHA
+    - when: always
+
 variables:
   ESP_BOX_PATH: "$CI_PROJECT_DIR"
   BATCH_BUILD: "1"
@@ -19,46 +34,7 @@ before_script:
   - git --version
   - git submodule update --init --recursive --force
 
-.build_all_examples_script: &build_all_examples_script
-  - for EXAMPLE in $EXAMPLES; do
-  - cd $CI_PROJECT_DIR/examples/$EXAMPLE
-  - echo Building $EXAMPLE
-  - idf.py fullclean
-  - idf.py build
-  - echo Build Complete for $EXAMPLE
-  - done
-
-.build_template:
-  stage: build
-  tags:
-    - build
-  variables:
-    EXAMPLES: "factory_demo image_display lv_demos mp3_demo watering_demo"
-  script:
-    - *build_all_examples_script
-
-build_idf_v5.0:
-  extends: .build_template
-  image: espressif/idf:release-v5.0
-
-push_to_github:
-  stage: deploy
-  only:
-    - master
-    - /^release\/v/
-#  when: on_success
-  image: $CI_DOCKER_REGISTRY/esp32-ci-env
-  variables:
-    GIT_STRATEGY: clone
-  before_script:
-    - echo "skip default before_script"
-  script:
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo -n $GH_PUSH_KEY > ~/.ssh/id_rsa_base64
-    - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-    - git remote remove github &>/dev/null || true
-    - git remote add github git@github.com:espressif/esp-box.git
-    - ${ESP_BOX_PATH}/tools/ci/push_to_github.sh
+include:
+  - '.gitlab/ci/rules.yml'
+  - '.gitlab/ci/build.yml'
+  - '.gitlab/ci/deploy.yml'
