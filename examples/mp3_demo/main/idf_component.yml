@@ -4,4 +4,4 @@ dependencies:
   chmorgan/esp-libhelix-mp3: "1.0.3"
   chmorgan/esp-file-iterator: "1.0.0"
   chmorgan/esp-audio-player: "1.0.4"
-  espressif/esp-box: "2.*"
+  espressif/esp-box: "2.3.*"

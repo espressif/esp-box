@@ -11,7 +11,6 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 #include "driver/i2s_std.h"
-#include "esp_lcd_types.h"
 #include "bsp/esp-bsp.h"
 #include "iot_button.h"
 
