@@ -46,6 +46,24 @@
       --collect-size-info size_info.txt
       --default-build-targets $IDF_TARGET
 
+build_example_chatgpt_demo_v5.0:
+  extends:
+    - .build_examples_template
+    - .rules:build:example_chatgpt_demo
+  image: espressif/idf:release-v5.0
+  variables:
+    IDF_TARGET: esp32s3
+    EXAMPLE_DIR: examples/chatgpt_demo
+
+build_example_chatgpt_demo_latest:
+  extends:
+    - .build_examples_template
+    - .rules:build:example_chatgpt_demo
+  image: espressif/idf:latest
+  variables:
+    IDF_TARGET: esp32s3
+    EXAMPLE_DIR: examples/chatgpt_demo
+
 build_example_factory_demo_v5.0:
   extends:
     - .build_examples_template

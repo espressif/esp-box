@@ -7,6 +7,9 @@
   - "components/bsp/**/*"
 
 # examples folder, in the alphabetic order
+.patterns-example_chatgpt_demo: &patterns-example_chatgpt_demo
+  - "examples/chatgpt_demo/**/*"
+
 .patterns-example_factory_demo: &patterns-example_factory_demo
   - "examples/factory_demo/**/*"
 
@@ -41,6 +44,15 @@
   if: '$CI_MERGE_REQUEST_LABELS =~ /^(?:[^,\n\r]+,)*build(?:,[^,\n\r]+)*$/i'
 
 # rules for examples
+.rules:build:example_chatgpt_demo:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_chatgpt_demo
+
 .rules:build:example_factory_demo:
   rules:
     - <<: *if-protected
