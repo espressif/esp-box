@@ -10,7 +10,6 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_http_client.h"
-#include <json_parser.h>
 #include "app_audio.h"
 #include "app_ui_ctrl.h"
 #include "audio_player.h"
@@ -145,7 +144,7 @@ esp_err_t text_to_speech_request(const char *message, AUDIO_CODECS_FORMAT code_f
         .event_handler = http_event_handler,
         .buffer_size = 128000,
         .buffer_size_tx = 4000,
-        .timeout_ms = 30000,
+        .timeout_ms = 40000,
         .crt_bundle_attach = esp_crt_bundle_attach,
     };
 

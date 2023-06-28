@@ -24,12 +24,24 @@ extern lv_obj_t * ui_ScreenSetup;
 extern lv_obj_t * ui_ImageSetupTextBg;
 extern lv_obj_t * ui_PanelSetupWifi;
 extern lv_obj_t * ui_LabelSetupWifi;
+void ui_event_ImageSetupWifiReset(lv_event_t * e);
+extern lv_obj_t * ui_ImageSetupWifiReset;
 extern lv_obj_t * ui_PanelSetupSteps;
 extern lv_obj_t * ui_LabelSetupStepContent;
 extern lv_obj_t * ui_LabelSetupStepTile;
 void ui_event_ButtonSetup(lv_event_t * e);
 extern lv_obj_t * ui_ButtonSetup;
 extern lv_obj_t * ui_LabelSetupBtn;
+// SCREEN: ui_ScreenWifiReset
+void ui_ScreenWifiReset_screen_init(void);
+extern lv_obj_t * ui_ScreenWifiReset;
+extern lv_obj_t * ui_LabelWifiResetTitle;
+void ui_event_ButtonWifiResetConfirm(lv_event_t * e);
+extern lv_obj_t * ui_ButtonWifiResetConfirm;
+extern lv_obj_t * ui_LabelSetupBtn1;
+void ui_event_ImageWifiResetBack(lv_event_t * e);
+extern lv_obj_t * ui_ImageWifiResetBack;
+extern lv_obj_t * ui_LabelWifiResetContent;
 // SCREEN: ui_ScreenListen
 void ui_ScreenListen_screen_init(void);
 extern lv_obj_t * ui_ScreenListen;
@@ -76,6 +88,18 @@ void ui_event_DropdownSettingsRegion(lv_event_t * e);
 extern lv_obj_t * ui_DropdownSettingsRegion;
 void ui_event_ImageSettingsBack(lv_event_t * e);
 extern lv_obj_t * ui_ImageSettingsBack;
+void ui_event_ImageSettingsReset(lv_event_t * e);
+extern lv_obj_t * ui_ImageSettingsReset;
+// SCREEN: ui_ScreenReset
+void ui_ScreenReset_screen_init(void);
+extern lv_obj_t * ui_ScreenReset;
+extern lv_obj_t * ui_LabelResetTitle;
+extern lv_obj_t * ui_LabelResetContent;
+void ui_event_ButtonResetConfirm(lv_event_t * e);
+extern lv_obj_t * ui_ButtonResetConfirm;
+extern lv_obj_t * ui_LabelSetupBtn2;
+void ui_event_ImageResetBack(lv_event_t * e);
+extern lv_obj_t * ui_ImageResetBack;
 void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
@@ -84,6 +108,8 @@ lv_group_t *ui_get_btn_op_group(void);
 
 LV_IMG_DECLARE(ui_img_setup_bg_png);    // assets\setup_bg.png
 LV_IMG_DECLARE(ui_img_setup_text_bg_png);    // assets\setup_text_bg.png
+LV_IMG_DECLARE(ui_img_reset_icon_png);    // assets\reset_icon.png
+LV_IMG_DECLARE(ui_img_settings_back_png);    // assets\settings_back.png
 LV_IMG_DECLARE(ui_img_body_shadow_png);    // assets\body_shadow.png
 LV_IMG_DECLARE(ui_img_body_png);    // assets\body.png
 LV_IMG_DECLARE(ui_img_body_eye_screen_png);    // assets\body_eye_screen.png
@@ -97,7 +123,6 @@ LV_IMG_DECLARE(ui_img_reply_body_png);    // assets\reply_body.png
 LV_IMG_DECLARE(ui_img_reply_small_shadow_png);    // assets\reply_small_shadow.png
 LV_IMG_DECLARE(ui_img_reply_chatgpt_logo_png);    // assets\reply_chatgpt_logo.png
 LV_IMG_DECLARE(ui_img_settings_icon_png);    // assets\settings_icon.png
-LV_IMG_DECLARE(ui_img_settings_back_png);    // assets\settings_back.png
 LV_IMG_DECLARE(ui_img_listen_body_eyes_2_png);    // assets\listen_body_eyes_2.png
 
 LV_FONT_DECLARE(ui_font_KaiTiCN20);

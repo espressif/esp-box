@@ -20,6 +20,4 @@ idf_component_register(
         ${APP_DIR}
         ${SETTINGS_DIR}
 )
-
 spiffs_create_partition_image(storage ../spiffs FLASH_IN_PROJECT)
-

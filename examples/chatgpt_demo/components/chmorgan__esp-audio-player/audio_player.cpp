@@ -234,12 +234,12 @@ static esp_err_t aplay_file(audio_instance_t *i, uint8_t *stream, uint32_t strea
     memset(&i2s_format, 0, sizeof(i2s_format));
 
     esp_err_t ret = ESP_OK;
-    audio_player_event_t audio_event = { .type = AUDIO_PLAYER_REQUEST_NONE, .stream = NULL };
+    audio_player_event_t audio_event = { .type = AUDIO_PLAYER_REQUEST_NONE, .stream = NULL, .stream_len = 0 };
 
     FILE_TYPE file_type = FILE_TYPE_UNKNOWN;
     uint8_t *p_stream = stream;
     //  LOGI_1("start to decode,%p, %p, stream_len:%d", stream, p_stream, stream_len);
-    LOGI_1("start to decode, %p, %p, stream_len:%"PRIu32, stream, p_stream, stream_len);
+    LOGI_1("start to decode, %p, %p, stream_len:%" PRIu32 , stream, p_stream, stream_len);
 
 
 #if defined(CONFIG_AUDIO_PLAYER_ENABLE_MP3)
@@ -359,7 +359,7 @@ static esp_err_t aplay_file(audio_instance_t *i, uint8_t *stream, uint32_t strea
                     (i2s_format.channels != i->output.fmt.channels) ||
                     (i2s_format.bits_per_sample != i->output.fmt.bits_per_sample)) {
                 i2s_format = i->output.fmt;
-                LOGI_1("format change: sr=%d, bit=%"PRIu32", ch=%"PRIu32,
+                LOGI_1("format change: sr=%d, bit=%" PRIu32 ", ch=%" PRIu32 ,
                         i2s_format.sample_rate,
                         i2s_format.bits_per_sample,
                         i2s_format.channels);
@@ -482,21 +482,21 @@ esp_err_t audio_player_play(uint8_t *stream, uint32_t file_len)
 esp_err_t audio_player_pause(void)
 {
     LOGI_1("%s", __FUNCTION__);
-    audio_player_event_t event = { .type = AUDIO_PLAYER_REQUEST_PAUSE, .stream = NULL };
+    audio_player_event_t event = { .type = AUDIO_PLAYER_REQUEST_PAUSE, .stream = NULL, .stream_len = 0};
     return audio_send_event(&instance, event);
 }
 
 esp_err_t audio_player_resume(void)
 {
     LOGI_1("%s", __FUNCTION__);
-    audio_player_event_t event = { .type = AUDIO_PLAYER_REQUEST_RESUME, .stream = NULL };
+    audio_player_event_t event = { .type = AUDIO_PLAYER_REQUEST_RESUME, .stream = NULL, .stream_len = 0};
     return audio_send_event(&instance, event);
 }
 
 esp_err_t audio_player_stop(void)
 {
     LOGI_1("%s", __FUNCTION__);
-    audio_player_event_t event = { .type = AUDIO_PLAYER_REQUEST_STOP, .stream = NULL };
+    audio_player_event_t event = { .type = AUDIO_PLAYER_REQUEST_STOP, .stream = NULL, .stream_len = 0};
     return audio_send_event(&instance, event);
 }
 
@@ -507,7 +507,7 @@ esp_err_t audio_player_stop(void)
 static esp_err_t _internal_audio_player_shutdown_thread(void)
 {
     LOGI_1("%s", __FUNCTION__);
-    audio_player_event_t event = { .type = AUDIO_PLAYER_REQUEST_SHUTDOWN_THREAD, .stream = NULL };
+    audio_player_event_t event = { .type = AUDIO_PLAYER_REQUEST_SHUTDOWN_THREAD, .stream = NULL, .stream_len = 0 };
     return audio_send_event(&instance, event);
 }
 

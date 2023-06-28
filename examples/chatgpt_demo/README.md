@@ -8,9 +8,9 @@ In this example, we are utilizing the OpenAI API in conjunction with an ESP-Box 
 git checkout master && git pull && git submodule update --init --recursive
 
 ```
-* If you encounter any errors during the upgrade process, please make sure to use the ESP-IDF version [master](https://github.com/espressif/esp-idf) at commit ID `df9310ada26123d8d478bcfa203f874d8c21d654`. This specific commit represents a stable state of the ESP-IDF repository and can help ensure a smoother transition or troubleshooting process.
+* If you encounter any errors during the upgrade process, please make sure to use the ESP-IDF version [master](https://github.com/espressif/esp-idf) at commit ID `d2471b11e78fb0af612dfa045255ac7fe497bea8`. This specific commit represents a stable state of the ESP-IDF repository and can help ensure a smoother transition or troubleshooting process.
 ```
-git checkout df9310ada26123d8d478bcfa203f874d8c21d654 && git pull && git submodule update --init --recursive
+git checkout 67552c31dac8cd94fb0d63192a538f4f984c5b6e && git pull && git submodule update --init --recursive
 
 ```
 
@@ -18,6 +18,8 @@ git checkout df9310ada26123d8d478bcfa203f874d8c21d654 && git pull && git submodu
 Due to the lack of native text-to-speech support in the [OpenAI](https://platform.openai.com/docs/api-reference) API, an external API is used to meet this requirement. This example utilizes the text-to-speech functionality offered by [TalkingGenie](https://www.talkinggenie.com/tts). Additional information can be found in this [blog post](https://czyt.tech/post/a-free-tts-api/?from_wecom=1).
 
 ## **Reproducing the demo**
+There is another project called **factory_nvs** within the **ChatGPT_demo** project. It includes the code to store credentials in the NVS (Non-Volatile Storage) of the ESP-Box. On the other hand, **Chat_GPT Demo**consists of the demo code. Therefore, it is essential to build both projects.
+
 
 ### 1. Clone the Github repository
 
@@ -26,26 +28,51 @@ git clone https://github.com/espressif/esp-box
 
 ```
 
-### 2. Change the working directory to model_deployment
+### 2. Change the working directory
+
+```bash
+cd examples/chatgpt_demo/factory_nvs
+
+```
+
+### 3. Build the factory_nvs
+
+```bash
+idf.py build
+
+```
+
+### 4. Change the working directory
 
 ```bash
 cd examples/chatgpt_demo/
 
 ```
 
-### 3. Set up OpenAI Key, WiFi SSID and Password 
 
-```
-idf.py menuconfig
-
-```
-### 4. Build the project
+### 5. Build the chatgpt_demo
 
 ```bash
-idf.py build flash monitor
+idf.py build
 
 ```
+
+### 6. Flash on ESP-BOX
+```
+python -m esptool -p /dev/ttyACM0 --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 16MB --flash_freq 80m 0x0 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0xd000 build/ota_data_initial.bin 0x10000 build/chatgpt_demo.bin 0x900000 build/storage.bin 0xb00000 build/srmodels/srmodels.bin 0x700000 factory_nvs/build/factory_nvs.bin
+
+```
+
 In case found error during the building process [follow the official IDF  guide for more details](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/index.html#build-your-first-project).
 
-> **Note :**
-> Please note that you require an OpenAI API key to proceed with the demo. To enter the WIFI credentials and OpenAI secret key, access the menuconfig using "idf.py menuconfig"
+
+## Known compilation errors
+When encountering compilation errors related to the "espressif__esp-sr" component, a common solution is to remove the ".component_hash" file located at "managed_components/espressif__esp-sr" and proceed with the rebuild. This step helps resolve the issue and allows the compilation process to continue smoothly.
+
+
+### **Note**: 
+Please note that, 
+1. You require an **OpenAI API** key to proceed with the demo. 
+2. To enter the WIFI credentials and OpenAI secret key.
+3. The example does not currently support ESP-BOX Lite.
+4. Additionally, as a result of **OpenAI's restrictions**, this particular example cannot be supported within Mainland China.

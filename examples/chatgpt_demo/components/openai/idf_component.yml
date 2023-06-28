@@ -1,7 +1,0 @@
-## IDF Component Manager Manifest File
-dependencies:
-  espressif/json_parser: "^1.0.2"
-  ## Required IDF version
-  idf:
-    version: ">=5.0.0"
-version: "0.0.1"

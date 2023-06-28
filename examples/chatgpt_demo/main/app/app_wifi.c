@@ -26,10 +26,9 @@
    If you'd rather not, just change the below entries to strings with
    the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
 */
-// #define EXAMPLE_ESP_WIFI_SSID      "esp-office-2.4G"
-// #define EXAMPLE_ESP_WIFI_PASS      "1qazxsw2"
 
-#define EXAMPLE_ESP_MAXIMUM_RETRY  10
+
+#define EXAMPLE_ESP_MAXIMUM_RETRY  CONFIG_ESP_MAXIMUM_RETRY
 
 #if CONFIG_ESP_WIFI_AUTH_OPEN
 #define ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD WIFI_AUTH_OPEN
@@ -108,7 +107,6 @@ esp_err_t send_network_event(net_event_t event)
 
     ESP_RETURN_ON_FALSE(pdPASS == ret_val, ESP_ERR_INVALID_STATE,
                         TAG, "The last event has not been processed yet");
-
     return ESP_OK;
 }
 
@@ -198,9 +196,8 @@ static void wifi_reconnect_sta(void)
     ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
     esp_wifi_connect();
 
-    ESP_LOGI(TAG, "wifi_reconnect_sta finished.%d, %s, %d, %s", \
-             sys_param->ssid_len, wifi_config.sta.ssid,
-             sys_param->password_len, wifi_config.sta.password);
+    ESP_LOGI(TAG, "wifi_reconnect_sta finished.%s, %s", \
+            wifi_config.sta.ssid, wifi_config.sta.password);
 
     xEventGroupWaitBits(s_wifi_event_group, WIFI_CONNECTED_BIT, 0, 1, 5000 / portTICK_RATE_MS);
 }
@@ -230,32 +227,24 @@ static void wifi_init_sta(void)
                     NULL,
                     &instance_got_ip));
 
-    wifi_config_t wifi_config = {
+    wifi_config_t wifi_config = { 
         .sta = {
-            .ssid = DEFAULT_ESP_WIFI_SSID,
-            .password = DEFAULT_ESP_WIFI_PASS,
-            /* Setting a password implies station will connect to all security modes including WEP/WPA.
-             * However these modes are deprecated and not advisable to be used. Incase your Access point
-             * doesn't support WPA2, these mode can be enabled by commenting below line */
-            //.threshold.authmode = ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD,
-            //.sae_pwe_h2e = 2,
+            .ssid = {0}, 
+            .password = {0},
         },
     };
-
     sys_param_t *sys_param = settings_get_parameter();
     memcpy(wifi_config.sta.ssid, sys_param->ssid, sizeof(wifi_config.sta.ssid));
     memcpy(wifi_config.sta.password, sys_param->password, sizeof(wifi_config.sta.password));
-
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
-    ESP_LOGI(TAG, "wifi_init_sta finished.%s:%d, %s:%d", \
-             wifi_config.sta.ssid, sys_param->ssid_len, wifi_config.sta.password, sys_param->password_len);
+    ESP_LOGI(TAG, "wifi_init_sta finished.%s, %s", \
+             wifi_config.sta.ssid, wifi_config.sta.password);
 }
 
 static void network_task(void *args)
 {
-    static WiFi_Connect_Status wifi_status;
     net_event_t net_event;
     TickType_t tick;
 

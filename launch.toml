@@ -1,7 +1,7 @@
 esp_toml_version = 1.0
 firmware_images_url = "https://dl.espressif.com/AE/esp-box/"
 
-supported_apps = ["ESP-BOX_Demo_EN_V0_3_0", "ESP-BOX_Demo_CN_V0_3_0", "ESP-BOX_USB_Headset_V0_0_1"]
+supported_apps = ["ESP-BOX_Demo_EN_V0_3_0", "ESP-BOX_Demo_CN_V0_3_0", "ESP-BOX_USB_Headset_V0_0_1", "ESP-BOX_ChatGPT_Demo_V1_0"]
 
 [ESP-BOX_Demo_EN_V0_3_0]
 chipsets = ["ESP32-S3"]
@@ -18,5 +18,11 @@ ios_app_url = ""
 [ESP-BOX_USB_Headset_V0_0_1]
 chipsets = ["ESP32-S3"]
 image.esp32-s3 = "ESP-BOX_USB_Headset_V0.0.1.bin"
+android_app_url = ""
+ios_app_url = ""
+
+[ESP-BOX_ChatGPT_Demo_V1_0]
+chipsets = ["ESP32-S3"]
+image.esp32-s3 = "ESP-BOX_ChatGPT_Demo_V1.0.bin"
 android_app_url = ""
 ios_app_url = ""
