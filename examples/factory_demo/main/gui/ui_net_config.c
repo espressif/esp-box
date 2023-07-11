@@ -36,6 +36,7 @@ static void ui_app_page_return_click_cb(lv_event_t *e)
     lv_obj_del(obj);
 }
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
 static void btn_return_down_cb(void *handle, void *arg)
 {
     lv_obj_t *obj = (lv_obj_t *) arg;
@@ -43,6 +44,7 @@ static void btn_return_down_cb(void *handle, void *arg)
     lv_event_send(obj, LV_EVENT_CLICKED, NULL);
     ui_release();
 }
+#endif
 
 static void ui_net_config_page_app_click_cb(lv_event_t *e)
 {

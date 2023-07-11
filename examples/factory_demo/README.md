@@ -9,6 +9,8 @@ The factory_demo is a built-in firmware of ESP-BOX series products, which integr
 
 ## How to use example
 
+<font color="red">[Note]: </font>This example requires ESP-IDF release/v5.1 or later.
+
 Please check the [User-Guide](../../docs/getting_started.md).
 
 ### Hardware Required

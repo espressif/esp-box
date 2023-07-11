@@ -79,6 +79,9 @@ extern lv_obj_t * ui_ImageSettingsBack;
 void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
+// EVENT: event for ESP32_S3_BOX_Lite
+lv_group_t *ui_get_btn_op_group(void);
+
 LV_IMG_DECLARE(ui_img_setup_bg_png);    // assets\setup_bg.png
 LV_IMG_DECLARE(ui_img_setup_text_bg_png);    // assets\setup_text_bg.png
 LV_IMG_DECLARE(ui_img_body_shadow_png);    // assets\body_shadow.png

@@ -29,8 +29,9 @@
 
 static const char *TAG = "app_audio";
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
 static bool mute_flag = true;
-
+#endif
 bool record_flag = false;
 uint32_t record_total_len = 0;
 uint32_t file_total_len = 0;
@@ -92,7 +93,7 @@ void audio_record_init()
         return; // Return or handle the error condition appropriately
     }
 
-    file_iterator_instance_t *file_iterator = file_iterator_new(BSP_MOUNT_POINT);
+    file_iterator_instance_t *file_iterator = file_iterator_new(BSP_SPIFFS_MOUNT_POINT);
     assert(file_iterator != NULL);
 
     /* Configure I2S peripheral and Power Amplifier */
@@ -296,9 +297,10 @@ void sr_handler_task(void *pvParam)
 {
     static bool mute_state = false;
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
     mute_flag = bsp_button_get(BSP_BUTTON_MUTE);
-
     printf("sr handle task, mute:%d\n", mute_flag);
+#endif
 
     while (true) {
         if (NEED_DELETE && xEventGroupGetBits(g_sr_data->event_group)) {
@@ -313,6 +315,7 @@ void sr_handler_task(void *pvParam)
 
         app_sr_get_result(&result, pdMS_TO_TICKS(1 * 1000));
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
         if (mute_state != mute_flag) {
             mute_state = mute_flag;
             if (false == mute_state) {
@@ -321,7 +324,7 @@ void sr_handler_task(void *pvParam)
                 bsp_codec_config->codec_reconfig_fn();
             }
         }
-
+#endif
         if (ESP_MN_STATE_TIMEOUT == result.state) {
             ESP_LOGI(TAG, "ESP_MN_STATE_TIMEOUT");
             audio_record_stop();

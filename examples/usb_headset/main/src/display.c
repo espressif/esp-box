@@ -4,8 +4,10 @@
  */
 #include <math.h>
 #include "bsp/esp-bsp.h"
+#include "bsp/display.h"
 #include "display.h"
 #include "driver/ledc.h"
+#include "hal/spi_ll.h"
 #include "driver/spi_master.h"
 #include "esp_log.h"
 #include "esp_lcd_panel_io.h"
@@ -15,13 +17,9 @@
 
 static const char *TAG = "display";
 /****************** LCD Configuration ************************************************/
-#define LCD_LEDC_CH            CONFIG_BSP_DISPLAY_BRIGHTNESS_LEDC_CH
 #define LCD_WIDTH              BSP_LCD_H_RES
 #define LCD_HEIGHT             BSP_LCD_V_RES
-#define LCD_CMD_BITS           8
-#define LCD_PARAM_BITS         8
 #define LCD_BUFFER_SIZE        320*240*2
-#define LCD_BUFFER_LINE        320*2
 
 /****************** configure the example working mode *******************************/
 #define BASIC_HIGH             40                          /* Subtract the height of the column height */
@@ -49,48 +47,23 @@ static const char *TAG = "display";
 #define STRIP_NUM              320 / GROUP_WIDTH
 #define INTERVAL_WIDTH         GROUP_WIDTH - STRIP_WIDTH
 
-#define BDISPLAY_ERROR_CHECK_RETURN_ERR(x) do { \
-        esp_err_t err_rc_ = (x);            \
-        if (unlikely(err_rc_ != ESP_OK)) {  \
-            return err_rc_;                 \
-        }                                   \
-    } while(0)
-
-#define DISPLAY_ERROR_CHECK_RETURN_NULL(x)  do { \
-        if (unlikely((x) != ESP_OK)) {      \
-            return NULL;                    \
-        }                                   \
-    } while(0)
+#ifndef SPI_LL_DATA_MAX_BIT_LEN
+#define SPI_LL_DATA_MAX_BIT_LEN (1 << 18)
+#define LCD_SPI_MAX_DATA_SIZE (SPI_LL_DATA_MAX_BIT_LEN / 8)
+#else
+#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 1, 0)
+#define LCD_SPI_MAX_DATA_SIZE (SPI_LL_DATA_MAX_BIT_LEN / 8)
+#else
+/**
+ * @brief release5.0 align = 4092(4096 -4)
+ */
+#define LCD_SPI_MAX_DATA_SIZE ((SPI_LL_DATA_MAX_BIT_LEN / 8)/4092*4092)
+#endif
+#endif
 
 static esp_lcd_panel_handle_t panel_handle = NULL;
 static int16_t fre_point[STRIP_NUM] = {0};
 static uint16_t *display_buffer = NULL;
-
-static esp_err_t display_brightness_init(void)
-{
-    // Setup LEDC peripheral for PWM backlight control
-    const ledc_channel_config_t LCD_backlight_channel = {
-        .gpio_num = BSP_LCD_BACKLIGHT,
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .channel = LCD_LEDC_CH,
-        .intr_type = LEDC_INTR_DISABLE,
-        .timer_sel = 1,
-        .duty = 0,
-        .hpoint = 0
-    };
-    const ledc_timer_config_t LCD_backlight_timer = {
-        .speed_mode = LEDC_LOW_SPEED_MODE,
-        .duty_resolution = LEDC_TIMER_10_BIT,
-        .timer_num = 1,
-        .freq_hz = 5000,
-        .clk_cfg = LEDC_AUTO_CLK
-    };
-
-    BDISPLAY_ERROR_CHECK_RETURN_ERR(ledc_timer_config(&LCD_backlight_timer));
-    BDISPLAY_ERROR_CHECK_RETURN_ERR(ledc_channel_config(&LCD_backlight_channel));
-
-    return ESP_OK;
-}
 
 typedef struct {
     float speed[STRIP_NUM];
@@ -222,48 +195,14 @@ esp_err_t display_draw(float *data)
 
 esp_err_t display_lcd_init(void)
 {
-    display_brightness_init();
-
-    ESP_LOGD(TAG, "Initialize SPI bus");
-    const spi_bus_config_t buscfg = {
-        .sclk_io_num = BSP_LCD_PCLK,
-        .mosi_io_num = BSP_LCD_DATA0,
-        .miso_io_num = GPIO_NUM_NC,
-        .quadwp_io_num = GPIO_NUM_NC,
-        .quadhd_io_num = GPIO_NUM_NC,
-        .max_transfer_sz = BSP_LCD_H_RES * BSP_LCD_V_RES * sizeof(uint16_t),
-    };
-    BDISPLAY_ERROR_CHECK_RETURN_ERR(spi_bus_initialize(BSP_LCD_SPI_NUM, &buscfg, SPI_DMA_CH_AUTO));
-
-    ESP_LOGD(TAG, "Install panel IO");
     esp_lcd_panel_io_handle_t io_handle = NULL;
-    const esp_lcd_panel_io_spi_config_t io_config = {
-        .dc_gpio_num = BSP_LCD_DC,
-        .cs_gpio_num = BSP_LCD_CS,
-        .pclk_hz = BSP_LCD_PIXEL_CLOCK_HZ,
-        .lcd_cmd_bits = LCD_CMD_BITS,
-        .lcd_param_bits = LCD_PARAM_BITS,
-        .spi_mode = 0,
-        .trans_queue_depth = 10,
-        .on_color_trans_done = NULL,
-        .user_ctx = NULL,
+    const bsp_display_config_t bsp_disp_cfg = {
+        .max_transfer_sz = (LCD_SPI_MAX_DATA_SIZE),
     };
+    bsp_display_new(&bsp_disp_cfg, &panel_handle, &io_handle);
 
-    // Attach the LCD to the SPI bus
-    BDISPLAY_ERROR_CHECK_RETURN_ERR(esp_lcd_new_panel_io_spi((esp_lcd_spi_bus_handle_t)BSP_LCD_SPI_NUM, &io_config, &io_handle));
-
-    ESP_LOGD(TAG, "Install LCD driver of st7789");
-    const esp_lcd_panel_dev_config_t panel_config = {
-        .reset_gpio_num = BSP_LCD_RST, // Shared with Touch reset
-        .color_space = ESP_LCD_COLOR_SPACE_BGR,
-        .bits_per_pixel = 16,
-    };
-    BDISPLAY_ERROR_CHECK_RETURN_ERR(esp_lcd_new_panel_st7789(io_handle, &panel_config, &panel_handle));
-
-    esp_lcd_panel_reset(panel_handle);
-    esp_lcd_panel_init(panel_handle);
-    esp_lcd_panel_mirror(panel_handle, true, true);
     esp_lcd_panel_disp_on_off(panel_handle, true);
+    bsp_display_backlight_on();
 
     for (int i = 0; i < STRIP_NUM; i++) {
         display_square.square_high[i] = 1;

@@ -4,27 +4,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <stdbool.h>
-#include "esp_log.h"
-#include "bsp_board.h"
-
 #include "esp_log.h"
 #include "esp_check.h"
-#include "hal/i2s_hal.h"
 
-#if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-#include "soc/soc_caps.h"
-#include "esp_adc/adc_oneshot.h"
-#include "esp_adc/adc_cali.h"
-#include "esp_adc/adc_cali_scheme.h"
-#else
-#include "driver/adc.h"
-#include "esp_adc_cal.h"
-#endif
+#include "bsp/esp-bsp.h"
 
 #include "bsp_board.h"
 #include "iot_button.h"
 
+#define es8156_SAMPLE_RATE          (16000)
+#define es8156_DEFAULT_VOLUME       (60)
+
+#define ES7243_SAMPLE_RATE          (16000)
+#define ES7243_BIT_WIDTH            (16)
+#define ES7243_ADC_VOLUME           (24.0)
+#define ES7243_CHANNEL              (2)
 
 static const pmod_pins_t g_pmod[2] = {
     {
@@ -77,28 +71,10 @@ const button_config_t BOARD_BTN_ID_config[BOARD_BTN_ID_NUM] = {
         .gpio_button_config.active_level = false,
         .gpio_button_config.gpio_num = BOARD_BTN_ID_BOOT,
     },
-    {
-        .type = BUTTON_TYPE_ADC,
-        .adc_button_config.adc_channel = ADC_CHANNEL_0, // ADC1 channel 0 is GPIO1
-        .adc_button_config.button_index = BOARD_BTN_ID_PREV,
-        .adc_button_config.min = 2286, // middle is 2386mV
-        .adc_button_config.max = 2486
-    },
-    {
-        .type = BUTTON_TYPE_ADC,
-        .adc_button_config.adc_channel = ADC_CHANNEL_0, // ADC1 channel 0 is GPIO1
-        .adc_button_config.button_index = BOARD_BTN_ID_ENTER,
-        .adc_button_config.min = 1863, // middle is 1963mV
-        .adc_button_config.max = 2063
-    },
-    {
-        .type = BUTTON_TYPE_ADC,
-        .adc_button_config.adc_channel = ADC_CHANNEL_0, // ADC1 channel 0 is GPIO1
-        .adc_button_config.button_index = BOARD_BTN_ID_NEXT,
-        .adc_button_config.min = 694, // middle is 794mV
-        .adc_button_config.max = 894
-    }
 };
+
+static esp_codec_dev_handle_t play_dev_handle;
+static esp_codec_dev_handle_t record_dev_handle;
 
 static button_handle_t *g_btn_handle = NULL;
 static bsp_codec_config_t g_codec_handle;
@@ -109,11 +85,7 @@ static const boards_info_t g_boards_info = {
     .board_desc =   &g_board_s3_box_lite_res
 };
 
-static i2s_chan_handle_t i2s_tx_chan;
-static i2s_chan_handle_t i2s_rx_chan;
-
 static const char *TAG = "board";
-
 
 esp_err_t bsp_btn_init(void)
 {
@@ -161,61 +133,79 @@ esp_err_t bsp_btn_rm_all_callback(bsp_button_id_t btn)
 static esp_err_t bsp_i2s_read(void *audio_buffer, size_t len, size_t *bytes_read, uint32_t timeout_ms)
 {
     esp_err_t ret = ESP_OK;
-    ret = i2s_channel_read(i2s_rx_chan, (char *)audio_buffer, len, bytes_read, timeout_ms);
+    ret = esp_codec_dev_read(record_dev_handle, audio_buffer, len);
+    *bytes_read = len;
     return ret;
 }
 
 static esp_err_t bsp_i2s_write(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms)
 {
     esp_err_t ret = ESP_OK;
-    ret = i2s_channel_write(i2s_tx_chan, (char *)audio_buffer, len, bytes_written, timeout_ms);
+    ret = esp_codec_dev_write(play_dev_handle, audio_buffer, len);
+    *bytes_written = len;
     return ret;
 }
 
-static esp_err_t bsp_i2s_reconfig_clk(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch)
+static esp_err_t bsp_codec_es8156_set(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch)
 {
     esp_err_t ret = ESP_OK;
-    i2s_std_config_t std_cfg = {
-        .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(rate),
-        .slot_cfg = I2S_STD_PHILIP_SLOT_DEFAULT_CONFIG((i2s_data_bit_width_t)bits_cfg, (i2s_slot_mode_t)ch),
-        .gpio_cfg = BSP_I2S_GPIO_CFG,
+
+    esp_codec_dev_sample_info_t fs = {
+        .sample_rate = rate,
+        .channel = ch,
+        .bits_per_sample = bits_cfg,
     };
 
-    ret |= i2s_channel_disable(i2s_tx_chan);
-    ret |= i2s_channel_reconfig_std_clock(i2s_tx_chan, &std_cfg.clk_cfg);
-    ret |= i2s_channel_reconfig_std_slot(i2s_tx_chan, &std_cfg.slot_cfg);
-    ret |= i2s_channel_enable(i2s_tx_chan);
+    ret = esp_codec_dev_close(play_dev_handle);
+    ret = esp_codec_dev_close(record_dev_handle);
+
+    ret = esp_codec_dev_open(play_dev_handle, &fs);
+    ret = esp_codec_dev_open(record_dev_handle, &fs);
     return ret;
 }
 
 static esp_err_t bsp_codec_volume_set(int volume, int *volume_set)
 {
     esp_err_t ret = ESP_OK;
+    float v = volume;
+    v *= 0.6f;
+    v = -0.01f * (v * v) + 2.0f * v;
+    ret = esp_codec_dev_set_out_vol(play_dev_handle, (int)v);
     return ret;
 }
 
 static esp_err_t bsp_codec_mute_set(bool enable)
 {
     esp_err_t ret = ESP_OK;
+    ret = esp_codec_dev_set_out_mute(play_dev_handle, enable);
     return ret;
 }
 
 static esp_err_t bsp_codec_es7243_set()
 {
     esp_err_t ret = ESP_OK;
+
+    esp_codec_dev_sample_info_t fs = {
+        .sample_rate = ES7243_SAMPLE_RATE,
+        .channel = ES7243_CHANNEL,
+        .bits_per_sample = ES7243_BIT_WIDTH,
+    };
+
+    assert(record_dev_handle);
+    ret = esp_codec_dev_open(record_dev_handle, &fs);
+    esp_codec_dev_set_in_gain(record_dev_handle, ES7243_ADC_VOLUME);
     return ret;
 }
 
 static void bsp_codec_init()
 {
-    /* Configure I2S peripheral and Power Amplifier */
-    i2s_std_config_t std_cfg = {
-        .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(16000),
-        .slot_cfg = I2S_STD_PHILIP_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO),
-        .gpio_cfg = BSP_I2S_GPIO_CFG,
-    };
-    bsp_audio_init(&std_cfg, &i2s_tx_chan, &i2s_rx_chan);
-    bsp_audio_poweramp_enable(true);
+    play_dev_handle = bsp_audio_codec_speaker_init();
+    assert((play_dev_handle) && "play_dev_handle not initialized");
+
+    record_dev_handle = bsp_audio_codec_microphone_init();
+    assert((record_dev_handle) && "record_dev_handle not initialized");
+
+    bsp_codec_es7243_set();
 
     bsp_codec_config_t *codec_config = bsp_board_get_codec_handle();
     codec_config->volume_set_fn = bsp_codec_volume_set;
@@ -223,20 +213,13 @@ static void bsp_codec_init()
     codec_config->codec_reconfig_fn = bsp_codec_es7243_set;
     codec_config->i2s_read_fn = bsp_i2s_read;
     codec_config->i2s_write_fn = bsp_i2s_write;
-    codec_config->i2s_reconfig_clk_fn = bsp_i2s_reconfig_clk;
+    codec_config->i2s_reconfig_clk_fn = bsp_codec_es8156_set;
 }
 
 esp_err_t bsp_board_s3_box_lite_init(void)
 {
-    /**
-     * @brief Initialize I2S and audio codec
-     *
-     * @note Actually the sampling rate can be reconfigured.
-     *       `MP3GetLastFrameInfo` can fill the `MP3FrameInfo`, which includes `samprate`.
-     *       So theoretically, the sampling rate can be dynamically changed according to the MP3 frame information.
-     */
+    bsp_btn_init();
     bsp_codec_init();
-
     return ESP_OK;
 }
 

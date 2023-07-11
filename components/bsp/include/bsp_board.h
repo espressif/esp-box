@@ -10,8 +10,8 @@
 #include "esp_err.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
+// #include "bsp/esp-bsp.h"
 #include "driver/i2s_std.h"
-#include "bsp/esp-bsp.h"
 #include "iot_button.h"
 
 #ifdef __cplusplus
@@ -31,9 +31,6 @@ typedef enum {
     BOARD_BTN_ID_NUM
 #elif CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
     BOARD_BTN_ID_BOOT = 0,
-    BOARD_BTN_ID_PREV,
-    BOARD_BTN_ID_ENTER,
-    BOARD_BTN_ID_NEXT,
     BOARD_BTN_ID_NUM
 #endif
 } bsp_button_id_t;

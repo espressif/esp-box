@@ -141,6 +141,10 @@ void ui_ScreenSettings_screen_init(void)
     lv_obj_set_y(ui_DropdownSettingsRegion, -9);
     lv_obj_set_align(ui_DropdownSettingsRegion, LV_ALIGN_BOTTOM_RIGHT);
     lv_obj_add_flag(ui_DropdownSettingsRegion, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_set_style_outline_width(ui_DropdownSettingsRegion, 0, LV_STATE_FOCUSED);
+    lv_obj_set_style_outline_pad(ui_DropdownSettingsRegion, 0, LV_STATE_FOCUSED);
+    lv_obj_set_style_outline_width(ui_DropdownSettingsRegion, 0, LV_STATE_FOCUS_KEY);
+    lv_obj_set_style_outline_pad(ui_DropdownSettingsRegion, 0, LV_STATE_FOCUS_KEY);
 
     lv_obj_set_style_text_align(ui_DropdownSettingsRegion, LV_TEXT_ALIGN_CENTER, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 

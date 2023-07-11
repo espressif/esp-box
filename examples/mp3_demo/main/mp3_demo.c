@@ -18,13 +18,8 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
 {
     // Volume saved when muting and restored when unmuting. Restoring volume is necessary
     // as es8311_set_voice_mute(true) results in voice volume (REG32) being set to zero.
-    static uint8_t last_volume;
     bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-
     uint8_t volume = get_sys_volume();
-    if (volume != 0) {
-        last_volume = volume;
-    }
 
     codec_handle->mute_set_fn(setting == AUDIO_PLAYER_MUTE ? true : false);
 
@@ -32,7 +27,6 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
     if (setting == AUDIO_PLAYER_UNMUTE) {
         codec_handle->volume_set_fn(volume, NULL);
     }
-    ESP_LOGI(TAG, "mute setting %d, volume:%d", setting, last_volume);
 
     return ESP_OK;
 }
@@ -50,7 +44,7 @@ void app_main(void)
 
     bsp_spiffs_mount();
 
-    file_iterator_instance_t *file_iterator = file_iterator_new(BSP_MOUNT_POINT);
+    file_iterator_instance_t *file_iterator = file_iterator_new(BSP_SPIFFS_MOUNT_POINT);
     assert(file_iterator != NULL);
 
     /* Configure I2S peripheral and Power Amplifier */

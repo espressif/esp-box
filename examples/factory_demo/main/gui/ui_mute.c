@@ -77,11 +77,13 @@ void ui_mute_init(void)
 
 }
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
 static void ui_mute_set_state(bool mute)
 {
     mute_state = mute;
     mute_disp_count = 0;
 }
+#endif
 
 /**
  * @brief Mute button handler.

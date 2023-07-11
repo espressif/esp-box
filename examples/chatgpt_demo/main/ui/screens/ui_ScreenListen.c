@@ -408,5 +408,4 @@ void ui_ScreenListen_screen_init(void)
 
     lv_obj_add_event_cb(ui_PanelSleep, ui_event_PanelSleep, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ImageListenSettings, ui_event_ImageListenSettings, LV_EVENT_ALL, NULL);
-
 }

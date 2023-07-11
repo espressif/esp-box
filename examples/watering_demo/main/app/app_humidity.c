@@ -84,7 +84,7 @@ static esp_err_t adc_calibration_init(app_humidity_t *ref)
     if (!calibrated) {
         ESP_LOGI(TAG, "calibration scheme version is %s", "Curve Fitting");
         adc_cali_curve_fitting_config_t cali_config = {
-            .unit_id = ADC_UNIT_1,
+            .unit_id = ADC_UNIT_2,
             .atten = ref->adc_atten,
             .bitwidth = ref->adc_width,
         };
@@ -127,15 +127,15 @@ static esp_err_t app_humidity_drive_init(app_humidity_t *ref)
 {
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
     if (NULL == ref->adc1_handle) {
-        //ADC1 Init
+        //ADC2 Init
         adc_oneshot_unit_init_cfg_t init_config = {
-            .unit_id = ADC_UNIT_1,
+            .unit_id = ADC_UNIT_2,
         };
         if (adc_oneshot_new_unit(&init_config, &ref->adc1_handle) != ESP_OK) {
             ESP_LOGW(TAG, "adc oneshot new unit fail!");
         }
 
-        //ADC1 Config
+        //ADC2 Config
         adc_oneshot_chan_cfg_t oneshot_config = {
             .bitwidth = ref->adc_width,
             .atten = ref->adc_atten,
@@ -143,9 +143,9 @@ static esp_err_t app_humidity_drive_init(app_humidity_t *ref)
         if (adc_oneshot_config_channel(ref->adc1_handle, ref->adc_channel, &oneshot_config) != ESP_OK) {
             ESP_LOGW(TAG, "adc oneshot config channel fail!");
         }
-        //-------------ADC1 Calibration Init---------------//
+        //-------------ADC2 Calibration Init---------------//
         if (adc_calibration_init(ref) != ESP_OK) {
-            ESP_LOGW(TAG, "ADC1 Calibration Init False");
+            ESP_LOGW(TAG, "ADC2 Calibration Init False");
         }
     }
 #else
@@ -230,11 +230,11 @@ static void humidity_task(void *pvParam)
     app_humidity_t *ref = pvParam;
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
-    ref->adc_channel = ADC_CHANNEL_8;
+    ref->adc_channel = ADC_CHANNEL_0;
     ref->adc_atten   = ADC_ATTEN_DB_11;//for box s3
     ref->adc_width   = SOC_ADC_RTC_MAX_BITWIDTH;
 #else
-    ref->adc_channel = ADC1_CHANNEL_8;
+    ref->adc_channel = ADC2_CHANNEL_0;
     ref->adc_atten   = ADC_ATTEN_DB_11;//for box s3
     ref->adc_width   = ADC_WIDTH_BIT_DEFAULT;
     ref->adc_chars   = calloc(1, sizeof(esp_adc_cal_characteristics_t));

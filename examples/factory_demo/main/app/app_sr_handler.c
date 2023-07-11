@@ -70,6 +70,7 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
+
     if (NULL == strstr((char *)wav_head->Subchunk1ID, "fmt") &&
             NULL == strstr((char *)wav_head->Subchunk2ID, "data")) {
         ESP_LOGE(TAG, "Header of wav format error");
@@ -81,7 +82,10 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     ESP_LOGD(TAG, "frame_rate=%d, ch=%d, width=%d", wav_head->SampleRate, wav_head->NumChannels, wav_head->BitsPerSample);
     codec_handle->i2s_reconfig_clk_fn(wav_head->SampleRate, wav_head->BitsPerSample, I2S_SLOT_MODE_STEREO);
 
-    //i2s_zero_dma_buffer(I2S_NUM_0);
+    vTaskDelay(pdMS_TO_TICKS(500));
+    codec_handle->mute_set_fn(false);
+    codec_handle->volume_set_fn(85, NULL);
+
     sys_param_t *param = settings_get_parameter();
     codec_handle->volume_set_fn(param->volume, NULL);
     codec_handle->mute_set_fn(false);

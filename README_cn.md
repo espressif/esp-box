@@ -32,7 +32,7 @@ ESP-BOX 是乐鑫信息科技发布的新一代 AIoT 应用开发平台。ESP32-
 
 |  ESP-BOX  |                        依赖的 ESP-IDF                        |                           分支信息                           | 支持状态                                                |
 | :-------: | :----------------------------------------------------------: | :----------------------------------------------------------: | ------------------------------------------------------- |
-|  master   |               release/v5.0<br/>commit id: ef4b1b7704            | Latest developing firmware <br/>esp-sr version:  v1.1.0 | 新功能开发分支，支持  ESP32-S3-BOX |
+|  master   |               >= release/v5.0<br/>commit id: 96119acc8b            | Latest developing firmware <br/>esp-sr version:  v1.3.3 | 兼容  ESP32-S3-BOX 和 ESP32-S3-BOX-Lite<br/>使用 menuconfig 选择开发板 |
 |  Tag 0.3.0   |            release/v4.4<br/>commit id: 2bdea81b2a            | esp-sr version: dev/v2.0<br/>commit id: c873a35 | 兼容  ESP32-S3-BOX 和 ESP32-S3-BOX-Lite |
 | Tag 0.2.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.2.1/idf_patch) |      esp-sr version: close v1.0<br/>commit id: 3ce34fe       | 仅支持 ESP32-S3-BOX                                     |
 | Tag 0.1.1 | Release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.1.1/idf_patch) |        esp-sr version: v0.9.6<br/>commit id: 3ce34fe         | 仅支持 ESP32-S3-BOX                                     |

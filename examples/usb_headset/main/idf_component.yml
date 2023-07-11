@@ -1,7 +1,6 @@
 ## IDF Component Manager Manifest File
 dependencies:
   idf: ">=5.0"
-  espressif/es7210: "^1.0.1"
+  #espressif/es7210: "^1.0.1"
   espressif/esp-dsp: "^1.2.1"
-  espressif/esp-box: "2.3.*"
   espressif/tinyusb: "^0.14.2"

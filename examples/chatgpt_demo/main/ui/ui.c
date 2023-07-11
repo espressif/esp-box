@@ -76,6 +76,9 @@ void ui_event____initial_actions0(lv_event_t * e);
 lv_obj_t * ui____initial_actions0;
 const lv_img_dsc_t * ui_imgset_listen_body_eyes_[2] = {&ui_img_listen_body_eyes_1_png, &ui_img_listen_body_eyes_2_png};
 
+
+static lv_group_t *g_btn_op_group = NULL;
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -83,6 +86,11 @@ const lv_img_dsc_t * ui_imgset_listen_body_eyes_[2] = {&ui_img_listen_body_eyes_
 #if LV_COLOR_16_SWAP !=1
     #error "LV_COLOR_16_SWAP should be 1 to match SquareLine Studio's settings"
 #endif
+
+lv_group_t *ui_get_btn_op_group(void)
+{
+    return g_btn_op_group;
+}
 
 ///////////////////// ANIMATIONS ////////////////////
 void sleep_body_up_down_Animation(lv_obj_t * TargetObject, int delay)
@@ -185,6 +193,10 @@ void ui_event_ButtonSetup(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(ui_ScreenListen, LV_SCR_LOAD_ANIM_NONE, 0, 0);
+        if(ui_get_btn_op_group()) {
+            lv_group_remove_all_objs(ui_get_btn_op_group());
+            lv_group_add_obj(ui_get_btn_op_group(), ui_PanelSleep);
+        }
         sleep_body_up_down_Animation(ui_ImageSleepBody, 0);
         listen_eye_blink_Animation(ui_ImageListenEye, 0);
         listen_eye_screen_move_Animation(ui_ImageListenEyeScreen, 0);
@@ -200,10 +212,19 @@ void ui_event_PanelSleep(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_CLICKED) {
+
+    if(true == lv_obj_has_flag(ui_PanelSleep, LV_OBJ_FLAG_HIDDEN)) {
+        return;
+    }
+
+    if(event_code == LV_EVENT_SHORT_CLICKED) {
         _ui_flag_modify(ui_PanelListen, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         _ui_flag_modify(ui_PanelSleep, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
         EventPanelSleepClickCb(e);
+    } else if(event_code == LV_EVENT_LONG_PRESSED) {
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+        lv_event_send(ui_ImageListenSettings, LV_EVENT_CLICKED, NULL);
+#endif
     }
 }
 void ui_event_ImageListenSettings(lv_event_t * e)
@@ -212,14 +233,24 @@ void ui_event_ImageListenSettings(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(ui_ScreenSettings, LV_SCR_LOAD_ANIM_NONE, 0, 0);
+        if(ui_get_btn_op_group()) {
+            lv_group_remove_all_objs(ui_get_btn_op_group());
+            lv_group_add_obj(ui_get_btn_op_group(), ui_DropdownSettingsRegion);
+        }
     }
 }
+
 void ui_event_DropdownSettingsRegion(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
+
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         EventSettingsRegionValueChange(e);
+    } else if(event_code == LV_EVENT_LONG_PRESSED_REPEAT) {
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+        lv_event_send(ui_ImageSettingsBack, LV_EVENT_CLICKED, NULL);
+#endif
     }
 }
 void ui_event_ImageSettingsBack(lv_event_t * e)
@@ -228,6 +259,10 @@ void ui_event_ImageSettingsBack(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(ui_ScreenListen, LV_SCR_LOAD_ANIM_NONE, 0, 0);
+        if(ui_get_btn_op_group()) {
+            lv_group_remove_all_objs(ui_get_btn_op_group());
+            lv_group_add_obj(ui_get_btn_op_group(), ui_PanelSleep);
+        }
     }
 }
 void ui_event____initial_actions0(lv_event_t * e)
@@ -247,6 +282,13 @@ void ui_init(void)
     lv_disp_t * dispp = lv_disp_get_default();
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                                false, LV_FONT_DEFAULT);
+
+    lv_indev_t *indev = lv_indev_get_next(NULL);
+    if (lv_indev_get_type(indev) == LV_INDEV_TYPE_ENCODER) {
+	    g_btn_op_group = lv_group_create();
+	    lv_indev_set_group(indev, g_btn_op_group);
+    }
+
     lv_disp_set_theme(dispp, theme);
     ui_ScreenSetup_screen_init();
     ui_ScreenListen_screen_init();

@@ -68,7 +68,8 @@ build_example_factory_demo_v5.0:
   extends:
     - .build_examples_template
     - .rules:build:example_factory_demo
-  image: espressif/idf:release-v5.0
+  #image: espressif/idf:release-v5.0 don't support release-v5.0 now.
+  image: espressif/idf:release-v5.1
   variables:
     IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/factory_demo
