@@ -20,24 +20,6 @@ static void (*g_hint_end_cb)(void) = NULL;
 LV_FONT_DECLARE(font_en_16);
 LV_FONT_DECLARE(font_cn_gb1_16);
 
-
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
-static void hint_page_btn_prev_cb(void *arg, void *data)
-{
-    lv_obj_t *obj = (lv_obj_t *) data;
-    uint16_t tab_index = lv_tabview_get_tab_act(obj);
-    if (tab_index > 0) {
-        tab_index --;
-        ESP_LOGI(TAG, "hint previous");
-        lv_tabview_set_act(obj, tab_index, LV_ANIM_ON);
-        if (ui_get_btn_op_group()) {
-            lv_group_remove_all_objs(ui_get_btn_op_group());
-            lv_group_add_obj(ui_get_btn_op_group(), g_hint_page_btn[tab_index]);
-        }
-    }
-}
-#endif
-
 static void hint_page_btn_next_cb(void *arg, void *data)
 {
     lv_obj_t *obj = (lv_obj_t *) data;
@@ -303,10 +285,4 @@ void ui_hint_start(void (*fn)(void))
     lv_obj_set_style_text_color(label, lv_color_make(255, 0, 0), LV_PART_MAIN);
     lv_obj_center(label);
     lv_obj_add_event_cb(btn_next, ui_hint_page_next_click_cb, LV_EVENT_RELEASED, tabview);
-
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
-    bsp_btn_register_callback(BOARD_BTN_ID_PREV, BUTTON_PRESS_DOWN, hint_page_btn_prev_cb, (void *)tabview);
-    bsp_btn_register_callback(BOARD_BTN_ID_NEXT, BUTTON_PRESS_DOWN, hint_page_btn_next_cb, (void *)tabview);
-#endif
-
 }

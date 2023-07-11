@@ -30,7 +30,6 @@
 #include "app_wifi.h"
 
 static const char *TAG = "app_sr";
-extern bool mute_flag;
 
 static esp_afe_sr_iface_t *afe_handle = NULL;
 static srmodel_list_t *models = NULL;

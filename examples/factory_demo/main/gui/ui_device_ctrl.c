@@ -100,6 +100,7 @@ static void ui_dev_ctrl_page_return_click_cb(lv_event_t *e)
     }
 }
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
 static void btn_return_down_cb(void *handle, void *arg)
 {
     lv_obj_t *obj = (lv_obj_t *) arg;
@@ -107,6 +108,7 @@ static void btn_return_down_cb(void *handle, void *arg)
     lv_event_send(obj, LV_EVENT_CLICKED, NULL);
     ui_release();
 }
+#endif
 
 void ui_device_ctrl_start(void (*fn)(void))
 {

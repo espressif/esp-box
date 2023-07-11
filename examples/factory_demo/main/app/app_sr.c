@@ -353,11 +353,6 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
         g_sr_data->multinet->destroy(g_sr_data->model_data);
     }
 
-    // remove all command
-    app_sr_remove_all_cmd();
-    esp_mn_commands_free();
-
-    esp_mn_commands_alloc();
     g_sr_data->cmd_num = 0;
 
     char *wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, (SR_LANG_EN == g_sr_data->lang ? "hiesp" : "hilexin"));
@@ -371,6 +366,9 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
     g_sr_data->model_data = model_data;
     ESP_LOGI(TAG, "load multinet:%s,%d,%d", mn_name, sizeof(esp_mn_iface_t), sizeof(esp_mn_iface_t));
 
+    // remove all command
+    app_sr_remove_all_cmd();
+
     uint8_t cmd_number = 0;
     // count command number
     for (size_t i = 0; i < sizeof(g_default_cmd_info) / sizeof(sr_cmd_t); i++) {
@@ -380,6 +378,7 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
         }
     }
     ESP_LOGI(TAG, "cmd_number=%d", cmd_number);
+
     return app_sr_update_cmds();/* Reset command list */
 }
 
@@ -605,7 +604,7 @@ esp_err_t app_sr_update_cmds(void)
     esp_mn_error_t *err_id = esp_mn_commands_update(g_sr_data->multinet, g_sr_data->model_data);
     if(err_id){
         for (int i = 0; i < err_id->num; i++) {
-            ESP_LOGE(TAG, "err cmd id:%d", err_id->phrase_idx[i]);
+            ESP_LOGE(TAG, "err cmd id:%d", err_id->phrases[i]);
         }
     }
     esp_mn_commands_print();

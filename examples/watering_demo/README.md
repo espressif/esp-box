@@ -56,7 +56,7 @@ The following photo shows the connection of the modules. For detailed connection
 
 | ESP-BOX GPIO |Sensor     | Relay     | Description of GPIO Pin Functionality |
 |--------------|-----------|-----------|---------------------------------------|
-|GPIO9         |AUOT       |-          | Acquire ADC channel                   |
+|GPIO11        |AUOT       |-          | Acquire ADC channel                   |
 |GPIO41        |-          |IN1        | Relay control                         |
 
 ## Build Project

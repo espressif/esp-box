@@ -8,8 +8,5 @@ set(EXTRA_COMPONENT_DIRS
 
 add_compile_options(-fdiagnostics-color=always)
 
-# The following line can be removed after LVGL update to v8.3.5.
-add_compile_options(-Wno-format)
-
 project(mp3_demo)
 

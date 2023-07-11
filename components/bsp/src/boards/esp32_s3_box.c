@@ -6,26 +6,20 @@
 
 #include "esp_log.h"
 #include "esp_check.h"
-#include "hal/i2s_hal.h"
 
+#include "bsp/esp-bsp.h"
 #include "bsp_board.h"
 #include "iot_button.h"
-#include "es7210.h"
-#include "es8311.h"
 
 #define ES8311_SAMPLE_RATE          (16000)
 #define ES8311_DEFAULT_VOLUME       (60)
 
-#define ES7210_I2C_ADDR             (0x40)
 #define ES7210_SAMPLE_RATE          (16000)
-#define ES7210_I2S_FORMAT           ES7210_I2S_FMT_I2S
-#define ES7210_MCLK_MULTIPLE        (256)
-#define ES7210_BIT_WIDTH            ES7210_I2S_BITS_16B
-#define ES7210_MIC_BIAS             ES7210_MIC_BIAS_2V87
-#define ES7210_MIC_GAIN             ES7210_MIC_GAIN_30DB
-#define ES7210_ADC_VOLUME           (0)
+#define ES7210_BIT_WIDTH            (16)
+#define ES7210_ADC_VOLUME           (24.0)
+#define ES7210_CHANNEL              (2)
 
-static bool bsp_home_button_get(void *param);
+static uint8_t bsp_home_button_get(void *param);
 
 static const pmod_pins_t g_pmod[2] = {
     {
@@ -90,6 +84,10 @@ static const button_config_t BOARD_BTN_ID_config[BOARD_BTN_ID_NUM] = {
     },
 };
 
+
+static esp_codec_dev_handle_t play_dev_handle;
+static esp_codec_dev_handle_t record_dev_handle;
+
 static button_handle_t *g_btn_handle = NULL;
 static bsp_codec_config_t g_codec_handle;
 
@@ -99,17 +97,15 @@ static const boards_info_t g_boards_info = {
     .board_desc =   &g_board_s3_box_res
 };
 
-static i2s_chan_handle_t i2s_tx_chan;
-static i2s_chan_handle_t i2s_rx_chan;
-
-static es7210_dev_handle_t es7210_handle = NULL;
-static es8311_handle_t es8311_handle = NULL;
-
 static const char *TAG = "board";
 
-static bool bsp_home_button_get(void *param)
+static uint8_t bsp_home_button_get(void *param)
 {
+#if CONFIG_BSP_TOUCH_BUTTON
     return bsp_button_get(BSP_BUTTON_MAIN);
+#else
+    return false;
+#endif
 }
 
 esp_err_t bsp_btn_init(void)
@@ -158,30 +154,34 @@ esp_err_t bsp_btn_rm_all_callback(bsp_button_id_t btn)
 static esp_err_t bsp_i2s_read(void *audio_buffer, size_t len, size_t *bytes_read, uint32_t timeout_ms)
 {
     esp_err_t ret = ESP_OK;
-    ret = i2s_channel_read(i2s_rx_chan, (char *)audio_buffer, len, bytes_read, timeout_ms);
+    ret = esp_codec_dev_read(record_dev_handle, audio_buffer, len);
+    *bytes_read = len;
     return ret;
 }
 
 static esp_err_t bsp_i2s_write(void *audio_buffer, size_t len, size_t *bytes_written, uint32_t timeout_ms)
 {
     esp_err_t ret = ESP_OK;
-    ret = i2s_channel_write(i2s_tx_chan, (char *)audio_buffer, len, bytes_written, timeout_ms);
+    ret = esp_codec_dev_write(play_dev_handle, audio_buffer, len);
+    *bytes_written = len;
     return ret;
 }
 
-static esp_err_t bsp_i2s_reconfig_clk(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch)
+static esp_err_t bsp_codec_es8311_set(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch)
 {
     esp_err_t ret = ESP_OK;
-    i2s_std_config_t std_cfg = {
-        .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(rate),
-        .slot_cfg = I2S_STD_PHILIP_SLOT_DEFAULT_CONFIG((i2s_data_bit_width_t)bits_cfg, (i2s_slot_mode_t)ch),
-        .gpio_cfg = BSP_I2S_GPIO_CFG,
+
+    esp_codec_dev_sample_info_t fs = {
+        .sample_rate = rate,
+        .channel = ch,
+        .bits_per_sample = bits_cfg,
     };
 
-    ret |= i2s_channel_disable(i2s_tx_chan);
-    ret |= i2s_channel_reconfig_std_clock(i2s_tx_chan, &std_cfg.clk_cfg);
-    ret |= i2s_channel_reconfig_std_slot(i2s_tx_chan, &std_cfg.slot_cfg);
-    ret |= i2s_channel_enable(i2s_tx_chan);
+    ret = esp_codec_dev_close(play_dev_handle);
+    ret = esp_codec_dev_close(record_dev_handle);
+
+    ret = esp_codec_dev_open(play_dev_handle, &fs);
+    ret = esp_codec_dev_open(record_dev_handle, &fs);
     return ret;
 }
 
@@ -191,14 +191,14 @@ static esp_err_t bsp_codec_volume_set(int volume, int *volume_set)
     float v = volume;
     v *= 0.6f;
     v = -0.01f * (v * v) + 2.0f * v;
-    ret = es8311_voice_volume_set(es8311_handle, (int)v, volume_set);
+    ret = esp_codec_dev_set_out_vol(play_dev_handle, (int)v);
     return ret;
 }
 
 static esp_err_t bsp_codec_mute_set(bool enable)
 {
     esp_err_t ret = ESP_OK;
-    ret = es8311_voice_mute(es8311_handle, enable);
+    ret = esp_codec_dev_set_out_mute(play_dev_handle, enable);
     return ret;
 }
 
@@ -206,48 +206,29 @@ static esp_err_t bsp_codec_es7210_set()
 {
     esp_err_t ret = ESP_OK;
 
-    es7210_codec_config_t codec_conf = {
-        .i2s_format = ES7210_I2S_FORMAT,
-        .mclk_ratio = ES7210_MCLK_MULTIPLE,
-        .sample_rate_hz = ES7210_SAMPLE_RATE,
-        .bit_width = ES7210_BIT_WIDTH,
-        .mic_bias = ES7210_MIC_BIAS,
-        .mic_gain = ES7210_MIC_GAIN,
-        .flags.tdm_enable = false
+    esp_codec_dev_sample_info_t fs = {
+        .sample_rate = ES7210_SAMPLE_RATE,
+        .channel = ES7210_CHANNEL,
+        .bits_per_sample = ES7210_BIT_WIDTH,
     };
-    ret |= es7210_config_codec(es7210_handle, &codec_conf);
-    ret |= es7210_config_volume(es7210_handle, ES7210_ADC_VOLUME);
+
+    assert(record_dev_handle);
+    ret = esp_codec_dev_open(record_dev_handle, &fs);
+    esp_codec_dev_set_in_gain(record_dev_handle, ES7210_ADC_VOLUME);
     return ret;
 }
 
 static void bsp_codec_init()
 {
-    /* Create ES7210 device handle */
-    es7210_i2c_config_t es7210_i2c_conf = {
-        .i2c_port = BSP_I2C_NUM,
-        .i2c_addr = ES7210_I2C_ADDR
-    };
-    es7210_new_codec(&es7210_i2c_conf, &es7210_handle);
+    play_dev_handle = bsp_audio_codec_speaker_init();
+    assert((play_dev_handle) && "play_dev_handle not initialized");
+
+    record_dev_handle = bsp_audio_codec_microphone_init();
+    assert((record_dev_handle) && "record_dev_handle not initialized");
+
+    bsp_audio_poweramp_enable(false);
+
     bsp_codec_es7210_set();
-
-    es8311_handle = es8311_create(BSP_I2C_NUM, ES8311_ADDRRES_0);
-
-    es8311_clock_config_t clk_cfg = BSP_ES8311_SCLK_CONFIG(ES8311_SAMPLE_RATE);
-    es8311_init(es8311_handle, &clk_cfg, ES8311_RESOLUTION_32, ES8311_RESOLUTION_32);
-    es8311_voice_volume_set(es8311_handle, ES8311_DEFAULT_VOLUME, NULL);
-
-    /* Microphone settings */
-    es8311_microphone_config(es8311_handle, false);
-    es8311_microphone_gain_set(es8311_handle, ES8311_MIC_GAIN_42DB);
-
-    /* Configure I2S peripheral and Power Amplifier */
-    i2s_std_config_t std_cfg = {
-        .clk_cfg = I2S_STD_CLK_DEFAULT_CONFIG(16000),
-        .slot_cfg = I2S_STD_PHILIP_SLOT_DEFAULT_CONFIG(I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_STEREO),
-        .gpio_cfg = BSP_I2S_GPIO_CFG,
-    };
-    bsp_audio_init(&std_cfg, &i2s_tx_chan, &i2s_rx_chan);
-    bsp_audio_poweramp_enable(true);
 
     bsp_codec_config_t *codec_config = bsp_board_get_codec_handle();
     codec_config->volume_set_fn = bsp_codec_volume_set;
@@ -255,7 +236,7 @@ static void bsp_codec_init()
     codec_config->codec_reconfig_fn = bsp_codec_es7210_set;
     codec_config->i2s_read_fn = bsp_i2s_read;
     codec_config->i2s_write_fn = bsp_i2s_write;
-    codec_config->i2s_reconfig_clk_fn = bsp_i2s_reconfig_clk;
+    codec_config->i2s_reconfig_clk_fn = bsp_codec_es8311_set;
 }
 
 __attribute__((weak)) void mute_btn_handler(void *handle, void *arg)

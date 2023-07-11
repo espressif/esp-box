@@ -9,7 +9,6 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_check.h"
-#include "bsp_board.h"
 #include "lvgl.h"
 #include "app_wifi.h"
 #include "nvs_flash.h"
@@ -21,6 +20,9 @@
 #include "ui_sr.h"
 #include "ui_net_config.h"
 #include "ui_boot_animate.h"
+
+#include "bsp_board.h"
+#include "bsp/esp-bsp.h"
 
 static const char *TAG = "ui_main";
 
@@ -40,6 +42,40 @@ static lv_obj_t *g_lab_wifi = NULL;
 static lv_obj_t *g_status_bar = NULL;
 
 static void ui_arc_animation_ctrl(int start);
+
+static void ui_button_style_init(void)
+{
+    /*Init the style for the default state*/
+
+    lv_style_init(&g_btn_styles.style);
+
+    lv_style_set_radius(&g_btn_styles.style, 5);
+    lv_style_set_bg_color(&g_btn_styles.style, lv_color_make(255, 255, 255));
+
+    lv_style_set_border_opa(&g_btn_styles.style, LV_OPA_30);
+    lv_style_set_border_width(&g_btn_styles.style, 2);
+    lv_style_set_border_color(&g_btn_styles.style, lv_palette_main(LV_PALETTE_GREY));
+
+    lv_style_set_shadow_width(&g_btn_styles.style, 7);
+    lv_style_set_shadow_color(&g_btn_styles.style, lv_color_make(0, 0, 0));
+    lv_style_set_shadow_ofs_x(&g_btn_styles.style, 0);
+    lv_style_set_shadow_ofs_y(&g_btn_styles.style, 0);
+
+    /*Init the pressed style*/
+
+    lv_style_init(&g_btn_styles.style_pr);
+
+    lv_style_set_border_opa(&g_btn_styles.style_pr, LV_OPA_40);
+    lv_style_set_border_width(&g_btn_styles.style_pr, 2);
+    lv_style_set_border_color(&g_btn_styles.style_pr, lv_palette_main(LV_PALETTE_GREY));
+
+
+    lv_style_init(&g_btn_styles.style_focus);
+    lv_style_set_outline_color(&g_btn_styles.style_focus, lv_color_make(255, 0, 0));
+
+    lv_style_init(&g_btn_styles.style_focus_no_outline);
+    lv_style_set_outline_width(&g_btn_styles.style_focus_no_outline, 0);
+}
 
 button_style_t *ui_button_styles(void)
 {
@@ -183,6 +219,8 @@ static void ui_watering_btn(lv_obj_t *parent)
     lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_style_border_width(obj, 0, LV_PART_MAIN);
     lv_obj_set_style_shadow_width(obj, 0, LV_PART_MAIN);
+    lv_obj_add_style(obj, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
+    lv_obj_add_style(obj, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
     lv_obj_align(obj, LV_ALIGN_RIGHT_MID, 0, 0);
 
     g_btn_item = lv_btn_create(obj);
@@ -190,6 +228,8 @@ static void ui_watering_btn(lv_obj_t *parent)
     lv_obj_set_size(btn, 120, 120);
     lv_obj_set_style_border_width(btn, 0, LV_PART_MAIN);
     lv_obj_set_style_shadow_width(btn, 0, LV_PART_MAIN);
+    lv_obj_add_style(btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
+    lv_obj_add_style(btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
     lv_obj_center(btn);
     lv_obj_set_style_radius(btn, LV_STYLE_RADIUS, LV_STATE_DEFAULT);
 
@@ -202,6 +242,11 @@ static void ui_watering_btn(lv_obj_t *parent)
     lv_obj_add_event_cb(btn, btn_watering_handler, LV_EVENT_RELEASED, label_btn);
     lv_obj_add_event_cb(btn, btn_watering_handler, LV_EVENT_VALUE_CHANGED, label_btn);
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    if (ui_get_btn_op_group()) {
+        lv_group_add_obj(ui_get_btn_op_group(), btn);
+    }
+#endif
     app_pump_add_cb_before_watering(ui_main_watering_before, NULL);
     app_pump_add_cb_during_watering(ui_main_watering_during, NULL);
     app_pump_add_cb_after_watering(ui_main_watering_after, NULL);
@@ -315,11 +360,15 @@ static void ui_after_boot(void)
 
 void ui_main(void)
 {
+    bsp_display_lock(0);
+
+    ui_button_style_init();
     lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(237, 238, 239), LV_STATE_DEFAULT);
 
     lv_indev_t *indev = lv_indev_get_next(NULL);
 
-    if (lv_indev_get_type(indev) == LV_INDEV_TYPE_KEYPAD) {
+    if ((lv_indev_get_type(indev) == LV_INDEV_TYPE_KEYPAD) || \
+            lv_indev_get_type(indev) == LV_INDEV_TYPE_ENCODER) {
         ESP_LOGI(TAG, "Input device type is keypad");
         g_btn_op_group = lv_group_create();
         lv_indev_set_group(indev, g_btn_op_group);
@@ -355,4 +404,6 @@ void ui_main(void)
     ui_sr_anim_init();
 
     boot_animate_start(ui_after_boot);
+
+    bsp_display_unlock();
 }

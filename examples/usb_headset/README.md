@@ -3,7 +3,7 @@
 | Board             | Support Status |
 | ----------------- | -------------- |
 | ESP32-S3-BOX      | YES            |
-| ESP32-S3-BOX-Lite | NO             |
+| ESP32-S3-BOX-Lite | YES            |
 
 This demo makes ESP32-S3-BOX work as a USB headset that can play music and record voice. Default uses 48k single mic and single channel audio data, and it uses FFT to display the music spectrum on the screen and supports multiple animations.
 

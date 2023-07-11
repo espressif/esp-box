@@ -38,8 +38,8 @@ void sr_handler_task(void *pvParam)
 
         if (WAKENET_DETECTED == result.wakenet_mode) {
             sr_anim_start();
-            app_audio_beep_play_start();
             sr_anim_set_text("Say command");
+            app_audio_beep_play_start();
             continue;
         }
 
@@ -58,7 +58,6 @@ void sr_handler_task(void *pvParam)
             default:
                 break;
             }
-
             /* **************** REGISTER COMMAND CALLBACK HERE **************** */
         }
     }

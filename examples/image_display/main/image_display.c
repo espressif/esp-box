@@ -61,7 +61,8 @@ static void image_display(void)
 {
     lv_indev_t *indev = lv_indev_get_next(NULL);
 
-    if (lv_indev_get_type(indev) == LV_INDEV_TYPE_KEYPAD) {
+    if ((lv_indev_get_type(indev) == LV_INDEV_TYPE_KEYPAD) || \
+            lv_indev_get_type(indev) == LV_INDEV_TYPE_ENCODER) {
         ESP_LOGI(TAG, "Input device type is keypad");
         g_btn_op_group = lv_group_create();
         lv_indev_set_group(indev, g_btn_op_group);

@@ -33,8 +33,13 @@ esp_err_t settings_factory_reset(void)
     memcpy(&g_sys_param, &g_default_sys_param, sizeof(sys_param_t));
 
     ESP_LOGW(TAG, "ssid|password:[%s:%s]", DEFAULT_ESP_WIFI_SSID, DEFAULT_ESP_WIFI_PASS);
-    memcpy(&g_sys_param.ssid[0], DEFAULT_ESP_WIFI_SSID, strlen(DEFAULT_ESP_WIFI_SSID));
-    memcpy(&g_sys_param.password[0], DEFAULT_ESP_WIFI_PASS, strlen(DEFAULT_ESP_WIFI_PASS));
+    if((0 == strlen(DEFAULT_ESP_WIFI_SSID)) || ( 0 == strlen(DEFAULT_ESP_WIFI_PASS))){
+        memcpy(&g_sys_param.ssid[0], "DEFAULT_ESP_WIFI_SSID", strlen("DEFAULT_ESP_WIFI_SSID"));
+        memcpy(&g_sys_param.password[0], "DEFAULT_ESP_WIFI_PASS", strlen("DEFAULT_ESP_WIFI_PASS"));
+    } else {
+        memcpy(&g_sys_param.ssid[0], DEFAULT_ESP_WIFI_SSID, strlen(DEFAULT_ESP_WIFI_SSID));
+        memcpy(&g_sys_param.password[0], DEFAULT_ESP_WIFI_PASS, strlen(DEFAULT_ESP_WIFI_PASS));
+    }
     g_sys_param.password_len = strlen(g_sys_param.password);
     g_sys_param.ssid_len = strlen(g_sys_param.ssid);
 

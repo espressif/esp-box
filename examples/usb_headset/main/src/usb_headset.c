@@ -3,7 +3,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+#include "bsp_board.h"
 #include "bsp/esp-bsp.h"
+
 #include "esp_private/usb_phy.h"
 #include "fft_convert.h"
 #include "tusb.h"
@@ -20,9 +22,6 @@ const uint32_t sample_rates[] = {44100, 48000, 88200, 96000};
 #endif
 
 uint32_t current_sample_rate  = 48000;
-
-extern i2s_chan_handle_t i2s_tx_chan;
-extern i2s_chan_handle_t i2s_rx_chan;
 
 #define N_SAMPLE_RATES  TU_ARRAY_SIZE(sample_rates)
 
@@ -353,7 +352,8 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport, uint16_t n_bytes_received, u
 
 
     size_t bytes_written = 0;
-    esp_err_t ret = i2s_channel_write(i2s_tx_chan, &spk_buf, spk_data_size, &bytes_written, 0);
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
+    esp_err_t ret = codec_handle->i2s_write_fn(&spk_buf, spk_data_size, &bytes_written, 0);
 
     for (int i = 0; i < AUDIO_LENGTH ; i += 2) {
         rb_write(spk_buf + i, 2);
@@ -384,7 +384,8 @@ bool tud_audio_tx_done_post_load_cb(uint8_t rhport, uint16_t n_bytes_copied, uin
     /*** Here to fill audio buffer, only use in audio transmission begin ***/
     size_t bytes_read = 0;
 
-    esp_err_t ret = i2s_channel_read(i2s_rx_chan, &mic_buf, AUDIO_LENGTH * 2, &bytes_read, 0);
+    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
+    esp_err_t ret = codec_handle->i2s_read_fn(&mic_buf, AUDIO_LENGTH * 2, &bytes_read, 0);
     for (int i = 0; i < AUDIO_LENGTH / 2 ; i++) {
         mic_buf[i + 1] = mic_buf[2 * (i + 1)];
     }

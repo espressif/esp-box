@@ -32,7 +32,7 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 
 |      ESP-BOX     | Dependent ESP-IDF |  Branch Note                                           | Support State  |
 | :--------------: | :---------------: | :----------------------------------------------------: | -------------- |
-|      master      | release/v5.0<br/>commit id: ef4b1b7704 |  Latest developing firmware <br/>esp-sr version:  v1.1.0  | New feature develop, Support ESP32-S3-BOX only |
+|      master      | >= release/v5.0<br/>commit id: 96119acc8b |  Latest developing firmware <br/>esp-sr version:  v1.3.3  | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite <br/>Use menuconfig to select board |
 |      Tag 0.3.0     | release/v4.4<br>commit id: 2bdea81b2a | esp-sr version:  dev/v2.0<br>commit id: c873a35  | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite |
 | Tag 0.2.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.2.1/idf_patch) | esp-sr version: close v1.0<br/>commit id: 3ce34fe | Support ESP32-S3-BOX only |
 | Tag 0.1.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.1.1/idf_patch) | esp-sr version: v0.9.6<br/>commit id: 3ce34fe | Support ESP32-S3-BOX only |

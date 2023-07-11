@@ -83,16 +83,22 @@ void ui_ScreenSetup_screen_init(void)
 
     ui_LabelSetupStepContent = lv_label_create(ui_PanelSetupSteps);
     lv_obj_set_width(ui_LabelSetupStepContent, lv_pct(88));
-    lv_obj_set_height(ui_LabelSetupStepContent, lv_pct(61));
+    lv_obj_set_height(ui_LabelSetupStepContent, lv_pct(73));
     lv_obj_set_x(ui_LabelSetupStepContent, lv_pct(0));
     lv_obj_set_y(ui_LabelSetupStepContent, lv_pct(20));
     lv_obj_set_align(ui_LabelSetupStepContent, LV_ALIGN_TOP_MID);
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
     lv_label_set_text(ui_LabelSetupStepContent,
                       "1. Wake up the device using \"Hi ESP\".\n2. Ask a question within 10 seconds and wait for a reply.\n3.  In sleep mode, click screen can wake up the device. ");
+    lv_obj_set_style_text_line_space(ui_LabelSetupStepContent, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+#else
+    lv_label_set_text(ui_LabelSetupStepContent,
+                      "1. Wake up the device using \"Hi ESP\".\n2. Ask a question within 10 seconds and wait for a reply.\n3. In sleep mode, click \"Enter\" button can wake up the device.\n4. Long press \"Enter\" button to enter/exit Settings.");
+    lv_obj_set_style_text_line_space(ui_LabelSetupStepContent, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+#endif
     lv_obj_set_style_text_color(ui_LabelSetupStepContent, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_LabelSetupStepContent, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_letter_space(ui_LabelSetupStepContent, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_line_space(ui_LabelSetupStepContent, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_LabelSetupStepContent, &ui_font_PingFangEN14, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_LabelSetupStepTile = lv_label_create(ui_PanelSetupSteps);
@@ -129,5 +135,4 @@ void ui_ScreenSetup_screen_init(void)
     lv_obj_set_style_text_font(ui_LabelSetupBtn, &ui_font_PingFangEN16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_ButtonSetup, ui_event_ButtonSetup, LV_EVENT_ALL, NULL);
-
 }

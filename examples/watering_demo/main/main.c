@@ -13,13 +13,16 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "nvs.h"
-#include "bsp_board.h"
-#include "bsp_storage.h"
 #include "app_audio.h"
 #include "app_sr.h"
 #include "app_pump.h"
 #include "app_humidity.h"
 #include "app_rmaker.h"
+
+#include "bsp_board.h"
+#include "bsp/esp-bsp.h"
+
+#include "lvgl.h"
 #include "gui/ui_main.h"
 
 static const char *TAG = "main";

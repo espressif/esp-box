@@ -41,6 +41,13 @@ static srmodel_list_t *models = NULL;
 static FILE *fp = NULL;
 static bool b_record_en = false;
 
+const char *cmd_phoneme[4] = {
+    "ting zhi jiao hua",
+    "ting zhi jiao shui",
+    "kai shi jiao hua",
+    "kai shi jiao shui"
+};
+
 static void audio_feed_task(void *pvParam)
 {
     size_t bytes_read = 0;
@@ -97,7 +104,7 @@ static void audio_detect_task(void *pvParam)
         afe_fetch_result_t *res = afe_handle->fetch(afe_data);
         if (!res || res->ret_value == ESP_FAIL) {
             ESP_LOGE(TAG, "fetch error!");
-            //break;
+            continue;
         }
 
         if (res->wakeup_state == WAKENET_DETECTED) {
@@ -170,7 +177,6 @@ static void audio_detect_task(void *pvParam)
                 }
                 continue;
             }
-
             ESP_LOGE(TAG, "Exception unhandled");
         }
     }
@@ -215,20 +221,29 @@ esp_err_t app_sr_start(bool record_en)
 
     afe_handle = &ESP_AFE_SR_HANDLE;
     afe_config_t afe_config = AFE_CONFIG_DEFAULT();
+
     afe_config.wakenet_model_name = esp_srmodel_filter(models, ESP_WN_PREFIX, NULL);
     afe_config.aec_init = false;
-    // afe_config.vad_init = false;
-    ESP_LOGI(TAG, "load wakenet:%s", afe_config.wakenet_model_name);
+
     esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
+    ESP_LOGI(TAG, "load wakenet:%s", afe_config.wakenet_model_name);
 
     char *mn_name = esp_srmodel_filter(models, ESP_MN_PREFIX, NULL);
     multinet = esp_mn_handle_from_name(mn_name);
-    ESP_LOGI(TAG, "load multinet:%s", mn_name);
     model_data = multinet->create(mn_name, 5760);
+    ESP_LOGI(TAG, "load multinet:%s", mn_name);
 
-    esp_mn_commands_update_from_sdkconfig(multinet, model_data);
+    // esp_mn_commands_update_from_sdkconfig(multinet, model_data);
 
-    BaseType_t ret_val = xTaskCreatePinnedToCore(audio_feed_task, "Feed Task", 4 * 1024, afe_data, 5, NULL, 1);
+    esp_mn_commands_clear();
+    for (int i = 0; i < sizeof(cmd_phoneme) / sizeof(cmd_phoneme[0]); i++) {
+        esp_mn_commands_add(i, (char *)cmd_phoneme[i]);
+    }
+    esp_mn_commands_update();
+    esp_mn_commands_print();
+    multinet->print_active_speech_commands(model_data);
+
+    BaseType_t ret_val = xTaskCreatePinnedToCore(audio_feed_task, "Feed Task", 4 * 1024, afe_data, 5, NULL, 0);
     ESP_RETURN_ON_FALSE(pdPASS == ret_val, ESP_FAIL, TAG,  "Failed create audio feed task");
 
     ret_val = xTaskCreatePinnedToCore(audio_detect_task, "Detect Task", 6 * 1024, afe_data, 5, NULL, 1);

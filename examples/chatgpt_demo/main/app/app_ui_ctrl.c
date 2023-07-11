@@ -48,9 +48,14 @@ void ui_ctrl_init(void)
 static void wifi_check_timer_handler(lv_timer_t *timer)
 {
     if (WIFI_STATUS_CONNECTED_OK == wifi_connected_already()){
-        lv_obj_clear_flag(ui_PanelSetupSteps, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(ui_PanelSetupWifi, LV_OBJ_FLAG_HIDDEN);
+        _ui_flag_modify(ui_PanelSetupSteps, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+        _ui_flag_modify(ui_PanelSetupWifi, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
         lv_timer_del(timer);
+
+        if (ui_get_btn_op_group()) {
+            lv_group_remove_all_objs(ui_get_btn_op_group());
+            lv_group_add_obj(ui_get_btn_op_group(), ui_ButtonSetup);
+        }
     } else {
         if (strlen(lv_label_get_text(ui_LabelSetupWifi)) >= sizeof(LABEL_WIFI_TEXT) + LABEL_WIFI_DOT_COUNT_MAX + 1) {
             lv_label_set_text(ui_LabelSetupWifi, LABEL_WIFI_TEXT);
