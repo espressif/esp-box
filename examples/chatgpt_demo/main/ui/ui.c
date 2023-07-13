@@ -18,12 +18,25 @@ lv_obj_t * ui_ScreenSetup;
 lv_obj_t * ui_ImageSetupTextBg;
 lv_obj_t * ui_PanelSetupWifi;
 lv_obj_t * ui_LabelSetupWifi;
+void ui_event_ImageSetupWifiReset(lv_event_t * e);
+lv_obj_t * ui_ImageSetupWifiReset;
 lv_obj_t * ui_PanelSetupSteps;
 lv_obj_t * ui_LabelSetupStepContent;
 lv_obj_t * ui_LabelSetupStepTile;
 void ui_event_ButtonSetup(lv_event_t * e);
 lv_obj_t * ui_ButtonSetup;
 lv_obj_t * ui_LabelSetupBtn;
+
+// SCREEN: ui_ScreenWifiReset
+void ui_ScreenWifiReset_screen_init(void);
+lv_obj_t * ui_ScreenWifiReset;
+lv_obj_t * ui_LabelWifiResetTitle;
+void ui_event_ButtonWifiResetConfirm(lv_event_t * e);
+lv_obj_t * ui_ButtonWifiResetConfirm;
+lv_obj_t * ui_LabelSetupBtn1;
+void ui_event_ImageWifiResetBack(lv_event_t * e);
+lv_obj_t * ui_ImageWifiResetBack;
+lv_obj_t * ui_LabelWifiResetContent;
 
 // SCREEN: ui_ScreenListen
 void ui_ScreenListen_screen_init(void);
@@ -72,6 +85,19 @@ void ui_event_DropdownSettingsRegion(lv_event_t * e);
 lv_obj_t * ui_DropdownSettingsRegion;
 void ui_event_ImageSettingsBack(lv_event_t * e);
 lv_obj_t * ui_ImageSettingsBack;
+void ui_event_ImageSettingsReset(lv_event_t * e);
+lv_obj_t * ui_ImageSettingsReset;
+
+// SCREEN: ui_ScreenReset
+void ui_ScreenReset_screen_init(void);
+lv_obj_t * ui_ScreenReset;
+lv_obj_t * ui_LabelResetTitle;
+lv_obj_t * ui_LabelResetContent;
+void ui_event_ButtonResetConfirm(lv_event_t * e);
+lv_obj_t * ui_ButtonResetConfirm;
+lv_obj_t * ui_LabelSetupBtn2;
+void ui_event_ImageResetBack(lv_event_t * e);
+lv_obj_t * ui_ImageResetBack;
 void ui_event____initial_actions0(lv_event_t * e);
 lv_obj_t * ui____initial_actions0;
 const lv_img_dsc_t * ui_imgset_listen_body_eyes_[2] = {&ui_img_listen_body_eyes_1_png, &ui_img_listen_body_eyes_2_png};
@@ -187,10 +213,16 @@ void get_eye_blink_Animation(lv_obj_t * TargetObject, int delay)
 }
 
 ///////////////////// FUNCTIONS ////////////////////
+void ui_event_ImageSetupWifiReset(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(ui_ScreenWifiReset, LV_SCR_LOAD_ANIM_NONE, 0, 0);
+    }
+}
 void ui_event_ButtonSetup(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(ui_ScreenListen, LV_SCR_LOAD_ANIM_NONE, 0, 0);
         if(ui_get_btn_op_group()) {
@@ -208,10 +240,23 @@ void ui_event_ButtonSetup(lv_event_t * e)
         _ui_flag_modify(ui_PanelReply, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
     }
 }
+void ui_event_ButtonWifiResetConfirm(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        EventWifiResetConfirmClick(e);
+    }
+}
+void ui_event_ImageWifiResetBack(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(ui_ScreenSetup, LV_SCR_LOAD_ANIM_NONE, 0, 0);
+    }
+}
 void ui_event_PanelSleep(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
 
     if(true == lv_obj_has_flag(ui_PanelSleep, LV_OBJ_FLAG_HIDDEN)) {
         return;
@@ -230,7 +275,6 @@ void ui_event_PanelSleep(lv_event_t * e)
 void ui_event_ImageListenSettings(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(ui_ScreenSettings, LV_SCR_LOAD_ANIM_NONE, 0, 0);
         if(ui_get_btn_op_group()) {
@@ -242,33 +286,38 @@ void ui_event_ImageListenSettings(lv_event_t * e)
 
 void ui_event_DropdownSettingsRegion(lv_event_t * e)
 {
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
-        EventSettingsRegionValueChange(e);
-    } else if(event_code == LV_EVENT_LONG_PRESSED_REPEAT) {
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
-        lv_event_send(ui_ImageSettingsBack, LV_EVENT_CLICKED, NULL);
-#endif
-    }
 }
 void ui_event_ImageSettingsBack(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(ui_ScreenListen, LV_SCR_LOAD_ANIM_NONE, 0, 0);
-        if(ui_get_btn_op_group()) {
-            lv_group_remove_all_objs(ui_get_btn_op_group());
-            lv_group_add_obj(ui_get_btn_op_group(), ui_PanelSleep);
-        }
+    }
+}
+void ui_event_ImageSettingsReset(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(ui_ScreenReset, LV_SCR_LOAD_ANIM_NONE, 0, 0);
+    }
+}
+void ui_event_ButtonResetConfirm(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        EventResetConfirm(e);
+    }
+}
+void ui_event_ImageResetBack(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(ui_ScreenSettings, LV_SCR_LOAD_ANIM_NONE, 0, 0);
     }
 }
 void ui_event____initial_actions0(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
         _ui_flag_modify(ui_PanelSetupWifi, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
         _ui_flag_modify(ui_PanelSetupSteps, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
@@ -291,8 +340,10 @@ void ui_init(void)
 
     lv_disp_set_theme(dispp, theme);
     ui_ScreenSetup_screen_init();
+    ui_ScreenWifiReset_screen_init();
     ui_ScreenListen_screen_init();
     ui_ScreenSettings_screen_init();
+    ui_ScreenReset_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
 

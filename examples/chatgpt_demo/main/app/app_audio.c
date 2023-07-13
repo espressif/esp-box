@@ -35,8 +35,8 @@ static bool mute_flag = true;
 bool record_flag = false;
 uint32_t record_total_len = 0;
 uint32_t file_total_len = 0;
-volatile uint8_t *record_audio_buffer = NULL;
-volatile uint8_t *audio_rx_buffer = NULL;
+static uint8_t *record_audio_buffer = NULL;
+uint8_t *audio_rx_buffer = NULL;
 audio_play_finish_cb_t audio_play_finish_cb = NULL;
 
 extern sr_data_t *g_sr_data;
@@ -66,7 +66,7 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
     codec_handle->mute_set_fn(setting == AUDIO_PLAYER_MUTE ? true : false);
     // restore the voice volume upon unmuting
     if (setting == AUDIO_PLAYER_UNMUTE) {
-        codec_handle->volume_set_fn(85, NULL);
+        codec_handle->volume_set_fn(CONFIG_VOLUME_LEVEL, NULL);
     } else {
         if (audio_play_finish_cb) {
             audio_play_finish_cb();
@@ -228,6 +228,10 @@ esp_err_t audio_play_task(void *filepath)
     ESP_LOGI(TAG, "frame_rate= %" PRIi32 ", ch=%d, width=%d", wav_head.SampleRate, wav_head.NumChannels, wav_head.BitsPerSample);
     codec_handle->i2s_reconfig_clk_fn(wav_head.SampleRate, wav_head.BitsPerSample, I2S_SLOT_MODE_STEREO);
 
+    codec_handle->mute_set_fn(false);
+    codec_handle->volume_set_fn(CONFIG_VOLUME_LEVEL,NULL);
+    vTaskDelay(pdMS_TO_TICKS(500));
+
     size_t cnt, total_cnt = 0;
     do {
         /* Read file in chunks into the scratch buffer */
@@ -235,8 +239,6 @@ esp_err_t audio_play_task(void *filepath)
         if (len <= 0) {
             break;
         } else if (len > 0) {
-            codec_handle->mute_set_fn(false);
-            codec_handle->volume_set_fn(65, NULL);
             codec_handle->i2s_write_fn(buffer, len, &cnt, portMAX_DELAY);
             total_cnt += cnt;
         }

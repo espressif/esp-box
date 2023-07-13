@@ -14,6 +14,7 @@
 #include "ui.h"
 
 #define LABEL_WIFI_TEXT                 "Connecting to Wi-Fi\n"
+#define LABEL_NOT_WIFI_TEXT                 "Not Connected to Wi-Fi\n"
 #define LABEL_WIFI_DOT_COUNT_MAX        (10)
 #define WIFI_CHECK_TIMER_INTERVAL_S     (1)
 #define REPLY_SCROLL_TIMER_INTERVAL_MS  (1000)
@@ -47,15 +48,12 @@ void ui_ctrl_init(void)
 
 static void wifi_check_timer_handler(lv_timer_t *timer)
 {
-    if (WIFI_STATUS_CONNECTED_OK == wifi_connected_already()){
-        _ui_flag_modify(ui_PanelSetupSteps, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-        _ui_flag_modify(ui_PanelSetupWifi, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+    if (WIFI_STATUS_CONNECTED_OK == wifi_connected_already()) {
+        lv_obj_clear_flag(ui_PanelSetupSteps, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ui_PanelSetupWifi, LV_OBJ_FLAG_HIDDEN);
         lv_timer_del(timer);
-
-        if (ui_get_btn_op_group()) {
-            lv_group_remove_all_objs(ui_get_btn_op_group());
-            lv_group_add_obj(ui_get_btn_op_group(), ui_ButtonSetup);
-        }
+    } else if (WIFI_STATUS_CONNECTED_FAILED == wifi_connected_already()) {
+        lv_label_set_text(ui_LabelSetupWifi, LABEL_NOT_WIFI_TEXT);
     } else {
         if (strlen(lv_label_get_text(ui_LabelSetupWifi)) >= sizeof(LABEL_WIFI_TEXT) + LABEL_WIFI_DOT_COUNT_MAX + 1) {
             lv_label_set_text(ui_LabelSetupWifi, LABEL_WIFI_TEXT);
@@ -291,16 +289,16 @@ static void reply_content_scroll_timer_handler()
         offset = lv_obj_get_scroll_y(ui_ContainerReplyContent);
         // ESP_LOGI(TAG, "offset: %d, content_height: %d, font_height: %d", offset, content_height, font->line_height);
         if ((content_height > lv_obj_get_height(ui_ContainerReplyContent)) &&
-            (offset < (content_height - lv_obj_get_height(ui_ContainerReplyContent)))) {
+                (offset < (content_height - lv_obj_get_height(ui_ContainerReplyContent)))) {
             offset += font->line_height / 2;
             lv_obj_scroll_to_y(ui_ContainerReplyContent, offset, LV_ANIM_OFF);
         } else if (reply_audio_end) {
-                ESP_LOGI(TAG, "reply scroll timer stop");
-                reply_content_get = false;
-                reply_audio_start = false;
-                reply_audio_end = false;
-                lv_timer_pause(scroll_timer_handle);
-                ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 1000);
+            ESP_LOGI(TAG, "reply scroll timer stop");
+            reply_content_get = false;
+            reply_audio_start = false;
+            reply_audio_end = false;
+            lv_timer_pause(scroll_timer_handle);
+            ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 1000);
         }
     }
 }

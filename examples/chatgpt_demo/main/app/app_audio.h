@@ -38,8 +38,7 @@ void sr_handler_task(void *pvParam);
 /**
  * @brief The buffer to hold the recorded audio.
  */
-extern volatile uint8_t *record_audio_buffer;
-extern volatile uint8_t *audio_rx_buffer;
+extern uint8_t *audio_rx_buffer;
 
 esp_err_t audio_play_task(void *filepath);
 

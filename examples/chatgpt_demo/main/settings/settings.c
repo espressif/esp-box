@@ -14,109 +14,70 @@
 #include "nvs_flash.h"
 #include "nvs.h"
 #include "settings.h"
+#include "esp_ota_ops.h"
 
 static const char *TAG = "settings";
-
-#define NAME_SPACE "sys_param"
-#define KEY "param"
-
+const char *uf2_nvs_partition = "nvs";
+const char *uf2_nvs_namespace = "configuration";
+static nvs_handle_t my_handle;
 static sys_param_t g_sys_param = {0};
-
-static const sys_param_t g_default_sys_param = {
-    .need_hint = true,
-    .current_server = REGION_OpenAI,
-};
 
 esp_err_t settings_factory_reset(void)
 {
-    ESP_LOGW(TAG, "Set to default");
-    memcpy(&g_sys_param, &g_default_sys_param, sizeof(sys_param_t));
-
-    ESP_LOGW(TAG, "ssid|password:[%s:%s]", DEFAULT_ESP_WIFI_SSID, DEFAULT_ESP_WIFI_PASS);
-    if((0 == strlen(DEFAULT_ESP_WIFI_SSID)) || ( 0 == strlen(DEFAULT_ESP_WIFI_PASS))){
-        memcpy(&g_sys_param.ssid[0], "DEFAULT_ESP_WIFI_SSID", strlen("DEFAULT_ESP_WIFI_SSID"));
-        memcpy(&g_sys_param.password[0], "DEFAULT_ESP_WIFI_PASS", strlen("DEFAULT_ESP_WIFI_PASS"));
-    } else {
-        memcpy(&g_sys_param.ssid[0], DEFAULT_ESP_WIFI_SSID, strlen(DEFAULT_ESP_WIFI_SSID));
-        memcpy(&g_sys_param.password[0], DEFAULT_ESP_WIFI_PASS, strlen(DEFAULT_ESP_WIFI_PASS));
-    }
-    g_sys_param.password_len = strlen(g_sys_param.password);
-    g_sys_param.ssid_len = strlen(g_sys_param.ssid);
-
-    ESP_LOGW(TAG, "current_server:[%d]", REGION_OpenAI);
-    g_sys_param.current_server = REGION_OpenAI;
-    settings_write_parameter_to_nvs();
-
+    const esp_partition_t *update_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
+    ESP_LOGI(TAG, "Switch to partition factory");
+    esp_ota_set_boot_partition(update_partition);
+    esp_restart();
     return ESP_OK;
-}
-
-static esp_err_t settings_check(sys_param_t *param)
-{
-    esp_err_t ret;
-    ESP_GOTO_ON_FALSE(param->current_server < REGION_Max, ESP_ERR_INVALID_ARG, reset, TAG, "server incorrect");
-
-    if (((0 == param->ssid_len) || (param->ssid_len > 32)) || \
-            ((0 == param->password_len) || (param->password_len > 64)) || \
-            (param->ssid_len != strlen(param->ssid)) || \
-            (param->password_len != strlen(param->password))) {
-        ESP_LOGI(TAG, "ssid | password incorrect, [%d.%d, %d.%d]", \
-                 param->ssid_len, strlen(param->ssid), param->password_len, strlen(param->password));
-        goto reset;
-    }
-    return ret;
-reset:
-    settings_factory_reset();
-    return ret;
 }
 
 esp_err_t settings_read_parameter_from_nvs(void)
 {
-    nvs_handle_t my_handle = 0;
-    esp_err_t ret = nvs_open(NAME_SPACE, NVS_READONLY, &my_handle);
+    esp_err_t ret = nvs_open_from_partition(uf2_nvs_partition, uf2_nvs_namespace, NVS_READONLY, &my_handle);
     if (ESP_ERR_NVS_NOT_FOUND == ret) {
-        ESP_LOGW(TAG, "Not found, Set to default");
-        memcpy(&g_sys_param, &g_default_sys_param, sizeof(sys_param_t));
-        memcpy(&g_sys_param.ssid[0], DEFAULT_ESP_WIFI_SSID, strlen(DEFAULT_ESP_WIFI_SSID));
-        memcpy(&g_sys_param.password[0], DEFAULT_ESP_WIFI_PASS, strlen(DEFAULT_ESP_WIFI_PASS));
-        g_sys_param.ssid_len = strlen(DEFAULT_ESP_WIFI_SSID);
-        g_sys_param.password_len = strlen(DEFAULT_ESP_WIFI_PASS);
-
-        settings_write_parameter_to_nvs();
-        return ESP_OK;
+        ESP_LOGI(TAG, "Credentials not found");
+        goto err;
     }
 
     ESP_GOTO_ON_FALSE(ESP_OK == ret, ret, err, TAG, "nvs open failed (0x%x)", ret);
+    size_t len = 0;
 
-    size_t len = sizeof(sys_param_t);
-    ret = nvs_get_blob(my_handle, KEY, &g_sys_param, &len);
-    ESP_GOTO_ON_FALSE(ESP_OK == ret, ret, err, TAG, "can't read param");
+    // Read SSID
+    len = sizeof(g_sys_param.ssid);
+    ret = nvs_get_str(my_handle, "ssid", g_sys_param.ssid, &len);
+    if (ret != ESP_OK || len == 0) {
+        ESP_LOGI(TAG, "No SSID found");
+        goto err;
+    }
+
+    // Read password
+    len = sizeof(g_sys_param.password);
+    ret = nvs_get_str(my_handle, "password", g_sys_param.password, &len);
+    if (ret != ESP_OK || len == 0) {
+        ESP_LOGI(TAG, "No Password found");
+        goto err;
+    }
+
+    // Read key
+    len = sizeof(g_sys_param.key);
+    ret = nvs_get_str(my_handle, "ChatGPT_key", g_sys_param.key, &len);
+    if (ret != ESP_OK || len == 0) {
+        ESP_LOGI(TAG, "No OpenAI key found");
+        goto err;
+    }
     nvs_close(my_handle);
 
-    g_sys_param.current_server = REGION_Max;
+    ESP_LOGI(TAG, "stored ssid:%s", g_sys_param.ssid);
+    ESP_LOGI(TAG, "stored password:%s", g_sys_param.password);
+    ESP_LOGI(TAG, "stored OpenAI:%s", g_sys_param.key);
+    return ESP_OK;
 
-    settings_check(&g_sys_param);
-    return ret;
 err:
     if (my_handle) {
         nvs_close(my_handle);
     }
+    settings_factory_reset();
     return ret;
-}
-
-esp_err_t settings_write_parameter_to_nvs(void)
-{
-    ESP_LOGI(TAG, "Saving settings");
-    settings_check(&g_sys_param);
-    nvs_handle_t my_handle = {0};
-    esp_err_t err = nvs_open(NAME_SPACE, NVS_READWRITE, &my_handle);
-    if (err != ESP_OK) {
-        ESP_LOGI(TAG, "Error (%s) opening NVS handle!\n", esp_err_to_name(err));
-    } else {
-        err = nvs_set_blob(my_handle, KEY, &g_sys_param, sizeof(sys_param_t));
-        err |= nvs_commit(my_handle);
-        nvs_close(my_handle);
-    }
-    return ESP_OK == err ? ESP_OK : ESP_FAIL;
 }
 
 sys_param_t *settings_get_parameter(void)

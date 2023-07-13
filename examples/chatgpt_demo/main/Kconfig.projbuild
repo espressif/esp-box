@@ -1,20 +1,5 @@
 menu "Example Configuration"
 
-    config ESP_WIFI_SSID
-        string "WiFi SSID"
-        default "Network SSID"
-        help
-            SSID (network name) for the example to connect to.
-    config ESP_WIFI_PASSWORD
-        string "WiFi Password"
-        default "Password"
-        help
-            WiFi password (WPA or WPA2) for the example to use.
-    config OPENAI_API_KEY
-        string "OpenAI Key"
-        default "sk-xxxxxxxx"
-        help
-            OpenAI api key for the example to use.
     config VOICE_ID
         string "Speaker Id"
         default "qiumum_0gushi"
@@ -23,6 +8,7 @@ menu "Example Configuration"
     config VOLUME_LEVEL
         int "volume level"
         default "70"
+        range 1 100
         help
             speaker volume
     config MAX_TOKEN
@@ -30,17 +16,12 @@ menu "Example Configuration"
         default 500
         range 1 2048
         help
-            Chat GPT response token between 1 - 2048.
+            Chat GPT response token between 1 - 2048.            
     config ESP_MAXIMUM_RETRY
         int "Maximum retry"
         default 5
         help
             Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.
-    config MESSAGE_CONTENT_SIZE
-        int "Message Content Size"
-        default 3072
-        help
-            Size of the message content array in bytes.
 
     choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD
         prompt "WiFi Scan auth mode threshold"

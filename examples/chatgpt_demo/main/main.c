@@ -21,92 +21,92 @@
 #include "app_wifi.h"
 #include "settings.h"
 
-#define SCROLL_START_DELAY_S      (2)
-#define OPENAI_API_KEY    CONFIG_OPENAI_API_KEY
-
+#define SCROLL_START_DELAY_S      (1.5)
 static char *TAG = "app_main";
-format_t file_type = FORMAT_WAV;
+static sys_param_t *sys_param = NULL;
 
 /* program flow. This function is called in app_audio.c */
 
 esp_err_t start_openai(uint8_t *audio, int audio_len)
 {
-    sys_param_t *sys_set = settings_get_parameter();
-    switch (sys_set->current_server) {
-        case REGION_Espressif:
-            ui_ctrl_show_panel(UI_CTRL_PANEL_GET, 0);
-            esp_err_t err = create_whisper_request_from_record(audio, audio_len);
-            if ((err == ESP_ERR_INVALID_ARG) || (strcmp(get_message_content_for_chatgpt(), "invalid_request_error") == 0)) {
-                    // UI listen fail
-                ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
-                ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
-                return ESP_FAIL;
-            } else {
-                ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_QUESTION, get_message_content_for_whisper());
-                ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_CONTENT, get_message_content_for_chatgpt());
-                ui_ctrl_show_panel(UI_CTRL_PANEL_REPLY, 0);
-                ESP_LOGI(TAG, "create_TTS_request");
-                esp_err_t status = text_to_speech_request(get_message_content_for_chatgpt(), AUDIO_CODECS_MP3);
-                if (status != ESP_OK) {
-                    ESP_LOGE(TAG, "Error creating ChatGPT request: %s\n", esp_err_to_name(status));
-                    // UI reply audio fail
-                    ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 0);
-                } else {
-                    ESP_LOGI(TAG, "reply audio start");
-                    // Wait a moment before starting to scroll the reply content
-                    vTaskDelay(pdMS_TO_TICKS(SCROLL_START_DELAY_S * 1000));
-                    ui_ctrl_reply_set_audio_start_flag(true);
-                }
-            }
-            break;
-        case REGION_OpenAI:
-            ui_ctrl_show_panel(UI_CTRL_PANEL_GET, 0);
-            esp_err_t err2 = create_whisper_request_from_record(audio, audio_len);
-            if ((err2 == ESP_ERR_INVALID_ARG) || strcmp(get_message_content_for_chatgpt(), "invalid_request_error") == 0 || strcmp(get_message_content_for_chatgpt(), "server_error") == 0) {
-                // UI listen fail
-                ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
-                ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
-                return ESP_FAIL;
-            } else {
-                ESP_LOGI(TAG, "create_chatgpt_request: %s", get_message_content_for_chatgpt());
+    static OpenAI_t *openai = NULL;
+    static OpenAI_AudioTranscription_t *audioTranscription = NULL;
+    static OpenAI_ChatCompletion_t *chatCompletion = NULL;
 
-                // UI listen success
-                ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_QUESTION, get_message_content_for_chatgpt());
-                ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, get_message_content_for_chatgpt());
+    if (openai == NULL) {
+        openai = OpenAICreate(sys_param->key);
+        audioTranscription = openai->audioTranscriptionCreate(openai);
+        chatCompletion = openai->chatCreate(openai);
 
-                esp_err_t status = create_chatgpt_request(get_message_content_for_chatgpt());
-                if (status != ESP_OK) {
-                    ESP_LOGE(TAG, "Error creating ChatGPT request: %s\n", esp_err_to_name(status));
-                }
-            } if (strcmp(get_message_content_for_chatgpt(), "invalid_request_error") == 0) {
+        audioTranscription->setResponseFormat(audioTranscription, OPENAI_AUDIO_RESPONSE_FORMAT_JSON);
+        audioTranscription->setLanguage(audioTranscription,"en");
+        audioTranscription->setTemperature(audioTranscription, 0.2);
 
-                // UI reply fail
-                ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
-                ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
+        chatCompletion->setModel(chatCompletion, "gpt-3.5-turbo");
+        chatCompletion->setSystem(chatCompletion, "Code geek");
+        chatCompletion->setMaxTokens(chatCompletion, CONFIG_MAX_TOKEN);
+        chatCompletion->setTemperature(chatCompletion, 0.2);
+        chatCompletion->setStop(chatCompletion, "\r");
+        chatCompletion->setPresencePenalty(chatCompletion, 0);
+        chatCompletion->setFrequencyPenalty(chatCompletion, 0);
+        chatCompletion->setUser(chatCompletion, "OpenAI-ESP32");
+    }
 
-                return ESP_FAIL;
-            } else {
-                // UI reply content
-                ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_CONTENT, get_message_content_for_chatgpt());
-                ui_ctrl_show_panel(UI_CTRL_PANEL_REPLY, 0);
-                esp_err_t status = text_to_speech_request(get_message_content_for_chatgpt(), AUDIO_CODECS_MP3);
-                if (status != ESP_OK) {
-                    ESP_LOGE(TAG, "Error creating ChatGPT request: %s\n", esp_err_to_name(status));
-                    // UI reply audio fail
-                    ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 0);
-                } else {
-                    ESP_LOGI(TAG, "replay audio start");
-                    // Wait a moment before start to scroll the reply content
-                    vTaskDelay(pdMS_TO_TICKS(SCROLL_START_DELAY_S * 1000));
-                    ui_ctrl_reply_set_audio_start_flag(true);
-                }
-            }
-            break;
-        default:
-            // Handle other server regions if necessary
-            break;
-        }
-        return ESP_OK;
+    ui_ctrl_show_panel(UI_CTRL_PANEL_GET, 0);
+    char *text = audioTranscription->file(audioTranscription, (uint8_t *)audio, audio_len, OPENAI_AUDIO_INPUT_FORMAT_WAV); // Calling transcript api
+
+    if (text == NULL){
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "API Key is not valid");
+        return ESP_FAIL;
+    }
+
+    if (strcmp(text, "invalid_request_error") == 0 || strcmp(text, "server_error") == 0) {
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
+        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
+        return ESP_FAIL;
+    }
+
+    // UI listen success
+    ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_QUESTION, text);
+    ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, text);
+
+    OpenAI_StringResponse_t *result = chatCompletion->message(chatCompletion, text, false); //Calling Chat completion api
+    char *response = result->getData(result, 0);
+
+    if (response != NULL && (strcmp(response, "invalid_request_error") == 0 || strcmp(response, "server_error") == 0)) {
+        // UI listen fail
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
+        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
+        return ESP_FAIL;
+    }
+
+    // UI listen success
+    ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_QUESTION, text);
+    ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, response);
+
+    if (strcmp(response, "invalid_request_error") == 0) {
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
+        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
+        return ESP_FAIL;
+    }
+
+    ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_CONTENT, response);
+    ui_ctrl_show_panel(UI_CTRL_PANEL_REPLY, 0);
+    esp_err_t status = text_to_speech_request(response, AUDIO_CODECS_MP3);
+
+    if (status != ESP_OK) {
+        ESP_LOGE(TAG, "Error creating ChatGPT request: %s\n", esp_err_to_name(status));
+        // UI reply audio fail
+        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 0);
+    } else {
+        // Wait a moment before starting to scroll the reply content
+        vTaskDelay(pdMS_TO_TICKS(SCROLL_START_DELAY_S * 1000));
+        ui_ctrl_reply_set_audio_start_flag(true);
+    }
+    // Clearing resources 
+    result->delete(result);
+    free(text);
+    return ESP_OK;
 }
 
 /* play audio function */
@@ -129,9 +129,9 @@ void app_main()
     }
     ESP_ERROR_CHECK(ret);
     ESP_ERROR_CHECK(settings_read_parameter_from_nvs());
+    sys_param = settings_get_parameter();
 
     bsp_spiffs_mount();
-
     bsp_i2c_init();
     bsp_display_start();
     bsp_board_init();
@@ -139,13 +139,8 @@ void app_main()
     ESP_LOGI(TAG, "Display LVGL demo");
     bsp_display_backlight_on();
     ui_ctrl_init();
-
     app_network_start();
 
-    sys_param_t *sys_set = settings_get_parameter();
-    set_api_key(OPENAI_API_KEY);
-    set_server(sys_set->current_server);
-    set_audio_type(file_type);
     ESP_LOGI(TAG, "speech recognition start");
     app_sr_start(false);
     audio_register_play_finish_cb(audio_play_finish_cb);
