@@ -122,6 +122,12 @@
                 "InheritedType": 2
               },
               {
+                "nid": -534729152,
+                "strtype": "IMAGE/Overflow_visible",
+                "strval": "False",
+                "InheritedType": 2
+              },
+              {
                 "nid": 1276252291,
                 "strtype": "OBJECT/Flex_in_new_track",
                 "strval": "False",
@@ -173,6 +179,12 @@
                 "nid": 443658348,
                 "strtype": "OBJECT/Scroll_chain",
                 "strval": "True",
+                "InheritedType": 2
+              },
+              {
+                "nid": -261005922,
+                "strtype": "IMAGE/Scroll_with_arrow",
+                "strval": "False",
                 "InheritedType": 2
               },
               {
@@ -409,6 +421,12 @@
                     "InheritedType": 2
                   },
                   {
+                    "nid": -1289899904,
+                    "strtype": "LABEL/Overflow_visible",
+                    "strval": "False",
+                    "InheritedType": 2
+                  },
+                  {
                     "nid": -1747116036,
                     "strtype": "OBJECT/Flex_in_new_track",
                     "strval": "False",
@@ -460,6 +478,12 @@
                     "nid": -859677960,
                     "strtype": "OBJECT/Scroll_chain",
                     "strval": "True",
+                    "InheritedType": 2
+                  },
+                  {
+                    "nid": 2091080113,
+                    "strtype": "LABEL/Scroll_with_arrow",
+                    "strval": "False",
                     "InheritedType": 2
                   },
                   {
@@ -548,7 +572,7 @@
                   {
                     "nid": 1897820454,
                     "strtype": "LABEL/Text",
-                    "strval": "1. Connect ESP-Box to PC.\\n2. Open \\\"ESP-Box\\\" folder.\\n3. Edit \\\"init.config\\\" file with Wi-Fi SSID, password, and OpenAI key.\\n4. Save the file.\\n5. Restart the device.",
+                    "strval": "1. Connect ESP-Box to PC.\\n2. Open \\\"ESP-Box\\\" folder.\\n3. Edit \\\"CONFIG.INI\\\" file with Wi-Fi SSID, password, and OpenAI key.\\n4. Save the file.\\n5. Restart the device.",
                     "InheritedType": 10
                   },
                   {
@@ -718,6 +742,12 @@
                     "InheritedType": 2
                   },
                   {
+                    "nid": 282845424,
+                    "strtype": "LABEL/Overflow_visible",
+                    "strval": "False",
+                    "InheritedType": 2
+                  },
+                  {
                     "nid": -1601871850,
                     "strtype": "OBJECT/Flex_in_new_track",
                     "strval": "False",
@@ -769,6 +799,12 @@
                     "nid": -209186277,
                     "strtype": "OBJECT/Scroll_chain",
                     "strval": "True",
+                    "InheritedType": 2
+                  },
+                  {
+                    "nid": 1706460746,
+                    "strtype": "LABEL/Scroll_with_arrow",
+                    "strval": "False",
                     "InheritedType": 2
                   },
                   {
@@ -1028,6 +1064,12 @@
                         "InheritedType": 2
                       },
                       {
+                        "nid": 1045079446,
+                        "strtype": "LABEL/Overflow_visible",
+                        "strval": "False",
+                        "InheritedType": 2
+                      },
+                      {
                         "nid": 1411435768,
                         "strtype": "OBJECT/Flex_in_new_track",
                         "strval": "False",
@@ -1079,6 +1121,12 @@
                         "nid": 1410992217,
                         "strtype": "OBJECT/Scroll_chain",
                         "strval": "True",
+                        "InheritedType": 2
+                      },
+                      {
+                        "nid": 719705616,
+                        "strtype": "LABEL/Scroll_with_arrow",
+                        "strval": "False",
                         "InheritedType": 2
                       },
                       {
@@ -1333,6 +1381,12 @@
                     "InheritedType": 2
                   },
                   {
+                    "nid": 66152471,
+                    "strtype": "BUTTON/Overflow_visible",
+                    "strval": "False",
+                    "InheritedType": 2
+                  },
+                  {
                     "nid": 266784115,
                     "strtype": "OBJECT/Flex_in_new_track",
                     "strval": "False",
@@ -1384,6 +1438,12 @@
                     "nid": -1389902132,
                     "strtype": "OBJECT/Scroll_chain",
                     "strval": "True",
+                    "InheritedType": 2
+                  },
+                  {
+                    "nid": -2134175473,
+                    "strtype": "BUTTON/Scroll_with_arrow",
+                    "strval": "False",
                     "InheritedType": 2
                   },
                   {
@@ -1673,6 +1733,12 @@
                 "InheritedType": 2
               },
               {
+                "nid": 1216637716,
+                "strtype": "PANEL/Overflow_visible",
+                "strval": "False",
+                "InheritedType": 2
+              },
+              {
                 "nid": 1263037123,
                 "strtype": "OBJECT/Flex_in_new_track",
                 "strval": "False",
@@ -1724,6 +1790,12 @@
                 "nid": -287567938,
                 "strtype": "OBJECT/Scroll_chain",
                 "strval": "True",
+                "InheritedType": 2
+              },
+              {
+                "nid": 1524671369,
+                "strtype": "PANEL/Scroll_with_arrow",
+                "strval": "False",
                 "InheritedType": 2
               },
               {
@@ -1976,6 +2048,12 @@
             "InheritedType": 2
           },
           {
+            "nid": 1780148675,
+            "strtype": "SCREEN/Overflow_visible",
+            "strval": "False",
+            "InheritedType": 2
+          },
+          {
             "nid": -823078378,
             "strtype": "OBJECT/Flex_in_new_track",
             "strval": "False",
@@ -1997,6 +2075,12 @@
             "nid": -1980400720,
             "strtype": "OBJECT/Scroll_momentum",
             "strval": "True",
+            "InheritedType": 2
+          },
+          {
+            "nid": 755366583,
+            "strtype": "SCREEN/Scroll_with_arrow",
+            "strval": "False",
             "InheritedType": 2
           },
           {
@@ -2062,6 +2146,17 @@
           {
             "nid": 483060423,
             "strtype": "OBJECT/User_4",
+            "strval": "False",
+            "InheritedType": 2
+          },
+          {
+            "nid": -597114594,
+            "strtype": "SCREEN/Screen",
+            "InheritedType": 1
+          },
+          {
+            "nid": -1307804889,
+            "strtype": "SCREEN/Temporary",
             "strval": "False",
             "InheritedType": 2
           },
@@ -2919,10 +3014,11 @@
     "offset_x": 0,
     "offset_y": 0,
     "shape": "RECTANGLE",
+    "multilang": null,
     "description": "",
     "board": "ESP-BOX",
     "board_version": "1.0.0",
-    "editor_version": "1.2.3",
+    "editor_version": "1.3.1",
     "image": "",
     "force_export_images": false,
     "pointfilter": false,

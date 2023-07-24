@@ -13,7 +13,7 @@ extern "C" {
 void EventBtnSetupClick(lv_event_t * e);
 void EventWifiResetConfirmClick(lv_event_t * e);
 void EventPanelSleepClickCb(lv_event_t * e);
-// void EventSettingsRegionValueChange(lv_event_t * e);
+// void EventSettingsRegionValueChange(lv_event_t * e); /*This function is for server selection currently not supported*/
 void EventResetConfirm(lv_event_t * e);
 
 #ifdef __cplusplus

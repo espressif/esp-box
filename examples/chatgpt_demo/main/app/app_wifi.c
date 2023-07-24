@@ -246,11 +246,9 @@ static void wifi_init_sta(void)
 static void network_task(void *args)
 {
     net_event_t net_event;
-    TickType_t tick;
 
     wifi_init_sta();
 
-    tick = xTaskGetTickCount();
     while (1) {
         if (pdPASS == xQueueReceive(wifi_event_queue, &net_event, portTICK_RATE_MS / 5)) {
             switch (net_event) {

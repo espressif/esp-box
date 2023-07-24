@@ -146,4 +146,9 @@ void ui_ScreenSetup_screen_init(void)
 
     lv_obj_add_event_cb(ui_ImageSetupWifiReset, ui_event_ImageSetupWifiReset, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ButtonSetup, ui_event_ButtonSetup, LV_EVENT_ALL, NULL);
+
+    if (ui_get_btn_op_group()) {
+        lv_group_remove_all_objs(ui_get_btn_op_group());
+        lv_group_add_obj(ui_get_btn_op_group(), ui_ImageSetupWifiReset);
+    }
 }

@@ -52,6 +52,10 @@ static void wifi_check_timer_handler(lv_timer_t *timer)
         lv_obj_clear_flag(ui_PanelSetupSteps, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ui_PanelSetupWifi, LV_OBJ_FLAG_HIDDEN);
         lv_timer_del(timer);
+        if (ui_get_btn_op_group()) {
+            lv_group_remove_all_objs(ui_get_btn_op_group());
+            lv_group_add_obj(ui_get_btn_op_group(), ui_ButtonSetup);
+        }
     } else if (WIFI_STATUS_CONNECTED_FAILED == wifi_connected_already()) {
         lv_label_set_text(ui_LabelSetupWifi, LABEL_NOT_WIFI_TEXT);
     } else {

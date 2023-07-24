@@ -405,7 +405,11 @@ void ui_ScreenListen_screen_init(void)
     lv_obj_set_align(ui_ImageListenSettings, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_ImageListenSettings, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_ImageListenSettings, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_border_color(ui_ImageListenSettings, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_ImageListenSettings, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_ImageListenSettings, 5, LV_PART_MAIN | LV_STATE_FOCUSED);
 
     lv_obj_add_event_cb(ui_PanelSleep, ui_event_PanelSleep, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ImageListenSettings, ui_event_ImageListenSettings, LV_EVENT_ALL, NULL);
+
 }
