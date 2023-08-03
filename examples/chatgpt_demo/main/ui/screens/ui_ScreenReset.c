@@ -67,6 +67,10 @@ void ui_ScreenReset_screen_init(void)
     lv_obj_add_flag(ui_ImageResetBack, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_ImageResetBack, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
+    lv_obj_set_style_border_color(ui_ImageResetBack, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_ImageResetBack, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_ImageResetBack, 5, LV_PART_MAIN | LV_STATE_FOCUSED);
+
     lv_obj_add_event_cb(ui_ButtonResetConfirm, ui_event_ButtonResetConfirm, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ImageResetBack, ui_event_ImageResetBack, LV_EVENT_ALL, NULL);
 

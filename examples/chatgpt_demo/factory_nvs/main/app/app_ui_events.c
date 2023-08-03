@@ -10,10 +10,10 @@
 
 static char *TAG = "NVS: ui-events";
 
-void EventBtnSetupClick(lv_event_t * e)
+void EventBtnSetupClick(lv_event_t *e)
 {
     ESP_LOGI(TAG, "btn click!");
     // Configure USB PHY, Change back to USB-Serial-Jtag
-    usb_phy_ll_int_jtag_enable(&USB_SERIAL_JTAG); 
+    usb_phy_ll_int_jtag_enable(&USB_SERIAL_JTAG);
     esp_restart();
 }

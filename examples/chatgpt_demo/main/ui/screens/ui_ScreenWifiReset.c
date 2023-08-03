@@ -53,6 +53,10 @@ void ui_ScreenWifiReset_screen_init(void)
     lv_obj_add_flag(ui_ImageWifiResetBack, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_ImageWifiResetBack, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
+    lv_obj_set_style_border_color(ui_ImageWifiResetBack, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_ImageWifiResetBack, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_ImageWifiResetBack, 5, LV_PART_MAIN | LV_STATE_FOCUSED);
+
     ui_LabelWifiResetContent = lv_label_create(ui_ScreenWifiReset);
     lv_obj_set_width(ui_LabelWifiResetContent, lv_pct(88));
     lv_obj_set_height(ui_LabelWifiResetContent, lv_pct(61));
