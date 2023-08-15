@@ -27,7 +27,6 @@ void app_main(void)
     codec_handle->i2s_reconfig_clk_fn(SAMPLE_RATE, WIDTH, CHANNEL);
     codec_handle->volume_set_fn(80, NULL);
     codec_handle->mute_set_fn(false);
-    bsp_audio_poweramp_enable(true);
 
     usb_headset_init();
 }

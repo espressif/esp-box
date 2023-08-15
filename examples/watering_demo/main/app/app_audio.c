@@ -100,8 +100,6 @@ EXIT:
 
 static void audio_beep_task(void *pvParam)
 {
-    bsp_audio_poweramp_enable(true);
-
     while (true) {
         xSemaphoreTake(audio_sem, portMAX_DELAY);
         b_audio_playing = true;

@@ -96,9 +96,6 @@ void audio_record_init()
     file_iterator_instance_t *file_iterator = file_iterator_new(BSP_SPIFFS_MOUNT_POINT);
     assert(file_iterator != NULL);
 
-    /* Configure I2S peripheral and Power Amplifier */
-    bsp_audio_poweramp_enable(true);
-
     bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
     audio_player_config_t config = { .mute_fn = audio_mute_function,
                                      .write_fn = codec_handle->i2s_write_fn,

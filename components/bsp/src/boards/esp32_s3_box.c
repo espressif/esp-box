@@ -226,8 +226,6 @@ static void bsp_codec_init()
     record_dev_handle = bsp_audio_codec_microphone_init();
     assert((record_dev_handle) && "record_dev_handle not initialized");
 
-    bsp_audio_poweramp_enable(false);
-
     bsp_codec_es7210_set();
 
     bsp_codec_config_t *codec_config = bsp_board_get_codec_handle();
