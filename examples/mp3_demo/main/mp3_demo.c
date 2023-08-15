@@ -48,7 +48,6 @@ void app_main(void)
     assert(file_iterator != NULL);
 
     /* Configure I2S peripheral and Power Amplifier */
-    bsp_audio_poweramp_enable(true);
     bsp_board_init();
 
     bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();

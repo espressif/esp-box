@@ -3,8 +3,8 @@ dependencies:
   espressif/button: ^2
 
   espressif/esp-box:
-    version: "2.4.*"
+    version: "3.*"
     require: "no"
   espressif/esp-box-lite:
-    version: "1.0.*"
+    version: "2.0.*"
     require: "no"

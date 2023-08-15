@@ -43,8 +43,6 @@ static audio_data_t g_audio_data[AUDIO_MAX];
 
 static esp_err_t sr_echo_play(audio_segment_t audio)
 {
-    bsp_audio_poweramp_enable(false); // turn off the speaker to avoid play some noise
-
     typedef struct {
         // The "RIFF" chunk descriptor
         uint8_t ChunkID[4];
@@ -92,7 +90,6 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     ESP_LOGD(TAG, "bsp_codec_set_voice_volume=%d", param->volume);
 
     vTaskDelay(pdMS_TO_TICKS(50));
-    bsp_audio_poweramp_enable(true);
 
     size_t bytes_written = 0;
     b_audio_playing = true;
