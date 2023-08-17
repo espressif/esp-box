@@ -27,10 +27,10 @@ static void ui_about_us_page_return_click_cb(lv_event_t *e)
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+    bsp_btn_rm_event_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK);
 #endif
     lv_obj_del(obj);
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_BOOT);
+    bsp_btn_rm_event_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK);
     if (g_about_us_end_cb) {
         g_about_us_end_cb();
     }
@@ -60,7 +60,7 @@ static void btn_factory_cb(void *handle, void *arg)
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
     lv_obj_del(obj);
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_BOOT);
+    bsp_btn_rm_event_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK);
     ui_factory_start(factory_end_cb);
     ui_release();
 

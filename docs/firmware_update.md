@@ -2,13 +2,16 @@
 
 # Updating Firmware
 
+**Warning:**
+> The firmware released in the latest Tag branch (Version v0.5.0) is only applicable to ESP32-S3-BOX and ESP32-S3-BOX-Lite. We suggest that users update the firmware via Espressif's online firmware flashing tool **[ESP Launchpad](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml)**.
+
 The BOX series development boards support updating firmware through USB. To update firmware, you only need:
 
 1. A USB Type-C cable
 2. Latest firmware (bin file)
 
 **Important Note:**
-> If the downloading through USB fails, please hold down the `Boot` button and then press the `Reset` button to initiate Firmware Download mode.
+> If the downloading through USB fails, please hold down the `Boot` button and then press the `Reset` button to initiate Firmware Download mode manually.
 
 ## Downloading Latest Firmware
 
@@ -30,7 +33,7 @@ Please follow the link below corresponding to your OS to update the firmware.
 |:----:|:----:|:----:|:----:|
 |<img alt="Try it with ESP Launchpad" src="https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png" width="200" height="56"> | [<img src="_static/windows-logo.png" width="40" align="center" />](#Updating-Firmware-for-Windows) | [<img src="_static/linux-logo.png" width="40"  align="center" />](#Updating-Firmware-for-Linux) | [<img src="_static/macos-logo.jpg" width="40" align="center" />](#Updating-Firmware-for-macOS) |
 
-### Updating Firmware with ESP-Launchpad
+### Updating Firmware with ESP-Launchpad (Recommended)
 
 ESP Launchpad is a web based tool, available for flashing firmware application to the ESP32 device connected via USB serial port. You can just click [here](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml) to start.
 
@@ -54,7 +57,7 @@ We recommend using `Windows 10` and above. Under `Windows 10` system, the driver
    <img src="_static/device_manager_usb_serial_jtag.png" width="450">
    </div>
 
-4. Download [Windows download tool](https://www.espressif.com/sites/default/files/tools/flash_download_tool_3.9.2_0.zip) and unzip it to any folder. Then double-click to run the executable file `flash_download_tool_x.x.x.exe`.
+4. Download [Windows download tool](https://www.espressif.com/en/support/download/other-tools?keys=&field_type_tid%5B%5D=842), Flash Download Tools, and unzip it to any folder. Then double-click to run the executable file `flash_download_tool_x.x.x.exe`.
 5. Please set `chipType` to `ESP32S3`, `workMode` to `develop`, `loadMode` to `usb`. Then, click `OK` to enter the download tool configuration interface.
 
    <div align="center">

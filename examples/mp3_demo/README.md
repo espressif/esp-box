@@ -3,7 +3,7 @@
 | Board             | Support Status |
 | ----------------- | -------------- |
 | ESP32-S3-BOX      | YES            |
-| ESP32-S3-BOX-Lite | NO             |
+| ESP32-S3-BOX-Lite | YES            |
 
 Play MP3 music on ESP-BOX.
 
@@ -15,7 +15,7 @@ We will support switching the sample rate and the number of channels in the next
 
 ### Hardware Required
 
-* A ESP32-S3-Box
+* A ESP32-S3-Box or ESP32-S3-BOX-Lite
 * An USB-C cable for power supply and programming
 
 Follow detailed instructions provided specifically for this example. 

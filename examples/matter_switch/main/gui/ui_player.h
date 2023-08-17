@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 void ui_media_player(void (*fn)(void));
+lv_obj_t* get_player_page();
 
 #ifdef __cplusplus
 }

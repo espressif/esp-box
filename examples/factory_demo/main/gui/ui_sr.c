@@ -8,6 +8,7 @@
 #include "bsp_board.h"
 #include "lvgl.h"
 #include "ui_main.h"
+#include "ui_player.h"
 
 static const char *TAG = "ui_sr";
 
@@ -19,6 +20,8 @@ static int32_t g_sr_anim_count = 0;
 static lv_obj_t *g_sr_label = NULL;
 static lv_obj_t *g_sr_mask = NULL;
 static lv_obj_t *g_sr_bar[8] = {NULL};
+
+lv_timer_t * sr_timer;
 
 static int int16_sin(int32_t deg)
 {
@@ -59,14 +62,17 @@ static void sr_label_event_handler(lv_event_t *event)
 static void sr_mask_event_handler(lv_event_t *event)
 {
     bool active = (bool) event->param;
+    lv_obj_t * player_page = get_player_page();
 
     if (active) {
+        if(player_page){
+            lv_obj_add_flag(player_page, LV_OBJ_FLAG_HIDDEN);
+        }
         lv_indev_t *indev = lv_indev_get_next(NULL);
         lv_indev_enable(indev, false);
         g_sr_anim_count = 0;
         g_sr_anim_active = true;
-        lv_obj_clear_flag(g_sr_mask, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_move_foreground(g_sr_mask);
+        lv_timer_resume(sr_timer);
     } else {
         lv_indev_t *indev = lv_indev_get_next(NULL);
         lv_indev_enable(indev, true);
@@ -77,6 +83,7 @@ static void sr_mask_event_handler(lv_event_t *event)
 static void ui_speech_anim_cb(lv_timer_t *timer)
 {
     const int32_t step = 40;
+    lv_obj_t * player_page = get_player_page();
 
     if (g_sr_anim_active) {
         // /* Will hide hint message after wakeup */
@@ -90,6 +97,10 @@ static void ui_speech_anim_cb(lv_timer_t *timer)
         if (lv_obj_has_flag(g_sr_mask, LV_OBJ_FLAG_HIDDEN)) {
             lv_obj_clear_flag(g_sr_mask, LV_OBJ_FLAG_HIDDEN);
             lv_obj_move_foreground(g_sr_mask);
+        }
+
+        if(player_page){
+            lv_obj_add_flag(player_page, LV_OBJ_FLAG_HIDDEN);
         }
 
         /* Set bar value */
@@ -119,6 +130,10 @@ static void ui_speech_anim_cb(lv_timer_t *timer)
             /* The second timer callback will hide sr mask */
             if (!lv_obj_has_flag(g_sr_mask, LV_OBJ_FLAG_HIDDEN)) {
                 lv_obj_add_flag(g_sr_mask, LV_OBJ_FLAG_HIDDEN);
+            }
+
+            if(player_page){
+                lv_obj_clear_flag(player_page, LV_OBJ_FLAG_HIDDEN);
             }
         }
     }
@@ -178,7 +193,8 @@ void ui_sr_anim_init(void)
 
     g_sr_anim_count = 0;
     g_sr_anim_active = false;
-    lv_timer_create(ui_speech_anim_cb, 500, NULL);
+    sr_timer = lv_timer_create(ui_speech_anim_cb, 500, NULL);
+    lv_timer_pause(sr_timer);
 }
 
 void sr_anim_start(void)
@@ -193,5 +209,8 @@ void sr_anim_stop(void)
 
 void sr_anim_set_text(char *text)
 {
-    lv_event_send(g_sr_label, LV_EVENT_VALUE_CHANGED, (void *) text);
+    ui_acquire();
+    lv_label_set_text_static(g_sr_label, text);
+    ui_release(); 
 }
+ 

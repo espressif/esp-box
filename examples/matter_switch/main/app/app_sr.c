@@ -31,6 +31,7 @@
 #include "model_path.h"
 #include "bsp_board.h"
 #include "settings.h"
+#include "ui_mute.h"
 
 static const char *TAG = "app_sr";
 
@@ -216,6 +217,11 @@ static void audio_feed_task(void *arg)
         if (NEED_DELETE && xEventGroupGetBits(g_sr_data->event_group)) {
             xEventGroupSetBits(g_sr_data->event_group, FEED_DELETED);
             vTaskDelete(NULL);
+        }
+
+        if (false == get_mute_play_flag()) {
+            vTaskDelay(pdMS_TO_TICKS(500));
+            continue;
         }
 
         /* Read audio data from I2S bus */

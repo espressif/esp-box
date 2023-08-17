@@ -86,14 +86,14 @@ Please refer to the pin definition below, and connect the RGB LED module to the 
    <img src="_static/_get_started_static/hardware_mute_button.jpg" width="350px">
    </div>
 
-5. Tap the red circle below the screen to return to the last page.
+5. Tap the red circle located below the screen to go back to the previous page. This red circle serves as a customizable touch region, allowing users to customize extra touch capabilities according to their preferences.
    <div align="center">
    <img src="./_static/_get_started_static/hardware_home.png" width="350px">
    </div>
 
 ## Offline Voice Assistant
 
-1. You may say "hi E. S. P." at any screen to wake up your device. When it wakes up, the screen will display the wake word you just used. If the wake word is not displayed, give it another shot. The screen below indicates your device is listening. 
+1. You may say "Hi E. S. P." at any screen to wake up your device. When it wakes up, the screen will display the wake word you just used. If the wake word is not displayed, give it another shot. The screen below indicates your device is listening. 
 
 <div align="center">
 <img src="./_static/_get_started_static/17.png">
@@ -137,7 +137,7 @@ More interestingly, the device supports continuous speech recognition after waki
 
 ## Voice Command Customization
 
-The BOX series of development boards are equipped with Espressif proprietary AI Speech Recognition System, which allows you to customize commands through our ESP BOX app. We will take the LED light on the module as an example, to show how to create your own voice commands. For algorithm details, please refer to [Technical Architecture](https://github.com/espressif/esp-box/blob/master/docs/technical_architecture.md).
+The BOX series of development boards are equipped with Espressif proprietary AI Speech Recognition System, which allows you to customize commands through our ESP BOX app. We will take the LED light on the module as an example, to show how to create your own voice commands. For algorithm details, please refer to [Technical Architecture](./technical_architecture.md).
 
 **1. Connect to the ESP BOX mobile app**
 
@@ -219,7 +219,7 @@ The BOX series of development boards are equipped with Espressif proprietary AI 
    <img src="_static/_get_started_static/12.jpeg"width="300" />
    </div>
 
-2.5 Now, you can try out your new command! First, say "hi E. S. P." to wake up your device. Then say "good morning" within 6 seconds to turn on the light. The new command will show on the screen with the module light turned on.
+2.5 Now, you can try out your new command! First, say "Hi E. S. P." to wake up your device. Then say "good morning" within 6 seconds to turn on the light. The new command will show on the screen with the module light turned on.
 
    <div align="center">
    <img src="_static/_get_started_static/15.png">
@@ -232,7 +232,7 @@ The BOX series of development boards are equipped with Espressif proprietary AI 
 
    **3. switch CN and EN voice model：**
 
-3.1. Click on your ESP-BOX `About Us` device icon to enter the `About Us` details page. In this page, press `Boot` button, the device will enter `factory Mode` language setting page, and then you can select the voice wake-up model by yourself.
+3.1. Click on your ESP-BOX `About Us` device icon to enter the `About Us` details page. In this page, press `Boot` button, the device will enter `factory Mode` language setting page, and then you can select the voice wake-up model by yourself. After switching the model, the device will reset and restart automatically.
 
    <div align="center">
    <img src="_static/_get_started_static/language_select.png"width="300" />
