@@ -42,7 +42,7 @@ After flash the firmware, then use the chip-tool to pairing the matter network, 
 
 After pairing successfully, the s3 box will start displaying splash screen.
 
-<img src="docs/_static/_get_started_static/boot_animation.png" width="200px" />
+<img src="../../docs/_static/_get_started_static/boot_animation.png" width="200px" />
 
 
 ## 2.3 Open commissioning window and pairing using Homekit
@@ -61,16 +61,16 @@ After pairing using chip-tool, you can send below command to open commissioning 
 ```
 Then we can use the ***SetupQRCode: [MT:MH5B4BFN00KCTW7I200]*** or ***Manual pairing code: [36478701899]*** to paring to Homekit, as below show:
 
-<img src="docs/_static/matter/apple1.png" width="200px" />
-<img src="docs/_static/matter/apple2.png" width="200px" />
-<img src="docs/_static/matter/apple3.png" width="200px" />
-<img src="docs/_static/matter/apple4.png" width="200px" />
-<img src="docs/_static/matter/apple5.png" width="200px" />
-<img src="docs/_static/matter/apple6.png" width="200px" />
+<img src="../../docs/_static/matter/apple1.png" width="200px" />
+<img src="../../docs/_static/matter/apple2.png" width="200px" />
+<img src="../../docs/_static/matter/apple3.png" width="200px" />
+<img src="../../docs/_static/matter/apple4.png" width="200px" />
+<img src="../../docs/_static/matter/apple5.png" width="200px" />
+<img src="../../docs/_static/matter/apple6.png" width="200px" />
 
 ## 3. Post Commissioning Setup
 
-After Commissioning, we can bind threee matter on-off devices to the box switch and control them via touch screen and speech recognition.
+After Commissioning, we can bind three matter on-off devices to the box switch and control them via touch screen and speech recognition.
 ### 3.1 Bind on-off devices to switch
 
 Using the chip-tool, commission 4 devices, the box matter-switch and 3 on-off devices, such as onoff light, fan, onoff plug.
@@ -118,8 +118,9 @@ After binding successfully, we can control the three onoff devices via touch scr
 
 Enter the device control interface, click the *Light*, *Fan*, *Switch* buttons respectively to control the onoff light, fan and onoff plug.
 
-<img src="docs/_static/_get_started_static/4.png" width="200px" />
-<img src="docs/_static/_get_started_static/4.1.png" width="200px" />
+<img src="../../docs/_static/_get_started_static/4.png" width="200px" />
+<img src="../../docs/_static/_get_started_static/4.1.png" width="200px" />
+
 
 #### Speech recognition control
 
@@ -136,8 +137,8 @@ Turn off the switch
 
 to control the three onoff devices.
 
-<img src="docs/_static/_get_started_static/17.png" width="200px" />
-<img src="docs/_static/_get_started_static/21.png" width="200px" />
+<img src="../../docs/_static/_get_started_static/17.png" width="200px" />
+<img src="../../docs/_static/_get_started_static/21.png" width="200px" />
 
 ## 4 Factory Reset Matter Switch
 

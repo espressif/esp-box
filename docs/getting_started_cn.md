@@ -88,14 +88,14 @@
    <img src="_static/_get_started_static/hardware_mute_button.jpg" width="350px">
    </div>
 
-5. 轻触屏幕下方的“小红圈”可返回上一页。
+5. 轻触屏幕下方的红色圆圈以返回上一页。红圈是一块可自定义的触摸区域，允许用户根据自己的喜好配置额外的触摸功能。
 
    <div align="center">
    <img src="./_static/_get_started_static/hardware_home.png" width="350px">
    </div>
 
 ## 离线语音识别
-1. 您可以在任意界面使用唤醒词来唤醒设备，唤醒词为“hi 乐鑫”。设备唤醒后，唤醒词将显示在屏幕上并伴有提示音“我在”。如果唤醒词未出现，请再次尝试。出现如下界面表示您的设备正在倾听。
+1. 您可以在任意界面使用唤醒词来唤醒设备，唤醒词为“Hi 乐鑫”。设备唤醒后，唤醒词将显示在屏幕上并伴有提示音“我在”。如果唤醒词未出现，请再次尝试。出现如下界面表示您的设备正在倾听。
 
 <div align="center">
 <img src="./_static/_get_started_static/16.png">
@@ -125,7 +125,7 @@
 
 **使用方式**
 
-- 使用“hi，乐鑫”唤醒设备，唤醒后设备播放提示音“我在”。
+- 使用“Hi，乐鑫”唤醒设备，唤醒后设备播放提示音“我在”。
 - 说出命令词。如设备识别出命令词，则会播放提示音“好的”，然后将继续识别其他命令词。
 - 如设备未识别命令词则会继续等待，6 秒内没有新命令将自动退出语音控制界面，使用语音识别功能需要再次唤醒设备。
 
@@ -168,7 +168,7 @@
 > 上述命令词仅供演示，由于没有接入相关智能设备，所以无法实现命令词功能。
 
 ## 语音命令词自定义
-BOX 系列开发板配备乐鑫专有的 AI 语音识别系统，您可以通过 ESP BOX 应用程序自定义任意命令词。我们将以模块上的 LED 灯为例，介绍如何自定义语音命令词。如需了解算法详细信息，请参阅[技术架构](https://github.com/espressif/esp-box/blob/master/docs/technical_architecture_cn.md)。
+BOX 系列开发板配备乐鑫专有的 AI 语音识别系统，您可以通过 ESP BOX 应用程序自定义任意命令词。我们将以模块上的 LED 灯为例，介绍如何自定义语音命令词。如需了解算法详细信息，请参阅[技术架构](./technical_architecture_cn.md)。
 
 **1. 连接 ESP BOX 手机应用程序**
 
@@ -253,7 +253,7 @@ BOX 系列开发板配备乐鑫专有的 AI 语音识别系统，您可以通过
    <img src="_static/_get_started_static/12.jpeg"width="300" />
    </div>
 
-2.5. 现在，您可以体验新命令词了！请先使用“hi 乐鑫”唤醒设备，然后在 6 秒内说出打开电灯的新命令词“早上好”，新命令词将显示在屏幕上，同时模块上的 LED 灯会亮起。
+2.5. 现在，您可以体验新命令词了！请先使用“Hi 乐鑫”唤醒设备，然后在 6 秒内说出打开电灯的新命令词“早上好”，新命令词将显示在屏幕上，同时模块上的 LED 灯会亮起。
 
    <div align="center">
    <img src="_static/_get_started_static/14.png"width="300" />
@@ -266,7 +266,7 @@ BOX 系列开发板配备乐鑫专有的 AI 语音识别系统，您可以通过
 
    **3. 中英文语音模型切换：**
 
-3.1. 点按您的 ESP-BOX `About Us` 设备图标，进入 `About Us` 详情页。在此界面，按下 `Boot` 按键，设备会快速进入 `factory Mode` 语言设置页面，用户可以自行设置语音的唤醒模型。
+3.1. 点按您的 ESP-BOX `About Us` 设备图标，进入 `About Us` 详情页。在此界面，按下 `Boot` 按键，设备会快速进入 `factory Mode` 语言设置页面，用户可以自行设置语音的唤醒模型。模型切换后设备将自动重置重启。
 
    <div align="center">
    <img src="_static/_get_started_static/language_select.png"width="300" />

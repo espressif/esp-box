@@ -21,8 +21,11 @@ static lv_obj_t *g_qr = NULL;
 static lv_obj_t *g_img = NULL;
 static lv_obj_t *g_page = NULL;
 static ui_net_state_t g_net_state = UI_NET_EVT_LOARDING;
+static lv_obj_t *g_btn_return = NULL;
 
 static void (*g_net_config_end_cb)(void) = NULL;
+
+static void btn_return_down_cb(void *handle, void *arg);
 
 static void ui_app_page_return_click_cb(lv_event_t *e)
 {
@@ -32,6 +35,7 @@ static void ui_app_page_return_click_cb(lv_event_t *e)
     }
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
     bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
 #endif
     lv_obj_del(obj);
 }
@@ -72,6 +76,7 @@ static void ui_net_config_page_app_click_cb(lv_event_t *e)
         lv_obj_center(lab_btn_text);
         lv_obj_add_event_cb(btn_return, ui_app_page_return_click_cb, LV_EVENT_CLICKED, page);
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
+        bsp_btn_rm_event_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP);
         bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
 #endif
         if (ui_get_btn_op_group()) {
@@ -112,6 +117,7 @@ static void ui_net_config_page_return_click_cb(lv_event_t *e)
 #endif
     lv_obj_del(obj);
     g_page = NULL;
+    g_qr = NULL;
     if (g_net_config_end_cb) {
         g_net_config_end_cb();
     }
@@ -211,24 +217,24 @@ void ui_net_config_start(void (*fn)(void))
     lv_obj_set_style_shadow_opa(g_page, LV_OPA_30, LV_PART_MAIN);
     lv_obj_align(g_page, LV_ALIGN_TOP_MID, 0, 40);
 
-    lv_obj_t *btn_return = lv_btn_create(g_page);
-    lv_obj_set_size(btn_return, 24, 24);
-    lv_obj_add_style(btn_return, &ui_button_styles()->style, 0);
-    lv_obj_add_style(btn_return, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
-    lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUS_KEY);
-    lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUSED);
-    lv_obj_align(btn_return, LV_ALIGN_TOP_LEFT, 0, 0);
-    lv_obj_t *lab_btn_text = lv_label_create(btn_return);
+    g_btn_return = lv_btn_create(g_page);
+    lv_obj_set_size(g_btn_return, 24, 24);
+    lv_obj_add_style(g_btn_return, &ui_button_styles()->style, 0);
+    lv_obj_add_style(g_btn_return, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
+    lv_obj_add_style(g_btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUS_KEY);
+    lv_obj_add_style(g_btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUSED);
+    lv_obj_align(g_btn_return, LV_ALIGN_TOP_LEFT, 0, 0);
+    lv_obj_t *lab_btn_text = lv_label_create(g_btn_return);
     lv_label_set_text_static(lab_btn_text, LV_SYMBOL_LEFT);
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_center(lab_btn_text);
-    lv_obj_add_event_cb(btn_return, ui_net_config_page_return_click_cb, LV_EVENT_CLICKED, g_page);
+    lv_obj_add_event_cb(g_btn_return, ui_net_config_page_return_click_cb, LV_EVENT_CLICKED, g_page);
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
 #endif
 
     if (ui_get_btn_op_group()) {
-        lv_group_add_obj(ui_get_btn_op_group(), btn_return);
+        lv_group_add_obj(ui_get_btn_op_group(), g_btn_return);
     }
 
     /* **************** APP NOT INSTALLED **************** */

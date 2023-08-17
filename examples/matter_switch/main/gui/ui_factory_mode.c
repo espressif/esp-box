@@ -60,6 +60,7 @@ static void ui_factory_page_save_click_cb(lv_event_t *e)
     lv_task_handler(); vTaskDelay(50);
     lv_obj_del(page);
     ui_factory_page_return_click_cb(e);
+    esp_restart();
 }
 
 static void radio_event_handler(lv_event_t *e)
@@ -73,6 +74,11 @@ static void radio_event_handler(lv_event_t *e)
     if (act_cb == cont) {
         return;
     }
+
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    lv_group_t *btn_op_group = ui_get_btn_op_group();
+    btn_op_group->editing = false;
+#endif
 
     lv_obj_clear_state(old_cb, LV_STATE_CHECKED);   /*Uncheck the previous radio button*/
     lv_obj_add_state(act_cb, LV_STATE_CHECKED);     /*Uncheck the current radio button*/

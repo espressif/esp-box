@@ -186,6 +186,8 @@ esp_err_t bsp_btn_register_callback(bsp_button_id_t btn, button_event_t event, b
  */
 esp_err_t bsp_btn_rm_all_callback(bsp_button_id_t btn);
 
+esp_err_t bsp_btn_rm_event_callback(bsp_button_id_t btn, size_t event);
+
 #ifdef __cplusplus
 }
 #endif

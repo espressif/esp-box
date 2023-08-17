@@ -130,6 +130,15 @@ esp_err_t bsp_btn_rm_all_callback(bsp_button_id_t btn)
     return ESP_OK;
 }
 
+esp_err_t bsp_btn_rm_event_callback(bsp_button_id_t btn, size_t event)
+{
+    assert((g_btn_handle) && "button not initialized");
+    assert((btn < BOARD_BTN_ID_NUM) && "button id incorrect");
+
+    iot_button_unregister_cb(g_btn_handle[btn], event);
+    return ESP_OK;
+}
+
 static esp_err_t bsp_i2s_read(void *audio_buffer, size_t len, size_t *bytes_read, uint32_t timeout_ms)
 {
     esp_err_t ret = ESP_OK;
@@ -168,8 +177,6 @@ static esp_err_t bsp_codec_volume_set(int volume, int *volume_set)
 {
     esp_err_t ret = ESP_OK;
     float v = volume;
-    v *= 0.6f;
-    v = -0.01f * (v * v) + 2.0f * v;
     ret = esp_codec_dev_set_out_vol(play_dev_handle, (int)v);
     return ret;
 }
@@ -206,6 +213,7 @@ static void bsp_codec_init()
     assert((record_dev_handle) && "record_dev_handle not initialized");
 
     bsp_codec_es7243_set();
+    bsp_codec_es8156_set(ES7243_SAMPLE_RATE, ES7243_BIT_WIDTH, ES7243_CHANNEL);
 
     bsp_codec_config_t *codec_config = bsp_board_get_codec_handle();
     codec_config->volume_set_fn = bsp_codec_volume_set;

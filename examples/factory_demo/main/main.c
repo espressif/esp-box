@@ -115,9 +115,9 @@ void app_main(void)
     file_iterator = file_iterator_new("/spiffs/mp3");
     assert(file_iterator != NULL);
     audio_player_config_t config = { .mute_fn = audio_mute_function,
-                                     .write_fn = codec_handle->i2s_write_fn,
-                                     .clk_set_fn = codec_handle->i2s_reconfig_clk_fn,
-                                     .priority = 5
+                                    .write_fn = codec_handle->i2s_write_fn,
+                                    .clk_set_fn = codec_handle->i2s_reconfig_clk_fn,
+                                    .priority = 5
                                    };
     ESP_ERROR_CHECK(audio_player_new(config));
 

@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 void ui_mute_init(void);
+bool get_mute_play_flag();
 
 #ifdef __cplusplus
 }

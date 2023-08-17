@@ -1,6 +1,12 @@
 # Watering System Example
 
-The example is a prototype that simulates a smart watering system. The example utilizes ESP32-S3-BOX or ESP32-S3-BOX-Lite (both referred to as ESP-BOX in the following text) as a control panel, providing cloud connection capability as well as a voice control function. It also supports remote control from a mobile app using ESP RainMaker.
+| Board             | Support Status |
+| ----------------- | -------------- |
+| ESP32-S3-BOX      | YES            |
+| ESP32-S3-BOX-Lite | YES            |
+
+The example is a prototype that simulates a smart watering system. The example utilizes ESP-BOX as a control panel, providing cloud connection capability as well as a voice control function. It also supports remote control from a mobile app using ESP RainMaker.
+
 
 This is the overview of the watering system:
 
@@ -76,7 +82,7 @@ Then connect your ESP-BOX to your computer and check under which serial port the
 
 On Windows, you can check the port in the Windows Device Manager. For more information, please refer to [Establish Serial Connection with ESP32-S3](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/get-started/establish-serial-connection.html).
 
-Please note that the ESP-IDF supported by ESP-BOX is [ESP-IDF v4.4](https://github.com/espressif/esp-idf/tree/release/v4.4), and the corresponding commit ID is 2bdea81b2a. You need to switch to ESP-IDF v4.4 using the following command. For details, please refer to [Readme of ESP-BOX](https://github.com/espressif/esp-box):
+Please note that the ESP-IDF supported by ESP-BOX is [ESP-IDF v5.1](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/index.html), and the corresponding commit ID is 22cfbf30c3. You need to switch to ESP-IDF v5.1 using the following command. For details, please refer to [Readme of ESP-BOX](https://github.com/espressif/esp-box):
 
 ```
 cd esp-idf
@@ -124,7 +130,7 @@ After powering up the device, you can see the current humidity on the LCD screen
 
 It is recommended to use the ESP RainMaker app available for mobile phones to remotely control the pump. The app can be found here:
 
-- Android: [Google PlayStore](https://play.google.com/store/apps/details?id=com.espressif.rainmaker), [Direct APK](https://github.com/espressif/esp-rainmaker/wiki)
+- Android: [Google Play Store](https://play.google.com/store/apps/details?id=com.espressif.rainmaker), [Direct APK](https://github.com/espressif/esp-rainmaker/wiki)
 - iOS: [Apple APP Store](https://apps.apple.com/app/esp-rainmaker/id1497491540)
 
 Follow the following steps on the phone app：
@@ -159,7 +165,7 @@ You can set the threshold of the humidity in the LowerHumidity. If the real-time
 
 ## Voice Control
 
-ESP-BOX supports voice control, so you can also control this watering system by voice commands. The following commands are available:
+ESP-BOX supports voice control, so you can also control this watering system by voice commands. The following Chinese Pinyin commands are available:
 
 * "hi, lexin" -- wake up the ESP32-S3-BOX
 

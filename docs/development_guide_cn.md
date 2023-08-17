@@ -1,4 +1,5 @@
 # 开发指南
+* [English Version](./development_guide.md)
 
 本文档旨在对用户从设置开发环境到应用开发提供帮助，以便使用基于 Espressif 的 ESP32-S3 芯片进行 AIoT 应用开发。
 
@@ -6,14 +7,14 @@
 
 - 开发环境的安装
 
-  按照 [ESP-IDF 编程指南](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32s3/get-started/index.html#get-started-get-prerequisites)的指引完成 esp-idf 开发环境的安装，尽管有图形化的IDE和插件，但是我们推荐您手动安装并使用命令提示行进行编译。
+  按照 [ESP-IDF 编程指南](https://docs.espressif.com/projects/esp-idf/zh_CN/latest/esp32s3/get-started/index.html#get-started-get-prerequisites)的指引完成 esp-idf 开发环境的安装，尽管有图形化的 IDE和插件，但是我们推荐您手动安装并使用命令提示行进行编译。
 
-  按照以上指引完成的安装很可能并不是编译 esp-box 依赖的 esp-idf 版本，此时需要根据[版本说明](https://github.com/espressif/esp-box#versions)来切换 esp-idf 到指定的版本。以 commit id 为 2bdea81b2a 为例子，下面的命令将完成切换
+  按照以上指引完成的安装很可能并不是编译 esp-box 依赖的 esp-idf 版本，此时需要根据[版本说明](https://github.com/espressif/esp-box#versions)来切换 esp-idf 到指定的版本。以 commit id 为 22cfbf30c3 为例子，下面的命令将完成切换
 
   ```shell
   cd esp-idf
   git fetch
-  git checkout 2bdea81b2a
+  git checkout 22cfbf30c3
   git submodule update --init --recursive
   ./install.sh
   ```
@@ -84,7 +85,7 @@ idf.py -p PORT flash monitor
 
 请替换 PORT 为电脑识别到的端口名称，Linux 系统下通常为 `/dev/ttyACM0`
 
-下载固件完成将会自动开始运行
+固件下载完成将会自动开始运行
 
 ## 调试应用程序
 
@@ -111,13 +112,11 @@ idf.py -p PORT flash monitor
 ### bsp 组件
 - boards
 
-  **bsp_board.c** 是系统调用文件，用以兼容不同硬件平台，目前 box 工程支持 [BOARD_S3_BOX](hardware_overview/esp32_s3_box/hardware_overview_for_box.md) 和 [BOARD_S3_BOX_LITE](hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) 两个硬件平台。系统初始化后，根据 iic detect 到的不同器件地址判断当前运行在哪个硬件平台，以分别调用不同的硬件初始化接口。
-
-  **esp32_s3_box.c** 和 **esp32_s3_box_lite.c** 分别是 `BOARD_S3_BOX` 和 `BOARD_S3_BOX_LITE` 的具体硬件管脚配置和初始化实现。
+  **esp32_s3_box.c** 和 **esp32_s3_box_lite.c** 分别是 `BOARD_S3_BOX` 和 `BOARD_S3_BOX_LITE` 的具体硬件管脚配置和初始化实现。用户需要在 menuconfig 中手动选择当前运行在哪个硬件平台，以分别调用不同的硬件初始化接口。
 
 - codec
 
-  **codec** 目录下为硬件所需要用到的 Micphoone 和 Speaker 驱动接口
+  **codec** 目录下为硬件所需要用到的 Microphone 和 Speaker 驱动接口
     |`BOARD_S3_BOX_LITE`|    |
     | ------------- | -------|
     | ADC Module    | ES7243 |
@@ -132,10 +131,10 @@ idf.py -p PORT flash monitor
 
     **bsp_btn.c** 是 box 的按键处理接口，该接口和 **iot button** 组件协同工作。**iot button** 维护 button 事件注册链表，并建立 1ms 按键查询机制 `button_create_com` 。
     定时器会依次轮询 `bsp_btn_register_callback` 注册的按键事件，并根据按键的事件匹配触发应用层注册的回调函数 `CALL_EVENT_CB(ev)` 。
-    - `BOARD_S3_BOX` 有 `boot` 1 个物理按键， 中间红色小圆点为TP虚拟按键。
+    - `BOARD_S3_BOX` 有 1 个 `boot` 物理按键， 中间红色小圆点为 TP 虚拟按键。
     boot 处理 wifi 的恢复出厂和中英文语言切换的触发功能。
 
-    - `BOARD_S3_BOX_LITE` 有 `boot` 1 个物理按键, `prev` `enter` `next` 3 个 ADC 按键。
+    - `BOARD_S3_BOX_LITE` 有 1 个 `boot` 物理按键, `prev` `enter` `next` 3 个 ADC 按键。
     boot 功能同上，3 个 ADC 按键作为功能切换的导航键。
     ADC 按键设计使用一路 [ADC](../hardware/esp32_s3_box_lite_Button_V1.1/schematic/SCH_ESP32-S3-BOX-Lite_Button_V1.1_20211125.pdf)，分别接上不同电阻，用 ADC 值来区分哪一路按键被按下，这种方式节省了 IO 口资源。
 
@@ -153,8 +152,8 @@ idf.py -p PORT flash monitor
 
     - `bsp_lcd_flush` 为 LVGL 通知驱动准备刷新接口，如果接口已经完成上一帧数据发送，接口会在此处调用 `esp_lcd_panel_ops.c/esp_lcd_panel_draw_bitmap` 将显示数据送至 SPI 接口。
 
-### esp-sr 组件</br>
-这里主要针对 SR 的一些应用接口展开介绍。</br>
+### esp-sr 组件
+这里主要针对 SR 的一些应用接口展开介绍。
 
   * 配置文件介绍
     ```
@@ -198,7 +197,7 @@ idf.py -p PORT flash monitor
 
     esp_afe_sr_data_t *afe_data = afe_handle->create_from_config(&afe_config);
     ```
-  * 切换唤醒词和命令词模型</br>
+  * 切换唤醒词和命令词模型
     ```
     /* 唤醒词模型切换 */
     wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, (SR_LANG_EN == g_sr_data->lang ? "hiesp" : "hilexin"));
@@ -209,7 +208,7 @@ idf.py -p PORT flash monitor
     esp_mn_iface_t *multinet = esp_mn_handle_from_name(mn_name);
     model_iface_data_t *model_data = multinet->create(mn_name, 5760); //设置命令词模型
     ```
-  * 命令词设置接口</br>
+  * 命令词设置接口
     ```
     /* 加载模型自带命令词模型
      * 命令词模型可从 menuconfig 如下路径进行修改: TOP -> ESP_SPEECH_RECOGNITION -> commands
@@ -224,10 +223,10 @@ idf.py -p PORT flash monitor
     esp_err_t esp_mn_commands_modify(*old_phoneme_string, *new_phoneme_string);
     esp_mn_error_t *esp_mn_commands_update(*multinet, *model_data);
     ```
-  * rainmaker 与 sr 的接口</br>
-    `cmd_write_to_sr(&cmd)` 是 rainmaker 下发至 BOX 的语音指令修改接口。</br>
-    SR 控制命令按照如下规则：</br>
-      - 同一个控制命令最多对应 `8` 条命令词，如果超过 8 条，新增命令词将替换表中最后 1 条。
+  * rainmaker 与 sr 的接口
+    `cmd_write_to_sr(&cmd)` 是 rainmaker 下发至 BOX 的语音指令修改接口。
+    SR 控制命令按照如下规则：
+      - 同一个控制命令最多对应 `8` 条命令词，如果超过 `8` 条，新增命令词将替换表中最后 `1` 条。
 
       - 相同语音命令词不允许重复添加。
 ### lvgl 组件
@@ -251,7 +250,7 @@ idf.py -p PORT flash monitor
 
   * 重定向文件操作 API
 
-    主要是根据平台重定向 fopen，fclose，fwrite 等接口。LVGL 封装了 lv_fs_fatfs , lv_fs_posix , lv_fs_sdio , lv_fs_win32 可供参考和配置，用户可在 menuconfig 进行配置，也可以自己实现。
+    主要是根据平台重定向 `fopen`，`fclose`，`fwrite` 等接口。LVGL 封装了 `lv_fs_fatfs`, `lv_fs_posix`, `lv_fs_sdio`,`v_fs_win32` 可供参考和配置，用户可在 menuconfig 进行配置，也可以自己实现。
 
   * 文件盘符配置
 

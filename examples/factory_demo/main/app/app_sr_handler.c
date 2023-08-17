@@ -25,7 +25,7 @@ static const char *TAG = "sr_handler";
 
 static bool b_audio_playing = false;
 
-extern file_iterator_instance_t* file_iterator;
+extern file_iterator_instance_t *file_iterator;
 
 typedef enum {
     AUDIO_WAKE,
@@ -69,6 +69,7 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
 
+
     if (NULL == strstr((char *)wav_head->Subchunk1ID, "fmt") &&
             NULL == strstr((char *)wav_head->Subchunk2ID, "data")) {
         ESP_LOGE(TAG, "Header of wav format error");
@@ -80,22 +81,20 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     ESP_LOGD(TAG, "frame_rate=%d, ch=%d, width=%d", wav_head->SampleRate, wav_head->NumChannels, wav_head->BitsPerSample);
     codec_handle->i2s_reconfig_clk_fn(wav_head->SampleRate, wav_head->BitsPerSample, I2S_SLOT_MODE_STEREO);
 
-    vTaskDelay(pdMS_TO_TICKS(500));
+    codec_handle->mute_set_fn(true);
     codec_handle->mute_set_fn(false);
-    codec_handle->volume_set_fn(85, NULL);
-
-    sys_param_t *param = settings_get_parameter();
-    codec_handle->volume_set_fn(param->volume, NULL);
-    codec_handle->mute_set_fn(false);
-    ESP_LOGD(TAG, "bsp_codec_set_voice_volume=%d", param->volume);
+    codec_handle->volume_set_fn(100, NULL);
+    size_t bytes_written = 0;
 
     vTaskDelay(pdMS_TO_TICKS(50));
 
-    size_t bytes_written = 0;
     b_audio_playing = true;
     codec_handle->i2s_write_fn((char *)p, len, &bytes_written, portMAX_DELAY);
     vTaskDelay(pdMS_TO_TICKS(20));
     b_audio_playing = false;
+
+    sys_param_t *param = settings_get_parameter();
+    codec_handle->volume_set_fn(param->volume, NULL);
     return ESP_OK;
 }
 
@@ -109,9 +108,9 @@ sr_language_t sr_detect_language()
     static sr_language_t sr_current_lang = SR_LANG_MAX;
     esp_err_t ret;
     FILE *fp = NULL;
-    const sys_param_t * param = settings_get_parameter();
+    const sys_param_t *param = settings_get_parameter();
 
-    if(param->sr_lang^sr_current_lang){
+    if (param->sr_lang ^ sr_current_lang) {
         sr_current_lang = param->sr_lang;
         ESP_LOGI(TAG, "boardcast language change to = %s", (SR_LANG_EN == param->sr_lang ? "EN" : "CN"));
 
@@ -127,7 +126,7 @@ sr_language_t sr_detect_language()
             ESP_GOTO_ON_FALSE(NULL != fp, ESP_ERR_NOT_FOUND, err, TAG, "Open file %s failed", audio_file);
             size_t file_size = fm_get_file_size(audio_file);
 
-            if(g_audio_data[i].audio_buffer){
+            if (g_audio_data[i].audio_buffer) {
                 heap_caps_free(g_audio_data[i].audio_buffer);
                 g_audio_data[i].len = 0;
             }
@@ -141,19 +140,22 @@ sr_language_t sr_detect_language()
     return sr_current_lang;
 
 err:
-    if(fp){
+    if (fp) {
         fclose(fp);
     }
     return sr_current_lang;
 }
 void sr_handler_task(void *pvParam)
 {
+    FILE *fp;
+    char filename[128];
+
     sr_language_t sr_current_lang;
     audio_player_state_t last_player_state = AUDIO_PLAYER_STATE_IDLE;
+
     while (true) {
         sr_result_t result;
         app_sr_get_result(&result, portMAX_DELAY);
-        char audio_file[48] = {0};
 
         sr_current_lang = sr_detect_language();
 
@@ -162,6 +164,9 @@ void sr_handler_task(void *pvParam)
                 sr_anim_set_text("Timeout");
             } else {
                 sr_anim_set_text("超时");
+            }
+            if (AUDIO_PLAYER_STATE_PLAYING == last_player_state) {
+                audio_player_pause();
             }
 #if !SR_RUN_TEST
             sr_echo_play(AUDIO_END);
@@ -177,7 +182,6 @@ void sr_handler_task(void *pvParam)
             sr_anim_start();
             last_player_state = audio_player_get_state();
             audio_player_pause();
-
             if (SR_LANG_EN == sr_current_lang) {
                 sr_anim_set_text("Say command");
             } else {
@@ -198,6 +202,13 @@ void sr_handler_task(void *pvParam)
             if (PLAYER_STATE_PLAYING == last_player_state) {
                 app_player_play();
             }
+#endif
+
+#if !SR_RUN_TEST
+            if (AUDIO_PLAYER_STATE_PLAYING == last_player_state) {
+                audio_player_pause();
+            }
+            sr_echo_play(AUDIO_OK);
 #endif
 
             switch (cmd->cmd) {
@@ -224,9 +235,29 @@ void sr_handler_task(void *pvParam)
             } break;
             case SR_CMD_NEXT:
                 file_iterator_next(file_iterator);
+                file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
+                fp = fopen(filename, "rb");
+                if (!fp) {
+                    ESP_LOGE(TAG, "unable to open '%s'", filename);
+                } else {
+                    audio_player_play(fp);
+                }
+                last_player_state = AUDIO_PLAYER_STATE_PLAYING;
                 break;
             case SR_CMD_PLAY:
-                audio_player_resume();
+                ESP_LOGW(TAG, "SR_CMD_PLAY:%d, last_player_state:%d", audio_player_get_state(), last_player_state);
+
+                if(AUDIO_PLAYER_STATE_IDLE == audio_player_get_state()){
+                    file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
+                    fp = fopen(filename, "rb");
+                    if (!fp) {
+                        ESP_LOGE(TAG, "unable to open '%s'", filename);
+                    } else {
+                        audio_player_play(fp);
+                    }
+                } else if(AUDIO_PLAYER_STATE_PAUSE == audio_player_get_state()){
+                    audio_player_resume();
+                }
                 last_player_state = AUDIO_PLAYER_STATE_PLAYING;
                 break;
             case SR_CMD_PAUSE:
@@ -237,14 +268,6 @@ void sr_handler_task(void *pvParam)
                 ESP_LOGE(TAG, "Unknow cmd");
                 break;
             }
-#if !SR_RUN_TEST
-            if (SR_LANG_EN == sr_current_lang) {
-                strncpy(audio_file, "/spiffs/echo_en_ok.wav", sizeof(audio_file));
-            } else {
-                strncpy(audio_file, "/spiffs/echo_cn_ok.wav", sizeof(audio_file));
-            }
-            sr_echo_play(AUDIO_OK);
-#endif
         }
     }
     vTaskDelete(NULL);

@@ -121,6 +121,7 @@ esp_err_t bsp_btn_init(void)
         g_btn_handle[i] = iot_button_create(&BOARD_BTN_ID_config[i]);
         assert(g_btn_handle[i]);
     }
+
     return ESP_OK;
 }
 
@@ -148,6 +149,15 @@ esp_err_t bsp_btn_rm_all_callback(bsp_button_id_t btn)
     for (size_t event = 0; event < BUTTON_EVENT_MAX; event++) {
         iot_button_unregister_cb(g_btn_handle[btn], event);
     }
+    return ESP_OK;
+}
+
+esp_err_t bsp_btn_rm_event_callback(bsp_button_id_t btn, size_t event)
+{
+    assert((g_btn_handle) && "button not initialized");
+    assert((btn < BOARD_BTN_ID_NUM) && "button id incorrect");
+
+    iot_button_unregister_cb(g_btn_handle[btn], event);
     return ESP_OK;
 }
 
@@ -189,8 +199,6 @@ static esp_err_t bsp_codec_volume_set(int volume, int *volume_set)
 {
     esp_err_t ret = ESP_OK;
     float v = volume;
-    v *= 0.6f;
-    v = -0.01f * (v * v) + 2.0f * v;
     ret = esp_codec_dev_set_out_vol(play_dev_handle, (int)v);
     return ret;
 }
@@ -213,6 +221,14 @@ static esp_err_t bsp_codec_es7210_set()
     };
 
     assert(record_dev_handle);
+
+    if (play_dev_handle) {
+        ret = esp_codec_dev_close(play_dev_handle);
+    }
+
+    if (record_dev_handle) {
+        ret = esp_codec_dev_close(record_dev_handle);
+    }
     ret = esp_codec_dev_open(record_dev_handle, &fs);
     esp_codec_dev_set_in_gain(record_dev_handle, ES7210_ADC_VOLUME);
     return ret;
@@ -227,6 +243,7 @@ static void bsp_codec_init()
     assert((record_dev_handle) && "record_dev_handle not initialized");
 
     bsp_codec_es7210_set();
+    bsp_codec_es8311_set(ES7210_SAMPLE_RATE, ES7210_BIT_WIDTH, ES7210_CHANNEL);
 
     bsp_codec_config_t *codec_config = bsp_board_get_codec_handle();
     codec_config->volume_set_fn = bsp_codec_volume_set;

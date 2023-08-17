@@ -437,6 +437,9 @@ static void ui_main_menu(int32_t index_id)
 
     lv_obj_t *btn_prev = lv_btn_create(obj);
     lv_obj_add_style(btn_prev, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    lv_obj_remove_style(btn_prev, NULL, LV_STATE_PRESSED); 
+#endif
     lv_obj_add_style(btn_prev, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
     lv_obj_add_style(btn_prev, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
 
@@ -470,6 +473,9 @@ static void ui_main_menu(int32_t index_id)
 
     lv_obj_t *btn_next = lv_btn_create(obj);
     lv_obj_add_style(btn_next, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    lv_obj_remove_style(btn_next, NULL, LV_STATE_PRESSED); 
+#endif
     lv_obj_add_style(btn_next, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
     lv_obj_add_style(btn_next, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
 

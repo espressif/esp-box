@@ -5,8 +5,8 @@
 <p align="left">
     <a href="https://github.com/espressif/esp-box/blob/master/LICENSE" alt="Build examples">
         <img alt="GitHub" src="https://img.shields.io/github/license/espressif/esp-box"></a>
-    <a href="https://github.com/espressif/esp-box/actions/workflows/build.yml" alt="Build examples">
-        <img src="https://github.com/espressif/esp-box/actions/workflows/build.yml/badge.svg" /></a>
+    <a href="https://github.com/espressif/esp-box/actions/workflows/build_IDF5.1.yml" alt="Build examples">
+        <img src="https://github.com/espressif/esp-box/actions/workflows/build_IDF5.1.yml/badge.svg" /></a>
     <a href="https://github.com/espressif/esp-box/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/espressif/esp-box" /></a>
     <a href="https://github.com/espressif/esp-box/releases" alt="GitHub all releases">
@@ -32,7 +32,8 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 
 |      ESP-BOX     | Dependent ESP-IDF |  Branch Note                                           | Support State  |
 | :--------------: | :---------------: | :----------------------------------------------------: | -------------- |
-|      master      | >= release/v5.0<br/>commit id: 96119acc8b |  Latest developing firmware <br/>esp-sr version:  v1.3.3  | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite <br/>Use menuconfig to select board |
+|      master      | >= release/v5.1<br/>commit id: 22cfbf30c3 |  Latest developing firmware <br/>esp-sr components version:  v1.3.4   | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite <br/>Use menuconfig to select board |
+|      Tag 0.5.0     | release/v5.1<br>commit id: 22cfbf30c3 | esp-sr components version:  v1.3.4   | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite <br/>Use menuconfig to select board |
 |      Tag 0.3.0     | release/v4.4<br>commit id: 2bdea81b2a | esp-sr version:  dev/v2.0<br>commit id: c873a35  | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite |
 | Tag 0.2.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.2.1/idf_patch) | esp-sr version: close v1.0<br/>commit id: 3ce34fe | Support ESP32-S3-BOX only |
 | Tag 0.1.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.1.1/idf_patch) | esp-sr version: v0.9.6<br/>commit id: 3ce34fe | Support ESP32-S3-BOX only |
@@ -62,24 +63,24 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 * For getting start of BOX serial development boards, please refer to the [Getting Started](./docs/getting_started.md).
 * For experiencing voice assistant, please refer to the [Voice Assistance Control and Customization](./docs/getting_started.md#offline-voice-assistant-with-your-device).
 * For experiencing a more humanized interactive experience, please refer to the [Continuous Speech Recognition](./docs/getting_started.md#continuous-recognition).
-* For defining the speech commands by mobile APP, please refer to the [ESP-BOX APP User Guide](./docs/getting_started.md#voice-command-customization).
+* For defining the speech commands by mobile APP, please refer to the [ESP BOX APP User Guide](./docs/getting_started.md#voice-command-customization).
 * For product exploded-view and disassembly tutorial, please refer to [Disassembly Tutorial](docs/disassembly_tutorial.md).
 * For more details of hardware information, please refer to the [Hardware Overview](./docs/hardware_overview).
 * For latest version firmware, please refer to the [Firmware Update](./docs/firmware_update.md).
 
 ## Developer Guide
 
-ESP-BOX integrates components commonly used in AIOT development that you can leverage to build your own applications.
+ESP-BOX integrates components commonly used in AIoT development that you can leverage to build your own applications. Read more development guide [here](./docs/development_guide.md) (Updates in Progress).
 
 ### Quick Start
 
-* **Step 1**. ESP-IDF (Espressif IoT Development Framework) is required to build the application. If this is your first time using the ESP-IDF, please refer to [ESP-IDF development guide](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/index.html) to understand the open-source drivers and components provided by Espressif.
-* **Step 2**. Next, setting up development environment. Please refer to [ESP-IDF(release/v4.4 or release/v5.0) Installation Step by Step](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s3/get-started/index.html#installation-step-by-step).
+* **Step 1**. ESP-IDF (Espressif IoT Development Framework) is required to build the application. If this is your first time using the ESP-IDF, please refer to [ESP-IDF development guide](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/index.html) to understand the open-source drivers and components provided by Espressif.
+* **Step 2**. Next, setting up development environment. Please refer to [ESP-IDF(release/v5.1) Installation Step by Step](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/get-started/index.html).
 * **Step 3**. Run command `git clone --recursive https://github.com/espressif/esp-box.git` to download the code of this project and then switch the ESP-IDF version to [specified version](#versions);
 * **Step 4**. Take a small step, you can [build and flash a simple example](./examples/image_display).
 * **Step 5**. Moving further, please read [ESP-BOX technical architecture](./docs/technical_architecture.md) to understand the technical details.
-* **Step 6**. Going deeper, please read [ESP Speech Recognition Application Guide](https://github.com/espressif/esp-sr), [ESP RainMaker Programming Guide](https://docs.espressif.com/projects/esp-rainmaker/en/latest/), [LVGL GUI Quick overview](https://docs.lvgl.io/8.1/get-started/index.html).
-* **Step 7**. For extended function, please read [Pmod™ compatible headers](./docs/hardware_overview) and [ESP-IDF API reference](https://docs.espressif.com/projects/esp-idf/en/v4.4/esp32s3/api-reference/index.html), to develop drivers for more extended devices.
+* **Step 6**. Going deeper, please read [ESP Speech Recognition Application Guide](https://github.com/espressif/esp-sr), [ESP RainMaker Programming Guide](https://docs.espressif.com/projects/esp-rainmaker/en/latest/), [LVGL GUI Quick overview](https://docs.lvgl.io/8.3/).
+* **Step 7**. For extended function, please read [Pmod™ compatible headers](./docs/hardware_overview) and [ESP-IDF API reference](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/api-reference/index.html), to develop drivers for more extended devices.
 
 ## Contact Us
 

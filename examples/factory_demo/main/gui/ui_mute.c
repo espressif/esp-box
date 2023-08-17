@@ -18,6 +18,12 @@ LV_FONT_DECLARE(font_en_16)
 static int32_t mute_disp_count = 15;
 static const int32_t disp_time = 15;
 static bool mute_state = false;
+static bool mute_play_flag = true;
+
+bool get_mute_play_flag()
+{
+    return mute_play_flag;
+}
 
 static void mute_timer_cb(lv_timer_t *timer)
 {
@@ -37,6 +43,7 @@ static void mute_timer_cb(lv_timer_t *timer)
             if ((mute_disp_count == 2) && (!mute_state)) {
                 bsp_codec_config_t *bsp_codec_config = bsp_board_get_codec_handle();
                 bsp_codec_config->codec_reconfig_fn();
+                mute_play_flag = true;
             }
         } else {
             lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
@@ -80,6 +87,9 @@ void ui_mute_init(void)
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
 static void ui_mute_set_state(bool mute)
 {
+    if (mute_state) {
+        mute_play_flag = false;
+    }
     mute_state = mute;
     mute_disp_count = 0;
 }

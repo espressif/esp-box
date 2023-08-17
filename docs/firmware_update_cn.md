@@ -1,14 +1,15 @@
 * [English Version](./firmware_update.md)
 
 # 更新固件
+**警告:**
+> 当前 Tag 分支 （最新 Tag v0.5.0）发布的固件仅适用于 ESP32-S3-BOX 和 ESP32-S3-BOX-Lite。我们推荐用户通过乐鑫在线固件烧录工具 **[ESP Launchpad](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml)** 来更新固件。
 
 BOX 系列开发板支持使用 USB 接口更新固件，您仅需要准备：
-
 1. 一根 USB Type-C 数据线
 2. 最新版本固件（bin 文件）
 
 **需要提醒：**
-> 如遇 USB 下载失败，请按住 `Boot` 按键的同时按一下 `Reset` 按键进入“固件下载”模式。
+> 如遇 USB 下载失败，请按住 `Boot` 按键的同时按一下 `Reset` 按键手动进入“固件下载”模式。
 
 ## 下载最新版本固件
 
@@ -54,7 +55,7 @@ ESP Launchpad 是一个基于 web 的 ESP32 固件下载工具，用户可以通
    <img src="_static/device_manager_usb_serial_jtag_cn.png" width="450">
    </div>
 
-4. 下载 [Windows download tool](https://www.espressif.com/sites/default/files/tools/flash_download_tool_3.9.2_0.zip)，并解压到任意文件夹，然后请双击打开下载工具可执行文件 `flash_download_tool_x.x.x.exe`。
+4. 下载 [Windows download tool](https://www.espressif.com/en/support/download/other-tools?keys=&field_type_tid%5B%5D=842)，Flash Download Tools，并解压到任意文件夹，然后请双击打开下载工具可执行文件 `flash_download_tool_x.x.x.exe`。
 5. 请选择 `chipType` 为 `ESP32S3`, `workMode` 为 `develop`, `loadMode` 为 `usb`，之后点击 `OK` 进入下载工具界面：
 
    <div align="center">
