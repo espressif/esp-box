@@ -112,7 +112,9 @@ idf.py -p PORT flash monitor
 ### bsp 组件
 - boards
 
-  **esp32_s3_box.c** 和 **esp32_s3_box_lite.c** 分别是 `BOARD_S3_BOX` 和 `BOARD_S3_BOX_LITE` 的具体硬件管脚配置和初始化实现。用户需要在 menuconfig 中手动选择当前运行在哪个硬件平台，以分别调用不同的硬件初始化接口。
+  **bsp_board.c** 是系统调用文件，用以兼容不同硬件平台，目前 box 工程支持 [BOARD_S3_BOX](hardware_overview/esp32_s3_box/hardware_overview_for_box_cn.md) 和 [BOARD_S3_BOX_LITE](hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) 两个硬件平台。系统初始化后，根据 iic detect 到的不同器件地址判断当前运行在哪个硬件平台，以分别调用不同的硬件初始化接口。
+
+  **esp32_s3_box.c** 和 **esp32_s3_box_lite.c** 分别是 `BOARD_S3_BOX` 和 `BOARD_S3_BOX_LITE` 的具体硬件管脚配置和初始化实现。
 
 - codec
 

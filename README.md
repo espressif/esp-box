@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="docs/_static/banner2.jpg" width="auto" height="auto" alt="ESPRESSIF">
+</p>
+
 * [中文版本](README_cn.md)
 
 # ESP-BOX AIoT Development Framework
@@ -6,7 +10,7 @@
     <a href="https://github.com/espressif/esp-box/blob/master/LICENSE" alt="Build examples">
         <img alt="GitHub" src="https://img.shields.io/github/license/espressif/esp-box"></a>
     <a href="https://github.com/espressif/esp-box/actions/workflows/build_IDF5.1.yml" alt="Build examples">
-        <img src="https://github.com/espressif/esp-box/actions/workflows/build_IDF5.1.yml/badge.svg" /></a>
+        <img src="https://github.com/espressif/esp-box/actions/workflows/build.yml/badge.svg" /></a>
     <a href="https://github.com/espressif/esp-box/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/espressif/esp-box" /></a>
     <a href="https://github.com/espressif/esp-box/releases" alt="GitHub all releases">
@@ -19,20 +23,25 @@
 
 **Important Note:**
 
-> We recommend [updating the application firmware](./docs/firmware_update.md) when you first receive the product to have the new features and bugfix. Click [here](./docs/getting_started.md) to access the user guide of the latest release firmware. Click [here](https://github.com/espressif/esp-box/releases) to visit the older firmware.
+> Upon receiving the ESP32-S3-BOX and ESP32-S3-BOX-Lite, we advise updating the [built-in factory firmware](./docs/firmware_update.md) to ensure you have the latest bug fixes. In the master branch, we will gradually offer limited support for these two development boards. For further information, kindly refer to the examples readme.
 
-The ESP-BOX is a new generation AIoT development platform released by Espressif Systems. The ESP32-S3-BOX and ESP32-S3-BOX-Lite are AIoT development boards that are based on Espressif’s ESP32-S3 Wi-Fi + Bluetooth 5 (LE) SoC. They provide a platform for developing the control of home appliances using Voice Assistance + touch and screen controller, sensor, infrared controller, and intelligent Wi-Fi gateway. Development boards come with pre-built firmware that supports offline voice interaction, with the SDKs and examples provided by Espressif, you will be able to develop a wide variety of AIoT applications based on the BOX series products such as online and offline voice assistants, voice-enabled devices, human-computer interaction devices, control panels, multi-protocol gateways easily. 
+The ESP-BOX is an advanced AIoT, Edge AI, and IIoT applications development platform released by Espressif Systems. The ESP32-S3-BOX, ESP32-S3-BOX-Lite, and ESP32-S3-BOX-3 are a series of development boards designed for this platform, they are built on Espressif’s powerful ESP32-S3 Wi-Fi + Bluetooth 5 (LE) SoC and feature compact and beautiful enclosures. Leveraging the multi-functional accessories and reliable examples from the repo’s, these development boards cater to both prototyping new projects and building complex IoT systems, providing a perfect balance of form and function. 
 
-| Product Name |        Product Figure       |
-| :-----: | :---------------------: |
-| [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |
-| [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |
+ESP-BOX provides a platform for developing applications in various domains, including Offline Voice Assistants, Online AI Chatbots (developed using OpenAI and other large language model platforms), Matter Device/Controller, Robot Controller, USB Device/Host, Wireless Sensor Application and a wide range of Human Machine Interaction (HMI) applications. Experience the possibilities—add one to your toolkit and explore the limitless potential!
+
+
+| Product Name |        Product Figure       |    Marketing Status       |
+| :-----: | :---------------------: |:---------------------: |
+| [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |End of Life <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md) |
+| [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005004441701974.html?spm=a2g0o.store_pc_groupList.8148356.15.378130cf2Qwt87&pdp_npi=3%40dis%21HKD%21HKD273.50%21HKD273.50%21%21%21%21%21%40210318cb16926755466344763e3593%2112000029194032303%21sh%21HK%213721963538) <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md)|
+| [ESP32-S3-BOX-3](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005005920207976.html) <br> [User Guide](./docs/getting_started.md)|
+
 
 ## Versions
 
 |      ESP-BOX     | Dependent ESP-IDF |  Branch Note                                           | Support State  |
 | :--------------: | :---------------: | :----------------------------------------------------: | -------------- |
-|      master      | >= release/v5.1<br/>commit id: 22cfbf30c3 |  Latest developing firmware <br/>esp-sr components version:  v1.3.4   | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite <br/>Use menuconfig to select board |
+|      master      | >= release/v5.1<br/>commit id: 22cfbf30c3 |  Latest developing firmware <br/>esp-sr components version:  v1.4.1   | Partial support for ESP32-S3-BOX, ESP32-S3-BOX-Lite, and ESP32-S3-BOX-3 <br> Refer to the Examples **README** for more details. |
 |      Tag 0.5.0     | release/v5.1<br>commit id: 22cfbf30c3 | esp-sr components version:  v1.3.4   | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite <br/>Use menuconfig to select board |
 |      Tag 0.3.0     | release/v4.4<br>commit id: 2bdea81b2a | esp-sr version:  dev/v2.0<br>commit id: c873a35  | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite |
 | Tag 0.2.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.2.1/idf_patch) | esp-sr version: close v1.0<br/>commit id: 3ce34fe | Support ESP32-S3-BOX only |
@@ -40,30 +49,34 @@ The ESP-BOX is a new generation AIoT development platform released by Espressif 
 
 ## Features
 
-* Supports far-field voice interaction with 2 mics
-* Offline voice wake-up with high wake-up rate
-* Offline speech commands recognition in Chinese and English languages with high recognition rate
-* Reconfigurable 200+ speech commands in Chinese and English languages
-* Continuous Identification and Wakeup Interrupt
-* Flexible and reusable GUI framework
-* End-to-end AIoT dvelopment framwork ESP-RainMaker
-* Pmod™ compatible headers support expand peripheral modules
+* An out-of-the-box entry-level edge AI + HMI application development board.
+* FreeRTOS-based four-in-one voice interaction panel: offline voice recognition, network communication, screen display, peripheral control.
+* Supports far-field voice interaction with 2 mics.
+* Offline voice wake-up and commands recognition with high wake-up rate.
+* Allows continuous recognition, wake-up interrupt, and over 200 customizable command words.
+* Flexible and versatile home automation solutions: Matter, Home Assistant, ESP-RainMaker
+* Visual drag-and-drop GUI development: LVGL SquareLine Studio, Embedded Wizard, etc.
+* Rich development framework: ESP-IDF, Arduino, PlatformIO, Circuit Python, and more.
+
 
 ## Open-Source Content
 
 * [Schematic and PCB Source File](./hardware)
 * [Shell 3D Print Source File](./hardware)
-* [Firmware Source Code](./examples/factory_demo)
-* [Examples Source Code](./examples)
+* [Built-in Firmware Source Code](./examples/factory_demo)
+* [Other Examples](./examples)
 
 > Based on [Apache 2.0](https://github.com/espressif/esp-box/blob/master/LICENSE) open source license, you can modify, develop, or distribute the contents freely. 
 
-## User Guide
+## Built-in Firmware User Guide
 
-* For getting start of BOX serial development boards, please refer to the [Getting Started](./docs/getting_started.md).
-* For experiencing voice assistant, please refer to the [Voice Assistance Control and Customization](./docs/getting_started.md#offline-voice-assistant-with-your-device).
-* For experiencing a more humanized interactive experience, please refer to the [Continuous Speech Recognition](./docs/getting_started.md#continuous-recognition).
+* It is recommended to start by reading the product [Hardware Overview](./docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md).
+* Next you can explore the [Getting Started](./docs/getting_started.md).
+* For exploring interesting sensor demos, please refer to [Sensor Applications](./docs/getting_started.md#sensor-monitor).
+* For experiencing voice assistant, please refer to the [Voice Assistance Control](./docs/getting_started.md#offline-voice-assistant).
+* For experiencing a more humanized interactive experience, please refer to the [Continuous Speech Recognition](./docs/getting_started.md#continuous-speech-recognition).
 * For defining the speech commands by mobile APP, please refer to the [ESP BOX APP User Guide](./docs/getting_started.md#voice-command-customization).
+* For switching the voice model language, please refer to [Switch Voice Model Language](./docs/getting_started.md#switch-voice-model-language).
 * For product exploded-view and disassembly tutorial, please refer to [Disassembly Tutorial](docs/disassembly_tutorial.md).
 * For more details of hardware information, please refer to the [Hardware Overview](./docs/hardware_overview).
 * For latest version firmware, please refer to the [Firmware Update](./docs/firmware_update.md).
@@ -74,8 +87,8 @@ ESP-BOX integrates components commonly used in AIoT development that you can lev
 
 ### Quick Start
 
-* **Step 1**. ESP-IDF (Espressif IoT Development Framework) is required to build the application. If this is your first time using the ESP-IDF, please refer to [ESP-IDF development guide](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/index.html) to understand the open-source drivers and components provided by Espressif.
-* **Step 2**. Next, setting up development environment. Please refer to [ESP-IDF(release/v5.1) Installation Step by Step](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/get-started/index.html).
+* **Step 1**. ESP-IDF (Espressif IoT Development Framework) is required to build the application. If this is your first time using the ESP-IDF, please refer to [ESP-IDF development guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/index.html) to understand the open-source drivers and components provided by Espressif.
+* **Step 2**. Next, setting up development environment. Please refer to [ESP-IDF(release/v5.1) Installation Step by Step](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/get-started/index.html#ide).
 * **Step 3**. Run command `git clone --recursive https://github.com/espressif/esp-box.git` to download the code of this project and then switch the ESP-IDF version to [specified version](#versions);
 * **Step 4**. Take a small step, you can [build and flash a simple example](./examples/image_display).
 * **Step 5**. Moving further, please read [ESP-BOX technical architecture](./docs/technical_architecture.md) to understand the technical details.
