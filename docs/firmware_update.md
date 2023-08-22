@@ -3,7 +3,7 @@
 # Updating Firmware
 
 **Warning:**
-> The firmware released in the latest Tag branch (Version v0.5.0) is only applicable to ESP32-S3-BOX and ESP32-S3-BOX-Lite. We suggest that users update the firmware via Espressif's online firmware flashing tool **[ESP Launchpad](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml)**.
+> The firmware released in the latest Tag branch ([Version v0.5.0](https://github.com/espressif/esp-box/releases)) is only applicable to ESP32-S3-BOX and ESP32-S3-BOX-Lite. For users who have purchased ESP32-S3-BOX-3, we will release firmware updates during the project's progression. We suggest that users update the firmware via Espressif's online firmware flashing tool **[ESP Launchpad](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml)**.
 
 The BOX series development boards support updating firmware through USB. To update firmware, you only need:
 
@@ -38,7 +38,7 @@ Please follow the link below corresponding to your OS to update the firmware.
 ESP Launchpad is a web based tool, available for flashing firmware application to the ESP32 device connected via USB serial port. You can just click [here](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml) to start.
 
 1. Connect your development board to the computer through a USB Type-C cable.
-2. `Connect` the device device follow indicated steps in the figure below.
+2. `Connect` the device follow indicated steps in the figure below.
 3. Choose a bin from `Select Application` and click `Flash` to update.
 
    <div align="center">

@@ -111,7 +111,7 @@ Includes the following components:
   
   **bsp_board.c** is the system call file used to be compatible with different hardware platforms. Currently, the box project supports two hardware platforms: [BOARD_S3_BOX](./hardware_overview/esp32_s3_box/hardware_overview_for_box.md) and [BOARD_S3_BOX_LITE](./hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md). After the system initialization, based on the different device addresses detected by IIC, it determines the current hardware platform and calls different hardware initialization interfaces accordingly.
 
-  **esp32_s3_box.c** and **esp32_s3_box_lite.c** are the specific hardware pin configurations and initialization implementations for `BOARD_S3_BOX` and `BOARD_S3_BOX_LITE`, respectively. Users need to manually select the hardware platform they are running on in menuconfig to invoke the corresponding hardware initialization interface.
+  **esp32_s3_box.c** and **esp32_s3_box_lite.c** are the specific hardware pin configurations and initialization implementations for `BOARD_S3_BOX` and `BOARD_S3_BOX_LITE`, respectively.
 
 - codec
 

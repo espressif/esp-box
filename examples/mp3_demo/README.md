@@ -4,6 +4,7 @@
 | ----------------- | -------------- |
 | ESP32-S3-BOX      | YES            |
 | ESP32-S3-BOX-Lite | YES            |
+| ESP32-S3-BOX-3    | NO             |
 
 Play MP3 music on ESP-BOX.
 

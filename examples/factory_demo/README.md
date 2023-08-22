@@ -2,20 +2,22 @@
 
 | Board             | Support Status |
 | ----------------- | -------------- |
-| ESP32-S3-BOX      | YES            |
-| ESP32-S3-BOX-Lite | YES            |
+| ESP32-S3-BOX      | NO             |
+| ESP32-S3-BOX-Lite | NO             |
+| ESP32-S3-BOX-3    | YES            |
 
-The factory_demo is a built-in firmware of ESP-BOX series products, which integrates LVGL, ESP-Rainmaker and ESP-SR.
+
+The factory_demo is a built-in firmware of ESP32-S3-BOX-3, which integrates LVGL, ESP-Rainmaker and ESP-SR. For ESP32-S3-BOX and ESP32-S3-BOX-Lite, please refer to the [latest release tag branch](https://github.com/espressif/esp-box/tree/v0.5.0/examples/factory_demo). The master branch will gradually offer limited support for these two development boards.
 
 ## How to use example
 
 <font color="red">[Note]: </font>This example requires ESP-IDF release/v5.1 or later.
 
-Please check the [User-Guide](../../docs/getting_started.md).
+Please check the [User Guide](../../docs/getting_started.md) for more details about how to use the demo.
 
 ### Hardware Required
 
-* A ESP32-S3-Box or ESP32-S3-BOX-Lite
+* A ESP32-S3-BOX-3
 * An USB-C cable for power supply and programming
 
 ### Build and Flash
