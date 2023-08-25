@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package rainmaker;
+
+enum RMakerConfigStatus {
+    Success = 0;
+    InvalidParam = 1;
+    InvalidState = 2;
+}
+
+message CmdSetUserMapping {
+    string UserID = 1;
+    string SecretKey = 2;
+}
+message RespSetUserMapping {
+    RMakerConfigStatus Status = 1;
+    string NodeId = 2;
+}
+
+enum RMakerConfigMsgType {
+    TypeCmdSetUserMapping = 0;
+    TypeRespSetUserMapping = 1;
+}
+
+message RMakerConfigPayload {
+    RMakerConfigMsgType msg = 1;
+    oneof payload {
+    CmdSetUserMapping cmd_set_user_mapping = 10;
+    RespSetUserMapping resp_set_user_mapping = 11;
+    }
+}

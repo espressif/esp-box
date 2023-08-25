@@ -56,7 +56,7 @@ static void ui_factory_page_save_click_cb(lv_event_t *e)
     param->sr_lang = g_lang_info[g_active_index - 1].sr_lang;
     param->need_hint = 1; //
     settings_write_parameter_to_nvs();
-    app_sr_set_language(param->sr_lang);
+    // app_sr_set_language(param->sr_lang);
     lv_task_handler(); vTaskDelay(50);
     lv_obj_del(page);
     ui_factory_page_return_click_cb(e);

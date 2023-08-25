@@ -22,9 +22,10 @@ static const char *TAG = "settings";
 static sys_param_t g_sys_param = {0};
 
 static const sys_param_t g_default_sys_param = {
-    .need_hint = 1,
+    .need_hint = true,
     .sr_lang = SR_LANG_EN,
-    .volume = 100, // default volume is 100%
+    .volume = 70, // default volume is 70%
+    .radar_en = true,
 };
 
 static esp_err_t settings_check(sys_param_t *param)

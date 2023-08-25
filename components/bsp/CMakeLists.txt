@@ -1,6 +1,5 @@
-set(bsp_src "src/storage/bsp_sdcard.c")
-
 message(STATUS "PROJECT_DIR: " ${PROJECT_DIR})
+set(bsp_src "src/storage/bsp_sdcard.c")
 
 if(EXISTS ${PROJECT_DIR}/sdkconfig)
     file(READ ${PROJECT_DIR}/sdkconfig SDKCONFIG_RULE)
@@ -24,7 +23,13 @@ else()
     message(FATAL_ERROR "PLATFORM unknown.")
 endif()
 
+string(REGEX MATCH "factory_demo" PROJECT_IS_FACTORY_DEMO "${PROJECT_DIR}")
+if (PROJECT_IS_FACTORY_DEMO)
+set(priv_requires "esp-box${box_lite}" "aht20" "at581x")
+else()
 set(priv_requires "esp-box${box_lite}")
+endif()
+
 set(requires "driver" "fatfs")
 
 idf_component_register(
@@ -34,3 +39,10 @@ idf_component_register(
         "include"
     PRIV_REQUIRES ${priv_requires}
     REQUIRES ${requires})
+
+if (PROJECT_IS_FACTORY_DEMO)
+set_source_files_properties(
+    SRCS ${bsp_src}
+    PROPERTIES COMPILE_OPTIONS
+    -DCONFIG_NEED_SENSOR)
+endif()

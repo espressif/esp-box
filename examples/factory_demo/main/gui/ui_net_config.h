@@ -21,6 +21,14 @@ typedef enum {
     UI_NET_EVT_START_CONNECT,
     UI_NET_EVT_WIFI_CONNECTED,
     UI_NET_EVT_CLOUD_CONNECTED,
+
+    UI_NET_EVT_PROV_SET_PS_FAIL,
+    UI_NET_EVT_PROV_GET_NAME_FAIL,
+    UI_NET_EVT_PROV_SET_MFG_FAIL,
+    UI_NET_EVT_PROV_START_FAIL,
+    UI_NET_EVT_PROV_CRED_FAIL,
+
+    UI_NET_EVT_CONNECT_FAILED,
 } ui_net_state_t;
 
 void ui_net_config_start(void (*fn)(void));

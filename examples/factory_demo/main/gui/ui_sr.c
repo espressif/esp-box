@@ -213,4 +213,4 @@ void sr_anim_set_text(char *text)
     lv_label_set_text_static(g_sr_label, text);
     ui_release(); 
 }
- 
+

@@ -69,7 +69,6 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
 
-
     if (NULL == strstr((char *)wav_head->Subchunk1ID, "fmt") &&
             NULL == strstr((char *)wav_head->Subchunk2ID, "data")) {
         ESP_LOGE(TAG, "Header of wav format error");
@@ -85,7 +84,6 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     codec_handle->mute_set_fn(false);
     codec_handle->volume_set_fn(100, NULL);
     size_t bytes_written = 0;
-
     vTaskDelay(pdMS_TO_TICKS(50));
 
     b_audio_playing = true;
@@ -201,6 +199,7 @@ void sr_handler_task(void *pvParam)
             sr_anim_stop();
             if (PLAYER_STATE_PLAYING == last_player_state) {
                 app_player_play();
+                ESP_LOGW(TAG, "audio play");
             }
 #endif
 
@@ -268,6 +267,7 @@ void sr_handler_task(void *pvParam)
                 ESP_LOGE(TAG, "Unknow cmd");
                 break;
             }
+
         }
     }
     vTaskDelete(NULL);

@@ -4,7 +4,7 @@
 | ----------------- | -------------- |
 | ESP32-S3-BOX      | YES            |
 | ESP32-S3-BOX-Lite | YES            |
-| ESP32-S3-BOX-3    | NO             |
+| ESP32-S3-BOX-3    | YES            |
 
 The example is a prototype that simulates a smart watering system. The example utilizes ESP-BOX as a control panel, providing cloud connection capability as well as a voice control function. It also supports remote control from a mobile app using ESP RainMaker.
 

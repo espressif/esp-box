@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package rmaker_claim;
+
+enum RMakerClaimStatus {
+    Success = 0;
+    Fail = 1;
+    InvalidParam = 2;
+    InvalidState = 3;
+    NoMemory = 4;
+}
+
+message PayloadBuf {
+    uint32 Offset = 1;
+    bytes Payload = 2;
+    uint32 TotalLen = 3;
+}
+
+message RespPayload {
+    RMakerClaimStatus Status = 1;
+    PayloadBuf Buf = 2;
+}
+
+enum RMakerClaimMsgType {
+    TypeCmdClaimStart = 0;
+    TypeRespClaimStart = 1;
+    TypeCmdClaimInit = 2;
+    TypeRespClaimInit = 3;
+    TypeCmdClaimVerify = 4;
+    TypeRespClaimVerify = 5;
+    TypeCmdClaimAbort = 6;
+    TypeRespClaimAbort = 7;
+}
+
+message RMakerClaimPayload {
+    RMakerClaimMsgType msg = 1;
+    oneof payload {
+        PayloadBuf cmdPayload = 10;
+        RespPayload respPayload = 11;
+    }
+}

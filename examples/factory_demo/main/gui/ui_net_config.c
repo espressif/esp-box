@@ -15,6 +15,7 @@
 
 static const char *TAG = "ui_net_config";
 
+static bool provide_no_err = true;
 static lv_obj_t *g_btn_app_hint = NULL;
 static lv_obj_t *g_hint_lab = NULL;
 static lv_obj_t *g_qr = NULL;
@@ -52,61 +53,65 @@ static void btn_return_down_cb(void *handle, void *arg)
 
 static void ui_net_config_page_app_click_cb(lv_event_t *e)
 {
-    {
-        /* **************** FRAMWORK **************** */
-        lv_obj_t *page = lv_obj_create(lv_scr_act());
-        lv_obj_set_size(page, lv_obj_get_width(lv_obj_get_parent(page)), 185);
-        lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-        lv_obj_set_style_radius(page, 15, LV_STATE_DEFAULT);
-        lv_obj_set_style_border_width(page, 1, LV_STATE_DEFAULT);
-        lv_obj_set_style_shadow_width(page, 20, LV_PART_MAIN);
-        lv_obj_set_style_shadow_opa(page, LV_OPA_30, LV_PART_MAIN);
-        lv_obj_align(page, LV_ALIGN_CENTER, 0, 0);
+    /* **************** FRAMWORK **************** */
+    lv_obj_t *page = lv_obj_create(lv_scr_act());
+    lv_obj_set_size(page, lv_obj_get_width(lv_obj_get_parent(page)), 185);
+    lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_radius(page, 15, LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(page, 1, LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(page, 20, LV_PART_MAIN);
+    lv_obj_set_style_shadow_opa(page, LV_OPA_30, LV_PART_MAIN);
+    lv_obj_align(page, LV_ALIGN_CENTER, 0, 0);
 
-        lv_obj_t *btn_return = lv_btn_create(page);
-        lv_obj_set_size(btn_return, 24, 24);
-        lv_obj_add_style(btn_return, &ui_button_styles()->style, 0);
-        lv_obj_add_style(btn_return, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
-        lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUS_KEY);
-        lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUSED);
-        lv_obj_align(btn_return, LV_ALIGN_TOP_LEFT, 0, 0);
-        lv_obj_t *lab_btn_text = lv_label_create(btn_return);
-        lv_label_set_text_static(lab_btn_text, LV_SYMBOL_LEFT);
-        lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
-        lv_obj_center(lab_btn_text);
-        lv_obj_add_event_cb(btn_return, ui_app_page_return_click_cb, LV_EVENT_CLICKED, page);
+    lv_obj_t *btn_return = lv_btn_create(page);
+    lv_obj_set_size(btn_return, 24, 24);
+    lv_obj_add_style(btn_return, &ui_button_styles()->style, 0);
+    lv_obj_add_style(btn_return, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
+    lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUS_KEY);
+    lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUSED);
+    lv_obj_align(btn_return, LV_ALIGN_TOP_LEFT, 0, 0);
+    lv_obj_t *lab_btn_text = lv_label_create(btn_return);
+    lv_label_set_text_static(lab_btn_text, LV_SYMBOL_LEFT);
+    lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
+    lv_obj_center(lab_btn_text);
+    lv_obj_add_event_cb(btn_return, ui_app_page_return_click_cb, LV_EVENT_CLICKED, page);
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
-        bsp_btn_rm_event_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP);
-        bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+    bsp_btn_rm_event_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP);
+    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
 #endif
-        if (ui_get_btn_op_group()) {
-            lv_group_add_obj(ui_get_btn_op_group(), btn_return);
-            lv_group_focus_obj(btn_return);
-            lv_group_focus_freeze(ui_get_btn_op_group(), true);
-        }
-
-        /* **************** HINT MESSAGE **************** */
-        lv_obj_t *hint_label = lv_label_create(page);
-        lv_label_set_text_static(hint_label,
-                                 "Please scan the QR code below to\n"
-                                 "download the ESP-BOX APP.");
-        lv_obj_align(hint_label, LV_ALIGN_TOP_MID, 10, 0);
-
-        /* **************** QR CODE **************** */
-        static const char *qr_payload = "https://espressif.com/esp-box";
-        lv_obj_t *qr = lv_qrcode_create(page, 92, lv_color_black(), lv_color_white());
-        lv_qrcode_update(qr, qr_payload, strlen(qr_payload));
-        lv_obj_align(qr, LV_ALIGN_CENTER, 0, 10);
-
-        /* **************** LINK ADDR **************** */
-        lv_obj_t *lab_link = lv_label_create(page);
-        lv_label_set_text_static(lab_link, qr_payload);
-        lv_obj_align(lab_link, LV_ALIGN_BOTTOM_MID, 0, 0);
+    if (ui_get_btn_op_group()) {
+        lv_group_add_obj(ui_get_btn_op_group(), btn_return);
+        lv_group_focus_obj(btn_return);
+        lv_group_focus_freeze(ui_get_btn_op_group(), true);
     }
+
+    /* **************** HINT MESSAGE **************** */
+    lv_obj_t *hint_label = lv_label_create(page);
+    lv_label_set_text_static(hint_label,
+                             "Please scan the QR code below to\n"
+                             "download the ESP-BOX APP.");
+    lv_obj_align(hint_label, LV_ALIGN_TOP_MID, 10, 0);
+
+    /* **************** QR CODE **************** */
+    static const char *qr_payload = "https://espressif.com/esp-box";
+    lv_obj_t *qr = lv_qrcode_create(page, 92, lv_color_black(), lv_color_white());
+    lv_qrcode_update(qr, qr_payload, strlen(qr_payload));
+    lv_obj_align(qr, LV_ALIGN_CENTER, 0, 10);
+
+    /* **************** LINK ADDR **************** */
+    lv_obj_t *lab_link = lv_label_create(page);
+    lv_label_set_text_static(lab_link, qr_payload);
+    lv_obj_align(lab_link, LV_ALIGN_BOTTOM_MID, 0, 0);
 }
 
 static void ui_net_config_page_return_click_cb(lv_event_t *e)
 {
+    if (false == provide_no_err) {
+        return;
+    }
+
+    app_wifi_prov_stop();
+
     lv_obj_t *obj = lv_event_get_user_data(e);
     lv_obj_del(g_btn_app_hint);
     if (ui_get_btn_op_group()) {
@@ -118,6 +123,7 @@ static void ui_net_config_page_return_click_cb(lv_event_t *e)
     lv_obj_del(obj);
     g_page = NULL;
     g_qr = NULL;
+    g_img = NULL;
     if (g_net_config_end_cb) {
         g_net_config_end_cb();
     }
@@ -125,12 +131,58 @@ static void ui_net_config_page_return_click_cb(lv_event_t *e)
 
 void ui_net_config_update_cb(ui_net_state_t state, void *args)
 {
+    if((UI_NET_EVT_WIFI_CONNECTED == state) && (UI_NET_EVT_CLOUD_CONNECTED == g_net_state)){
+        return;
+    }
+
     g_net_state = state;
     if (!g_page) {
         return;
     }
     ui_acquire();
     switch (state) {
+    case UI_NET_EVT_PROV_SET_PS_FAIL:
+        provide_no_err = false;
+        lv_label_set_text(g_hint_lab, "UI_NET_EVT_PROV_SET_PS_FAIL");
+        lv_label_set_text(g_hint_lab,
+                          "1. Set ps mode failed\n"
+                          "#FF0000 2. Please reset the device#");
+        lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
+        break;
+    case UI_NET_EVT_PROV_GET_NAME_FAIL:
+        provide_no_err = false;
+        lv_label_set_text(g_hint_lab,
+                          "1. Get name failed\n"
+                          "#FF0000 2. Please reset the device#");
+        lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
+        break;
+    case UI_NET_EVT_PROV_SET_MFG_FAIL:
+        provide_no_err = false;
+        lv_label_set_text(g_hint_lab,
+                          "1. Set mfg failed\n"
+                          "#FF0000 2. Please reset the device#");
+        lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
+        break;
+    case UI_NET_EVT_PROV_START_FAIL:
+        provide_no_err = false;
+        lv_label_set_text(g_hint_lab,
+                          "1. Start failed\n"
+                          "#FF0000 2. Please reset the device#");
+        lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
+        break;
+    case UI_NET_EVT_PROV_CRED_FAIL://must reboot
+        provide_no_err = false;
+        lv_label_set_text(g_hint_lab,
+                          "1. Authentication failed\n"
+                          "#FF0000 2. Please reset the device#");
+        lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
+        break;
+    case UI_NET_EVT_CONNECT_FAILED:
+        provide_no_err = true;
+        lv_label_set_text(g_hint_lab, "Connect failed");
+        lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
+        break;
+
     case UI_NET_EVT_LOARDING:
         lv_obj_clear_flag(g_hint_lab, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(g_hint_lab, "System is loading ...");
@@ -167,19 +219,18 @@ void ui_net_config_update_cb(ui_net_state_t state, void *args)
         lv_qrcode_update(g_qr, prov_msg, prov_msg_len);
         lv_obj_clear_flag(g_hint_lab, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(g_hint_lab,
-                          "1.Open ESP-BOX APP on your phone\n"
-                          "2.Scan the QR Code to provision");
+                          "1. Open ESP-BOX APP\n"
+                          "2. Scan the QR Code to provision\n"
+                          "#FF0000 3. Leave page will stop provision#");
         lv_obj_align_to(g_hint_lab, g_qr, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
     }
     break;
     case UI_NET_EVT_START_CONNECT:
         lv_obj_clear_flag(g_hint_lab, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(g_hint_lab, "Connecting to Wi-Fi ...");
+        lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
         break;
     case UI_NET_EVT_WIFI_CONNECTED: {
-        if (g_qr) {
-            lv_obj_add_flag(g_qr, LV_OBJ_FLAG_HIDDEN);
-        }
         lv_obj_clear_flag(g_hint_lab, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(g_hint_lab, "Connecting to Rainmaker ...");
         lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
@@ -200,6 +251,14 @@ void ui_net_config_update_cb(ui_net_state_t state, void *args)
     break;
     default:
         break;
+    }
+
+    if ((UI_NET_EVT_CLOUD_CONNECTED != state) && g_img) {
+        lv_obj_add_flag(g_img, LV_OBJ_FLAG_HIDDEN);
+    }
+
+    if ((UI_NET_EVT_GET_NAME != state) && g_qr) {
+        lv_obj_add_flag(g_qr, LV_OBJ_FLAG_HIDDEN);
     }
     ui_release();
 }
@@ -259,4 +318,7 @@ void ui_net_config_start(void (*fn)(void))
     lv_label_set_text_static(g_hint_lab, "...");
     lv_obj_align(g_hint_lab, LV_ALIGN_CENTER, 0, 0);
     ui_net_config_update_cb(g_net_state, NULL);
+
+    provide_no_err = true;
+    app_wifi_prov_start();
 }

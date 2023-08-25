@@ -10,7 +10,6 @@
 #include "esp_err.h"
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
-// #include "bsp/esp-bsp.h"
 #include "driver/i2s_std.h"
 #include "iot_button.h"
 
@@ -18,10 +17,24 @@
 extern "C" {
 #endif
 
+#define BSP_I2C_EXPAND_SCL      (GPIO_NUM_40)
+#define BSP_I2C_EXPAND_SDA      (GPIO_NUM_41)
+
+#define BSP_RADAR_OUT_IO        (GPIO_NUM_21)
+#define BSP_IR_CTRL_GPIO        (GPIO_NUM_44)
+#define BSP_IR_TX_GPIO          (GPIO_NUM_39)
+#define BSP_IR_RX_GPIO          (GPIO_NUM_38)
+
 typedef enum {
     BOARD_S3_BOX,
     BOARD_S3_BOX_LITE,
 } boards_id_t;
+
+typedef enum{
+    BOTTOM_ID_SENSOR,
+    BOTTOM_ID_UNKNOW,
+    BOTTOM_ID_LOST,
+}bottom_id_t;
 
 typedef enum {
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
@@ -187,6 +200,98 @@ esp_err_t bsp_btn_register_callback(bsp_button_id_t btn, button_event_t event, b
 esp_err_t bsp_btn_rm_all_callback(bsp_button_id_t btn);
 
 esp_err_t bsp_btn_rm_event_callback(bsp_button_id_t btn, size_t event);
+/**
+ * @brief stop codec to enter sleep mode
+ *
+ * @return
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t bsp_codec_dev_stop(void);
+
+/**
+ * @brief resume codec to enter normal mode
+ *
+ * @return
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t bsp_codec_dev_resume(void);
+
+/**
+ * @brief esp_pm_lock_acquire
+ *
+ * @return
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t bsp_pm_exit_sleep();
+
+/**
+ * @brief esp_pm_lock_release
+ *
+ * @return
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t bsp_pm_enter_sleep();
+
+/**
+ * @brief init pm module
+ *
+ * @return
+ *    - ESP_OK: Success
+ *    - Others: Fail
+ */
+esp_err_t bsp_pm_init();
+
+/**
+ * @brief get sleep mode
+ *
+ * @return
+ *    - true: sleep mode
+ *    - false: nornal mode
+ */
+bool bsp_get_system_sleep_mode();
+
+/**
+ * @brief get bottom status
+ *
+ * @return
+ *    - BOTTOM_ID_SENSOR: sensor bottom connected
+ *    - BOTTOM_ID_LOST: sensor bottom lost
+ *    - BOTTOM_ID_UNKNOW: unknow
+ */
+bottom_id_t bsp_get_bottom_id();
+
+/**
+ * @brief get radar status
+ *
+ * @return
+ *    - true: active
+ *    - false: passive
+ */
+bool bsp_get_system_radar_status();
+
+/**
+ * @brief set radar status
+ *
+ * @param enable
+ *
+ * @return
+ *      - ESP_OK on success
+ *      - ESP_ERR_INVALID_ARG   Arguments is invalid.
+ */
+void bsp_set_system_radar_status(bool enable);
+
+/**
+ * @brief get sleep mode
+ *
+ * @return
+ *    - ESP_OK: read successfully
+ *    - ESP_FAIL: read failed
+ */
+esp_err_t bsp_read_temp_humidity(float *temperature_s, uint8_t *humidity_s);
 
 #ifdef __cplusplus
 }

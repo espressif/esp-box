@@ -10,7 +10,7 @@
     <a href="https://github.com/espressif/esp-box/blob/master/LICENSE" alt="Build examples">
         <img alt="GitHub" src="https://img.shields.io/github/license/espressif/esp-box"></a>
     <a href="https://github.com/espressif/esp-box/actions/workflows/build_IDF5.1.yml" alt="Build examples">
-        <img src="https://github.com/espressif/esp-box/actions/workflows/build.yml/badge.svg" /></a>
+        <img src="https://github.com/espressif/esp-box/actions/workflows/build_IDF5.1.yml/badge.svg" /></a>
     <a href="https://github.com/espressif/esp-box/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/espressif/esp-box" /></a>
     <a href="https://github.com/espressif/esp-box/releases" alt="GitHub all releases">

@@ -37,6 +37,7 @@ static const char *TAG = "app_sr";
 
 typedef struct {
     sr_language_t lang;
+    char *mn_name;
     model_iface_data_t *model_data;
     const esp_mn_iface_t *multinet;
     const esp_afe_sr_iface_t *afe_handle;
@@ -136,63 +137,10 @@ static const sr_cmd_t g_default_cmd_info[] = {
     {SR_CMD_MAX, SR_LANG_CN, 0, "送风模式", "song feng mo shi", {NULL}},
     {SR_CMD_MAX, SR_LANG_CN, 0, "升高温度", "sheng gao wen du", {NULL}},
     {SR_CMD_MAX, SR_LANG_CN, 0, "降低温度", "jiang di wen du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "温度调到最高", "wen du tiao dao zui gao", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "温度调到最低", "wen du tiao dao zui di", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "太热了", "tai re le", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "太冷了", "tai leng le", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "十六度", "shi liu du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "十七度", "shi qi du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "十八度", "shi ba du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "十九度", "shi jiu du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十度", "er shi du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十一度", "er shi yi du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十二度", "er shi er du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十三度", "er shi san du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十四度", "er shi si du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十五度", "er shi wu du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十六度", "er shi liu du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十七度", "er shi qi du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十八度", "er shi ba du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "二十九度", "er shi jiu du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "三十度", "san shi du", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "增大风速", "zeng da feng su", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "减小风速", "jian xiao feng su", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "高速风", "gao su feng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "中速风", "zhong su feng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "低速风", "di su feng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "自动风", "zi dong feng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开左右摆风", "da kai zuo you bai feng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开上下摆风", "da kai shang xia bai feng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭左右摆风", "guan bi zuo you bai feng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭上下摆风", "guan bi shang xia bai feng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开辅热", "da kai fu re", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭辅热", "guan bi fu re", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开自清洁", "da kai zi qing jie", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭自清洁", "guan bi zi qing jie", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开静音", "da kai jing yin", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭静音", "guan bi jing yin", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "音量大点", "yin liang da dian", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "音量小点", "yin liang xiao dian", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "音量调到最大", "yin liang diao dao zui da", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "音量调到最小", "yin liang diao dao zui xiao", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开卧室灯", "da kai wo shi deng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭卧室灯", "guan bi wo shi deng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开客厅灯", "da kai ke ting deng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭客厅灯", "guan bi ke ting deng", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开音箱", "da kai yin xiang", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭音箱", "guan bi yin xiang", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "拉开窗帘", "la kai chuang lian", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭窗帘", "guan bi chuang lian", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开风扇", "da kai feng shan", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭风扇", "guan bi feng shan", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开饮水机插座", "da kai yin shui ji cha zuo", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭饮水机插座", "guan bi yin shui ji cha zuo", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开投影仪", "da kai tou ying yi", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭投影仪", "guan bi tou ying yi", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "灯光调暗", "deng guang diao an", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "灯光调亮", "deng guang diao liang", {NULL}},
 #endif
 };
+
+extern bool ir_learn_enable;
 
 static void audio_feed_task(void *arg)
 {
@@ -215,8 +163,18 @@ static void audio_feed_task(void *arg)
             vTaskDelete(NULL);
         }
 
+        if (true == bsp_get_system_sleep_mode()) {
+            vTaskDelay(pdMS_TO_TICKS(500));
+            continue;
+        }
+
         if (false == get_mute_play_flag()) {
             vTaskDelay(pdMS_TO_TICKS(500));
+            continue;
+        }
+
+        if(true == ir_learn_enable){
+            vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
 
@@ -235,7 +193,6 @@ static void audio_feed_task(void *arg)
             audio_buffer[i * 3 + 1] = audio_buffer[i * 2 + 1];
             audio_buffer[i * 3 + 0] = audio_buffer[i * 2 + 0];
         }
-
         /* Feed samples of an audio stream to the AFE_SR */
         afe_handle->feed(afe_data, audio_buffer);
     }
@@ -259,7 +216,7 @@ static void audio_detect_task(void *arg)
             vTaskDelete(NULL);
         }
 
-        afe_fetch_result_t* res = afe_handle->fetch(afe_data);
+        afe_fetch_result_t *res = afe_handle->fetch(afe_data);
         if (!res || res->ret_value == ESP_FAIL) {
             continue;
         }
@@ -272,8 +229,7 @@ static void audio_detect_task(void *arg)
                 .command_id = 0,
             };
             xQueueSend(g_sr_data->result_que, &result, 0);
-        }
-        else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
+        } else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
             detect_flag = true;
             g_sr_data->afe_handle->disable_wakenet(afe_data);
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "AFE_FETCH_CHANNEL_VERIFIED, channel index: %d\n", res->trigger_channel_id);
@@ -313,7 +269,7 @@ static void audio_detect_task(void *arg)
                 esp_mn_results_t *mn_result = g_sr_data->multinet->get_results(g_sr_data->model_data);
                 for (int i = 0; i < mn_result->num; i++) {
                     printf("TOP %d, command_id: %d, phrase_id: %d, prob: %f\n",
-                        i + 1, mn_result->command_id[i], mn_result->phrase_id[i], mn_result->prob[i]);
+                           i + 1, mn_result->command_id[i], mn_result->phrase_id[i], mn_result->prob[i]);
                 }
 
                 int sr_command_id = mn_result->command_id[0];
@@ -370,10 +326,14 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
     model_iface_data_t *model_data = multinet->create(mn_name, 5760);
     g_sr_data->multinet = multinet;
     g_sr_data->model_data = model_data;
-    ESP_LOGI(TAG, "load multinet:%s,%d,%d", mn_name, sizeof(esp_mn_iface_t), sizeof(esp_mn_iface_t));
+    g_sr_data->mn_name = mn_name;
+    ESP_LOGI(TAG, "load multinet:%s", g_sr_data->mn_name);
 
     // remove all command
     app_sr_remove_all_cmd();
+    if (strstr(g_sr_data->mn_name, "mn6")) {
+        esp_mn_commands_clear();
+    }
 
     uint8_t cmd_number = 0;
     // count command number
@@ -439,10 +399,10 @@ esp_err_t app_sr_start(bool record_en)
     ret = app_sr_set_language(param->sr_lang);
     ESP_GOTO_ON_FALSE(ESP_OK == ret, ESP_FAIL, err, TAG,  "Failed to set language");
 
-    ret_val = xTaskCreatePinnedToCore(&audio_feed_task, "Feed Task", 4 * 1024, (void*)afe_data, 5, &g_sr_data->feed_task, 0);
+    ret_val = xTaskCreatePinnedToCore(&audio_feed_task, "Feed Task", 4 * 1024, (void *)afe_data, 5, &g_sr_data->feed_task, 0);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG,  "Failed create audio feed task");
 
-    ret_val = xTaskCreatePinnedToCore(&audio_detect_task, "Detect Task", 8 * 1024, (void*)afe_data, 5, &g_sr_data->detect_task, 1);
+    ret_val = xTaskCreatePinnedToCore(&audio_detect_task, "Detect Task", 8 * 1024, (void *)afe_data, 5, &g_sr_data->detect_task, 1);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG,  "Failed create audio detect task");
 
     ret_val = xTaskCreatePinnedToCore(&sr_handler_task, "SR Handler Task", 6 * 1024, NULL, configMAX_PRIORITIES - 1, &g_sr_data->handle_task, 0);
@@ -541,7 +501,12 @@ esp_err_t app_sr_add_cmd(const sr_cmd_t *cmd)
 #else  // insert head
     SLIST_INSERT_HEAD(&g_sr_data->cmd_list, it, next);
 #endif
-    esp_mn_commands_add(g_sr_data->cmd_num, (char *)cmd->phoneme);
+
+    if (strstr(g_sr_data->mn_name, "mn6_en")) {
+        esp_mn_commands_add(g_sr_data->cmd_num, (char *)cmd->str);
+    } else {
+        esp_mn_commands_add(g_sr_data->cmd_num, (char *)cmd->phoneme);
+    }
     g_sr_data->cmd_num++;
     return ESP_OK;
 }
@@ -557,7 +522,11 @@ esp_err_t app_sr_modify_cmd(uint32_t id, const sr_cmd_t *cmd)
     SLIST_FOREACH(it, &g_sr_data->cmd_list, next) {
         if (it->id == id) {
             ESP_LOGI(TAG, "modify cmd [%d] from %s to %s", id, it->str, cmd->str);
-            esp_mn_commands_modify(it->phoneme, (char *)cmd->phoneme);
+            if (strstr(g_sr_data->mn_name, "mn6_en")) {
+                esp_mn_commands_modify(it->str, (char *)cmd->str);
+            } else {
+                esp_mn_commands_modify(it->phoneme, (char *)cmd->phoneme);
+            }
             memcpy(it, cmd, sizeof(sr_cmd_t));
             break;
         }
@@ -608,7 +577,7 @@ esp_err_t app_sr_update_cmds(void)
     }
 
     esp_mn_error_t *err_id = esp_mn_commands_update(g_sr_data->multinet, g_sr_data->model_data);
-    if(err_id){
+    if (err_id) {
         for (int i = 0; i < err_id->num; i++) {
             ESP_LOGE(TAG, "err cmd id:%d", err_id->phrases[i]);
         }

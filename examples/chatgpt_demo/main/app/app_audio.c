@@ -225,9 +225,9 @@ esp_err_t audio_play_task(void *filepath)
     ESP_LOGI(TAG, "frame_rate= %" PRIi32 ", ch=%d, width=%d", wav_head.SampleRate, wav_head.NumChannels, wav_head.BitsPerSample);
     codec_handle->i2s_reconfig_clk_fn(wav_head.SampleRate, wav_head.BitsPerSample, I2S_SLOT_MODE_STEREO);
 
+    codec_handle->mute_set_fn(true);
     codec_handle->mute_set_fn(false);
     codec_handle->volume_set_fn(CONFIG_VOLUME_LEVEL,NULL);
-    vTaskDelay(pdMS_TO_TICKS(500));
 
     size_t cnt, total_cnt = 0;
     do {
