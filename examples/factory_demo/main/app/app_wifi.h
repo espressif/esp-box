@@ -12,10 +12,18 @@ extern "C" {
 #endif
 
 void app_wifi_init();
-esp_err_t app_wifi_start(void);
+
 char *app_wifi_get_prov_payload(void);
+
 bool app_wifi_is_connected(void);
+
+esp_err_t app_wifi_start(void);
+
 esp_err_t app_wifi_get_wifi_ssid(char *ssid, size_t len);
+
+esp_err_t app_wifi_prov_start(void);
+
+esp_err_t app_wifi_prov_stop(void);
 
 #ifdef __cplusplus
 }

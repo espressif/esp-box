@@ -12,6 +12,7 @@ typedef struct {
     bool need_hint;
     sr_language_t sr_lang;
     uint8_t volume; // 0 - 100%
+    bool radar_en;
 } sys_param_t;
 
 esp_err_t settings_read_parameter_from_nvs(void);

@@ -4,7 +4,7 @@
 | ----------------- | -------------- |
 | ESP32-S3-BOX      | YES            |
 | ESP32-S3-BOX-Lite | YES            |
-| ESP32-S3-BOX-3    | NO             |
+| ESP32-S3-BOX-3    | YES            |
 
 This example creates a 3 channel matter On/Off Switch device on esp32s3 box platform.
 

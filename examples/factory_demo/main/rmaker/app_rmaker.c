@@ -60,9 +60,15 @@ static esp_err_t esp_box_init(void)
              cmd_light_off->phoneme, param->sr_lang, cmd_light_off->str,
              h, s, v, cmd_cc->phoneme, param->sr_lang, cmd_cc->str);
     esp_box_light_param_t def_light_param = {
+#ifdef CONFIG_BSP_ESP32_S3_BOX_3
+        .gpio_r = brd->PMOD2->row2[2],
+        .gpio_g = brd->PMOD2->row2[3],
+        .gpio_b = brd->PMOD2->row1[3],
+#else
         .gpio_r = brd->PMOD2->row1[1],
         .gpio_g = brd->PMOD2->row1[2],
         .gpio_b = brd->PMOD2->row1[3],
+#endif
         .hue = 0,
         .brightness = 100,
         .saturation = 100,
@@ -82,7 +88,11 @@ static esp_err_t esp_box_init(void)
                           def_light_param.power, def_light_param.voice_cmd);
 
     esp_box_switch_param_t def_switch_param = {
+#ifdef CONFIG_BSP_ESP32_S3_BOX_3
+        .gpio = brd->PMOD2->row1[2],
+#else
         .gpio = brd->PMOD2->row1[0],
+#endif
         .active_level = 1,
         .power = false,
         .name = "Switch",
@@ -98,7 +108,11 @@ static esp_err_t esp_box_init(void)
     app_driver_switch_init(def_switch_param.unique_name, def_switch_param.gpio, def_switch_param.active_level, def_switch_param.power, def_switch_param.voice_cmd);
 
     esp_box_fan_param_t def_fan_param = {
+#ifdef CONFIG_BSP_ESP32_S3_BOX_3
         .gpio = brd->PMOD2->row2[0],
+#else
+        .gpio = brd->PMOD2->row2[0],
+#endif
         .active_level = 1,
         .power = false,
         .name = "Fan",

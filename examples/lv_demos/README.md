@@ -4,7 +4,7 @@
 | ----------------- | -------------- |
 | ESP32-S3-BOX      | YES            |
 | ESP32-S3-BOX-Lite | NO             |
-| ESP32-S3-BOX-3    | NO             |
+| ESP32-S3-BOX-3    | YES            |
 
 LVGL official demos.
 

@@ -117,10 +117,10 @@ static void ui_player_page_return_click_cb(lv_event_t *e)
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
     bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
 #endif
-    audio_player_callback_register(NULL, NULL);
-    settings_write_parameter_to_nvs(); // save volume to nvs
     lv_obj_del(obj);
     player_page = NULL;
+    audio_player_callback_register(NULL, NULL);
+    settings_write_parameter_to_nvs(); // save volume to nvs
     if (g_player_end_cb) {
         g_player_end_cb();
     }
@@ -138,6 +138,11 @@ static void btn_return_down_cb(void *handle, void *arg)
 
 static void audio_cb(audio_player_cb_ctx_t *ctx)
 {
+    if(player_page == NULL){
+        ESP_LOGE(TAG, "player_page has exited!");
+        return;
+    }
+
     if (AUDIO_PLAYER_CALLBACK_EVENT_IDLE == ctx->audio_event) {
         g_media_is_playing = false;
         ui_acquire();
@@ -204,7 +209,7 @@ void ui_media_player(void (*fn)(void))
 
     g_lab_file = lv_label_create(page);
     lv_label_set_text_static(g_lab_file, file_iterator_get_name_from_index(file_iterator, file_iterator_get_index(file_iterator)));
-    lv_obj_set_size(g_lab_file, 240, 32);
+    lv_obj_set_size(g_lab_file, 250, 32);
     lv_obj_set_style_text_font(g_lab_file, &lv_font_montserrat_24, LV_STATE_DEFAULT);
     lv_label_set_long_mode(g_lab_file, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_align(g_lab_file, LV_ALIGN_TOP_MID, 10, 0);

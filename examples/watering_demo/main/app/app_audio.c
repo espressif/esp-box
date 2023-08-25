@@ -68,12 +68,12 @@ esp_err_t sr_echo_play(void *filepath)
 
     bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
 
-    ESP_LOGE(TAG, "frame_rate= %" PRIi32 ", ch=%d, width=%d", wav_head.SampleRate, wav_head.NumChannels, wav_head.BitsPerSample);
+    ESP_LOGD(TAG, "frame_rate= %" PRIi32 ", ch=%d, width=%d", wav_head.SampleRate, wav_head.NumChannels, wav_head.BitsPerSample);
     codec_handle->i2s_reconfig_clk_fn(wav_head.SampleRate, wav_head.BitsPerSample, I2S_SLOT_MODE_STEREO);
 
-    vTaskDelay(pdMS_TO_TICKS(500));
+    codec_handle->mute_set_fn(true);
     codec_handle->mute_set_fn(false);
-    codec_handle->volume_set_fn(85, NULL);
+    codec_handle->volume_set_fn(100, NULL);
 
     size_t cnt, total_cnt = 0;
     do {

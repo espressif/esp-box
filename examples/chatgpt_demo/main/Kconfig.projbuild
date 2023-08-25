@@ -7,7 +7,7 @@ menu "Example Configuration"
             speaker id from https://czyt.tech/post/a-free-tts-api/?from_wecom=1
     config VOLUME_LEVEL
         int "volume level"
-        default "70"
+        default "90"
         range 1 100
         help
             speaker volume

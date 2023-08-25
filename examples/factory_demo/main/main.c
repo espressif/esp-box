@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <math.h>
 #include "esp_heap_caps.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
@@ -21,6 +22,7 @@
 #include "audio_player.h"
 #include "file_iterator.h"
 #include "gui/ui_main.h"
+#include "ui_sensor_monitor.h"
 
 #include "bsp_board.h"
 #include "bsp/esp-bsp.h"
@@ -35,11 +37,11 @@ file_iterator_instance_t *file_iterator;
 static void monitor_task(void *arg)
 {
     (void) arg;
-    const int STATS_TICKS = pdMS_TO_TICKS(2 * 1000);
+    const int STATS_TICKS = pdMS_TO_TICKS(5 * 1000);
 
     while (true) {
         ESP_LOGI(TAG, "System Info Trace");
-        printf("\tDescription\tInternal\tSPIRAM\n");
+        // printf("\tDescription\tInternal\tSPIRAM\n");
         printf("Current Free Memory\t%d\t\t%d\n",
                heap_caps_get_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
                heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
@@ -50,6 +52,7 @@ static void monitor_task(void *arg)
                heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
                heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
 
+        esp_intr_dump(stdout);
         vTaskDelay(STATS_TICKS);
     }
 
@@ -98,13 +101,19 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
     ESP_ERROR_CHECK(settings_read_parameter_from_nvs());
+    sensor_task_state_event_init();
 #if !SR_RUN_TEST && MEMORY_MONITOR
     sys_monitor_start(); // Logs should be reduced during SR testing
 #endif
     bsp_spiffs_mount();
 
     bsp_i2c_init();
-    bsp_display_start();
+
+    bsp_display_cfg_t cfg = {
+        .lvgl_port_cfg = ESP_LVGL_PORT_INIT_CONFIG()
+    };
+    cfg.lvgl_port_cfg.task_affinity = 1;
+    bsp_display_start_with_config(&cfg);
     bsp_board_init();
 
     ESP_LOGI(TAG, "Display LVGL demo");
@@ -115,14 +124,19 @@ void app_main(void)
     file_iterator = file_iterator_new("/spiffs/mp3");
     assert(file_iterator != NULL);
     audio_player_config_t config = { .mute_fn = audio_mute_function,
-                                    .write_fn = codec_handle->i2s_write_fn,
-                                    .clk_set_fn = codec_handle->i2s_reconfig_clk_fn,
-                                    .priority = 5
+                                     .write_fn = codec_handle->i2s_write_fn,
+                                     .clk_set_fn = codec_handle->i2s_reconfig_clk_fn,
+                                     .priority = 5
                                    };
     ESP_ERROR_CHECK(audio_player_new(config));
 
     const board_res_desc_t *brd = bsp_board_get_description();
+#ifdef CONFIG_BSP_ESP32_S3_BOX_3
+    app_pwm_led_init(brd->PMOD2->row2[2], brd->PMOD2->row2[3], brd->PMOD2->row1[3]);
+#else
     app_pwm_led_init(brd->PMOD2->row1[1], brd->PMOD2->row1[2], brd->PMOD2->row1[3]);
+#endif
+
     ESP_LOGI(TAG, "speech recognition start");
     app_sr_start(false);
     app_rmaker_start();

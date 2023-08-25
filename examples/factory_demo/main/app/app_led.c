@@ -156,47 +156,49 @@ esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio
 {
     esp_err_t ret_val = ESP_OK;
 
-    ledc_timer_config_t ledc_timer = {
-        .speed_mode       = LEDC_LOW_SPEED_MODE,
-        .timer_num        = LEDC_TIMER_0,
-        .duty_resolution  = LEDC_TIMER_8_BIT,
-        .freq_hz          = 8192,
-        .clk_cfg          = LEDC_AUTO_CLK
-    };
-    ret_val |= ledc_timer_config(&ledc_timer);
+    if (BOTTOM_ID_UNKNOW == bsp_get_bottom_id()) {
+        ledc_timer_config_t ledc_timer = {
+            .speed_mode       = LEDC_LOW_SPEED_MODE,
+            .timer_num        = LEDC_TIMER_0,
+            .duty_resolution  = LEDC_TIMER_8_BIT,
+            .freq_hz          = 8192,
+            .clk_cfg          = LEDC_AUTO_CLK
+        };
+        ret_val |= ledc_timer_config(&ledc_timer);
 
-    ledc_channel_config_t ledc_channel_red = {
-        .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = LED_CHANNEL_RED,
-        .timer_sel      = LEDC_TIMER_0,
-        .intr_type      = LEDC_INTR_DISABLE,
-        .gpio_num       = gpio_r,
-        .duty           = 0,
-        .hpoint         = 0
-    };
-    ret_val |= ledc_channel_config(&ledc_channel_red);
+        ledc_channel_config_t ledc_channel_red = {
+            .speed_mode     = LEDC_LOW_SPEED_MODE,
+            .channel        = LED_CHANNEL_RED,
+            .timer_sel      = LEDC_TIMER_0,
+            .intr_type      = LEDC_INTR_DISABLE,
+            .gpio_num       = gpio_r,
+            .duty           = 0,
+            .hpoint         = 0
+        };
+        ret_val |= ledc_channel_config(&ledc_channel_red);
 
-    ledc_channel_config_t ledc_channel_green = {
-        .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = LED_CHANNEL_GREEN,
-        .timer_sel      = LEDC_TIMER_0,
-        .intr_type      = LEDC_INTR_DISABLE,
-        .gpio_num       = gpio_g,
-        .duty           = 0,
-        .hpoint         = 0
-    };
-    ret_val |= ledc_channel_config(&ledc_channel_green);
+        ledc_channel_config_t ledc_channel_green = {
+            .speed_mode     = LEDC_LOW_SPEED_MODE,
+            .channel        = LED_CHANNEL_GREEN,
+            .timer_sel      = LEDC_TIMER_0,
+            .intr_type      = LEDC_INTR_DISABLE,
+            .gpio_num       = gpio_g,
+            .duty           = 0,
+            .hpoint         = 0
+        };
+        ret_val |= ledc_channel_config(&ledc_channel_green);
 
-    ledc_channel_config_t ledc_channel_blue = {
-        .speed_mode     = LEDC_LOW_SPEED_MODE,
-        .channel        = LED_CHANNEL_BLUE,
-        .timer_sel      = LEDC_TIMER_0,
-        .intr_type      = LEDC_INTR_DISABLE,
-        .gpio_num       = gpio_b,
-        .duty           = 0,
-        .hpoint         = 0
-    };
-    ret_val |= ledc_channel_config(&ledc_channel_blue);
+        ledc_channel_config_t ledc_channel_blue = {
+            .speed_mode     = LEDC_LOW_SPEED_MODE,
+            .channel        = LED_CHANNEL_BLUE,
+            .timer_sel      = LEDC_TIMER_0,
+            .intr_type      = LEDC_INTR_DISABLE,
+            .gpio_num       = gpio_b,
+            .duty           = 0,
+            .hpoint         = 0
+        };
+        ret_val |= ledc_channel_config(&ledc_channel_blue);
+    }
     g_initialized = 1;
     // Generate gamma correction table
     for (int i = 0; i < (LEDPWM_CNT_TOP + 1); i++) {
@@ -215,18 +217,20 @@ esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio
 
 esp_err_t app_pwm_led_change_io(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio_b)
 {
-    ESP_RETURN_ON_FALSE(g_initialized, ESP_ERR_INVALID_STATE, TAG, "pwm led is not running");
-    if (g_initialized) {
-        ESP_LOGI(TAG, "io set to %d,%d,%d; before: %d,%d,%d",
-                 gpio_r, gpio_g, gpio_b,
-                 g_last_led_io[0],
-                 g_last_led_io[1],
-                 g_last_led_io[2]);
-        gpio_set_direction(g_last_led_io[0], GPIO_MODE_INPUT);
-        gpio_set_direction(g_last_led_io[1], GPIO_MODE_INPUT);
-        gpio_set_direction(g_last_led_io[2], GPIO_MODE_INPUT);
+    if (BOTTOM_ID_UNKNOW == bsp_get_bottom_id()) {
+        ESP_RETURN_ON_FALSE(g_initialized, ESP_ERR_INVALID_STATE, TAG, "pwm led is not running");
+        if (g_initialized) {
+            ESP_LOGI(TAG, "io set to %d,%d,%d; before: %d,%d,%d",
+                     gpio_r, gpio_g, gpio_b,
+                     g_last_led_io[0],
+                     g_last_led_io[1],
+                     g_last_led_io[2]);
+            gpio_set_direction(g_last_led_io[0], GPIO_MODE_INPUT);
+            gpio_set_direction(g_last_led_io[1], GPIO_MODE_INPUT);
+            gpio_set_direction(g_last_led_io[2], GPIO_MODE_INPUT);
+        }
+        app_pwm_led_init(gpio_r, gpio_g, gpio_b);
     }
-    app_pwm_led_init(gpio_r, gpio_g, gpio_b);
     return ESP_OK;
 }
 
@@ -238,12 +242,14 @@ esp_err_t app_pwm_led_deinit(void)
 
 static void update_pwm_led(uint8_t r, uint8_t g, uint8_t b)
 {
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_RED, r);
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_GREEN, g);
-    ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_BLUE, b);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_RED);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_GREEN);
-    ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_BLUE);
+    if (BOTTOM_ID_UNKNOW == bsp_get_bottom_id()) {
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_RED, r);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_GREEN, g);
+        ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_BLUE, b);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_RED);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_GREEN);
+        ledc_update_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_BLUE);
+    }
 }
 
 esp_err_t app_pwm_led_set_all(uint8_t red, uint8_t green, uint8_t blue)

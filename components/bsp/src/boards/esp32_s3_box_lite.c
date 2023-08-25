@@ -224,6 +224,30 @@ static void bsp_codec_init()
     codec_config->i2s_reconfig_clk_fn = bsp_codec_es8156_set;
 }
 
+bool bsp_get_system_sleep_mode()
+{
+    return false;
+}
+
+bottom_id_t bsp_get_bottom_id()
+{
+    return BOTTOM_ID_UNKNOW;
+}
+
+bool bsp_get_system_radar_status()
+{
+    return false;
+}
+void bsp_set_system_radar_status(bool enable)
+{
+    return;
+}
+
+esp_err_t bsp_read_temp_humidity(float *temperature_s, uint8_t *humidity_s)
+{
+    return ESP_FAIL;
+}
+
 esp_err_t bsp_board_s3_box_lite_init(void)
 {
     bsp_btn_init();
