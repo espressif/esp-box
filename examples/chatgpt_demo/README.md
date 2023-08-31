@@ -4,7 +4,7 @@
 | ----------------- | -------------- |
 | ESP32-S3-BOX      | YES            |
 | ESP32-S3-BOX-Lite | YES            |
-| ESP32-S3-BOX-3    | NO             |
+| ESP32-S3-BOX-3    | YES             |
 
 
 In this example, we are utilizing the OpenAI API in conjunction with an ESP-BOX to create a voice-based chatbot. The ESP-BOX is a device or system that incorporates an ESP32-S3 microcontroller. The purpose of this implementation is to enable users to communicate with the chatbot using spoken language. The process involves capturing audio input from the user, sending it to the OpenAI API for processing, and receiving a response that is then converted into speech and played back to the user.

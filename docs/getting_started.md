@@ -103,7 +103,7 @@ The target group for this product includes individuals and organizations engaged
    </div>
 
 ## Sensor Monitor
- This feature needs ESP32-S3-BOX-3 is mounted to the ESP32-S3-BOX-3-SENSOR dock. ESP32-S3-BOX-3-SENSOR is a versatile accessory, which integrates a Temp&Hum Sensor, a pair of IR Emitter and Receiver, and a Radar Sensor. It empowers user to create sensor network and other sensor applications with ease. The built-in firmware provides a real-time environment Temp&Hum display, a demonstration of human presence monitoring through a 2.4 GHz radar Additionally, it offers an IR learning interface, allowing users to use the ESP-BOX for IR learning of their air conditioning controller, thereby enabling control over the air conditioner. This learning capability also extends to other in-house IR controllers, such as Fan, TV, projector, providing a truly engaging experience.
+ This feature needs ESP32-S3-BOX-3 is mounted to the ESP32-S3-BOX-3-SENSOR dock. ESP32-S3-BOX-3-SENSOR is a versatile accessory, which integrates a Temp&Hum Sensor, a pair of IR Emitter and Receiver, and a Radar Sensor. It empowers user to create sensor network and other sensor applications with ease. The built-in firmware provides a real-time environment Temp&Hum display, a demonstration of human presence monitoring through a 2.4 GHz radar. Additionally, it offers an IR learning interface, allowing users to use the ESP-BOX for IR learning of their air conditioning controller, thereby enabling control over the air conditioner. This learning capability also extends to other in-house IR controllers, such as Fan, TV, projector, providing a truly engaging experience.
 
 <table border="0" align="center">
 <tr>

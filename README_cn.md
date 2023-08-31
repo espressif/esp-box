@@ -4,7 +4,7 @@
 
 * [English Version](./README.md)
 * [Gitee 镜像仓库](https://gitee.com/EspressifSystems/esp-box)
-
+* [宣传视频](https://www.bilibili.com/video/BV11N4y197Qu/?spm_id_from=333.337.search-card.all.click)
 # ESP-BOX AIoT 开发框架
 
 <p align="left">
