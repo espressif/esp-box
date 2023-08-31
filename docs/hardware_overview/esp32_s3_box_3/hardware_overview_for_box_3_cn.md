@@ -63,7 +63,7 @@ ESP32-S3-BOX-3-SENSOR 是一个多功能配件，集成了温湿度传感器、�
 <img src="./../../_static/box_3_hardware_overview/BRACKET.jpg" width="300px">
 </div>
 
-ESP32-S3-BOX-3-BRACKET 可用于帮助 ESP32-S3-BOX-3 安装到其他设备上，为将非智能设备转变为智能设备开启了多种可能性。通过利用其两个 Pmod™ 兼容的引脚，用户可以有效地为非智能设备集成无线连接、语音控制和屏幕控制功能。ESP32-S3-BOX-3-BRACKET 转接配件使您能够充分发挥非智能设备的潜力。
+ESP32-S3-BOX-3-BRACKET 可用于帮助 ESP32-S3-BOX-3 安装到其他设备上，为将非智能设备转变为智能设备开启了多种可能性。ESP32-S3-BOX-3-BRACKET 的安装非常简单，只需使用[模板](../../../hardware/ESP32-S3-BOX-3-BRACKET_template.PDF)准备 2 个孔和一个槽即可。通过利用其两个 Pmod™ 兼容的引脚，用户可以有效地为非智能设备集成无线连接、语音控制和屏幕控制功能。ESP32-S3-BOX-3-BRACKET 转接配件使您能够充分发挥非智能设备的潜力。
 
 #### 正视图
 <div align="center">
@@ -98,3 +98,4 @@ ESP32-S3-BOX-3-BREAD 是一个转接板，方便用户轻松连接 ESP32-S3-BOX-
 * [ESP32-S3-BOX-3 Kit PCB](../../../hardware/PCB_ESP32-S3-BOX-3_V1.0)
 * [ESP32-S3-BOX-3 Kit Schematic](../../../hardware/SCH_ESP32-S3-BOX-3_V1.0)
 * [ESP32-S3-BOX-3 3D Shell CAD](../../../hardware/esp32_s3_box_3_shell_stl)
+* [ESP32-S3-BOX-3 Bracket Mounting Template](../../../hardware/ESP32-S3-BOX-3-BRACKET_template.PDF)

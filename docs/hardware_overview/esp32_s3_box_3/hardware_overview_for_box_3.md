@@ -60,7 +60,7 @@ ESP32-S3-BOX-3-SENSOR is a versatile accessory, which integrates Temp&Hum Sensor
 <img src="./../../_static/box_3_hardware_overview/BRACKET.jpg" width="300px">
 </div>
 
-ESP32-S3-BOX-3-BRACKET can be utilized to help ESP32-S3-BOX-3 mount to other devices, opens up a multitude of possibilities for transforming non-smart devices into smart ones. By leveraging its two Pmod™ compatible headers, user can effectively integrate wireless connectivity, voice control and screen control capabilities. The ESP32-S3-BOX-3-BRACKET adapter empowers you to unleash the full potential of your non-smart devices. 
+ESP32-S3-BOX-3-BRACKET can be utilized to help ESP32-S3-BOX-3 mount to other devices, opens up a multitude of possibilities for transforming non-smart devices into smart ones. Installation of ESP32-S3-BOX-3-BRACKET is straightforward, simply prepare 2 mounting holes and a slot using our template [HERE](../../../hardware/ESP32-S3-BOX-3-BRACKET_template.PDF). By leveraging its two Pmod™ compatible headers, user can effectively integrate wireless connectivity, voice control and screen control capabilities. The ESP32-S3-BOX-3-BRACKET adapter empowers you to unleash the full potential of your non-smart devices. 
 #### Orthographic View
 <div align="center">
 <img src="./../../_static/box_3_hardware_overview/esp_box_3_bracket_overview.png" width="700px">
@@ -93,3 +93,4 @@ ESP32-S3-BOX-3-BREAD is an adapter that enables easy connection of the ESP32-S3-
 * [ESP32-S3-BOX-3 Kit PCB](../../../hardware/PCB_ESP32-S3-BOX-3_V1.0)
 * [ESP32-S3-BOX-3 Kit Schematic](../../../hardware/SCH_ESP32-S3-BOX-3_V1.0)
 * [ESP32-S3-BOX-3 3D Shell CAD](../../../hardware/esp32_s3_box_3_shell_stl)
+* [ESP32-S3-BOX-3 Bracket Mounting Template](../../../hardware/ESP32-S3-BOX-3-BRACKET_template.PDF)
