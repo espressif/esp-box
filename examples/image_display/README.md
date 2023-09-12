@@ -6,7 +6,7 @@
 | ESP32-S3-BOX-Lite | YES            |
 | ESP32-S3-BOX-3    | YES            |
 
-Display PNG image with LVGL.
+This example uses LVGL to display a list of PNG images. You can select a picture you like to be displayed.
 
 ## How to use example
 
@@ -110,5 +110,4 @@ I (1749) gpio: GPIO[45]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulld
 I (1749) bsp_tp: Detected touch panel at 0x24. Vendor : Parade Tech
 I (1789) gpio: GPIO[3]| InputEn: 1| OutputEn: 0| OpenDrain: 0| Pullup: 1| Pulldown: 0| Intr:0 
 ```
-
 

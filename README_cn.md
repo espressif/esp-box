@@ -34,15 +34,14 @@ ESP-BOX 为各个领域的应用提供了开发资源，包括离线语音助手
 | :-----: | :---------------------: |:---------------------: |
 | [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box_cn.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |寿命终止 <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md) |
 | [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-8715811646.9.4048605fNqggSF&id=658634202331) <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md)|
-| [ESP32-S3-BOX-3](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3_cn.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?ft=t&id=732842971319) <br> [用户指南](./docs/getting_started_cn.md)|
+| [ESP32-S3-BOX-3 (beta)](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3_cn.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?ft=t&id=732842971319) <br> [用户指南](./docs/getting_started_cn.md)|
 
 
 ## 版本信息
 
-
 |  ESP-BOX  |                        依赖的 ESP-IDF                        |                           分支信息                           | 支持状态                                                |
 | :-------: | :----------------------------------------------------------: | :----------------------------------------------------------: | ------------------------------------------------------- |
-|  master   |     >= release/v5.1<br/>commit id: 22cfbf30c3           | Latest developing firmware <br/>esp-sr components version:  v1.4.1 | 部分支持 ESP32-S3-BOX，ESP32-S3-BOX-Lite 和 ESP32-S3-BOX-3<br/>详见 Examples **README** |
+|  master   |     >= release/v5.1<br/>commit id: 22cfbf30c3           | Latest developing firmware <br/>esp-sr components version:  v1.4.1 | 部分支持 ESP32-S3-BOX，ESP32-S3-BOX-Lite 和 ESP32-S3-BOX-3<br/>**使用 menuconfig 选择开发板**<br/>详见 Examples **README** |
 |  Tag 0.5.0   |     release/v5.1<br/>commit id: 22cfbf30c3           | esp-sr components version:  v1.3.4 | 兼容  ESP32-S3-BOX 和 ESP32-S3-BOX-Lite<br/>使用 menuconfig 选择开发板 |
 |  Tag 0.3.0   |            release/v4.4<br/>commit id: 22cfbf30c3            | esp-sr version: dev/v2.0<br/>commit id: c873a35 | 兼容  ESP32-S3-BOX 和 ESP32-S3-BOX-Lite |
 | Tag 0.2.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.2.1/idf_patch) |      esp-sr version: close v1.0<br/>commit id: 3ce34fe       | 仅支持 ESP32-S3-BOX                                     |
@@ -58,7 +57,6 @@ ESP-BOX 为各个领域的应用提供了开发资源，包括离线语音助手
 * 灵活多样的家庭自动化解决方案：Matter、Home Assistant、ESP-RainMaker
 * 可视化拖放式 GUI 开发：LVGL SquareLine Studio、Embedded Wizard 等
 * 丰富的开发框架：ESP-IDF、Arduino、PlatformIO、Circuit Python 等
-
 
 ## 开源内容
 
@@ -83,7 +81,7 @@ ESP-BOX 为各个领域的应用提供了开发资源，包括离线语音助手
 
 ## 开发指引
 
-ESP-BOX 调用乐鑫包管理器 ESP Registry 中常用的组件，您可以利用这些组件构建自己的应用。点击了解更多[开发指南](./docs/development_guide_cn.md)（持续更新中）。
+ESP-BOX 调用乐鑫包管理器 ESP Registry 中常用的组件，您可以利用这些组件构建自己的应用。
 
 ### 快速开始
 
@@ -94,12 +92,21 @@ ESP-BOX 调用乐鑫包管理器 ESP Registry 中常用的组件，您可以利�
 * **Step 5**. 更进一步，您可以阅读 [ESP-BOX 技术架构说明](./docs/technical_architecture_cn.md)，了解更多技术细节；
 * **Step 6**. 深入开发，您可以阅读 [ESP 语音识别应用开发指南](https://github.com/espressif/esp-sr)，[ESP RainMaker 编程指南](https://docs.espressif.com/projects/esp-rainmaker/en/latest/)，[LVGL UI 界面开发快速总览](https://docs.lvgl.io/8.3/)；
 * **Step 7**. 扩展功能，您可以阅读 [开发板 Pmod™ 兼容接口介绍](./docs/hardware_overview) 和 [ESP-IDF API 参考手册](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/api-reference/index.html)，为更多扩展设备开发驱动。
+ESP BOX APP基于商业软件架构Nova Home构建，提供了精美的用户界面和更好的用户体验，但开放性有限，客户需要通过电子邮件sales@espressif.com与我们联系以获取访问权限。
+
+### 云连接开发指南
+
+ESP BOX APP 基于商业版 Nova Home 应用 APP 构建，拥有精美的用户界面和更好的用户体验，但由于 Nova Home App 有限开放，客户如需项目资源，可通过 sales@espressif.com 邮件与我们联系。
+对于个人开发者，我们提供 [ESP RainMaker](https://rainmaker.espressif.com/zh-hans/) 解决方案，其中包括公开可用的开发文档和 API 指南。以下是开发资源访问路径：
+
+- [ESP RainMaker 快速入门](https://rainmaker.espressif.com/docs/get-started.html) 
+- [RainMaker App API 定义](https://swaggerapis.rainmaker.espressif.com)
+- [ESP RainMaker 编程指南](https://docs.espressif.com/projects/esp-rainmaker/en/latest/index.html#)
 
 ## 联系我们
 
 * 如果有任何开发和使用问题，您可添加 [GitHub Issues](https://github.com/espressif/esp-box/issues) 或到 [esp32.com](https://esp32.com/) 论坛寻求帮助；
 * 如果你对 ESP-BOX 项目感兴趣，欢迎到论坛 [ESP-BOX 版块](https://www.esp32.com/viewforum.php?f=43)交流想法。
-
 
 ## 贡献示例 
 

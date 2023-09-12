@@ -1,4 +1,4 @@
-# Hello World Example
+# LVGL Demos Example
 
 | Board             | Support Status |
 | ----------------- | -------------- |
@@ -6,7 +6,7 @@
 | ESP32-S3-BOX-Lite | NO             |
 | ESP32-S3-BOX-3    | YES            |
 
-LVGL official demos.
+An example used to run LVGL's demos. LVGL's internal demos include music player, widgets, stress and benchmark.
 
 ## How to use example
 

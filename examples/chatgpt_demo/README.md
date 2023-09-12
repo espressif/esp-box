@@ -51,9 +51,8 @@ cd examples/chatgpt_demo/factory_nvs
 
 **3. Hardware Selection** 
 
-To select the appropriate hardware ([ESP32-S3-BOX](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) or [ESP32-S3-BOX-Lite](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md)) and access the HMI Board Config, use the following command.
+To select the appropriate hardware ([ESP32-S3-BOX](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) or [ESP32-S3-BOX-Lite](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md)) and access the **HMI Board Cofig**, use the following command.
 
-Select the proper hardware  by using this command and look for **HMI Board Cofig**
 
 ```bash
 idf.py menuconfig 
@@ -75,7 +74,7 @@ cd examples/chatgpt_demo/
 ```
 **6. Hardware Selection** 
 
-To select the appropriate hardware ([ESP32-S3-BOX](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) or [ESP32-S3-BOX-Lite](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md)) and access the HMI Board Config, use the following command.
+To select the appropriate hardware ([ESP32-S3-BOX](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) or [ESP32-S3-BOX-Lite](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md)) and access the **HMI Board Cofig**, use the following command.
 
 ```bash
 idf.py menuconfig 
@@ -96,19 +95,21 @@ python -m esptool -p /dev/ttyACM0 --chip esp32s3 -b 460800 --before default_rese
 
 ```
 
-## Known compilation errors
-When encountering compilation errors related to the "espressif__esp-sr" component, a common solution is to remove the ".component_hash" file located at "managed_components/espressif__esp-sr" and proceed with the rebuild. This step helps resolve the issue and allows the compilation process to continue smoothly.
+## Known  errors
+1. When encountering compilation errors related to the "espressif__esp-sr" component, a common solution is to remove the ".component_hash" file located at "managed_components/espressif__esp-sr" and proceed with the rebuild. This step helps resolve the issue and allows the compilation process to continue smoothly.
+2. If you encounter an error related to **API Key is not valid**, please verify that you have entered your key correctly. Additionally, ensure that you have a sufficient number of valid tokens available to access the OpenAI server. You can login [OpenAI website](https://openai.com/) to confirm your token  [Usage status](https://platform.openai.com/account/usage).
 
 
 ## **Resources**
-Follow the [blog posts](https://blog.espressif.com/) for brief description about the code.
+Follow the [blog posts](https://blog.espressif.com/), [demos and tutorials](https://www.youtube.com/@EspressifSystems) for more updates.
 
-1. [Unleashing the Power of OpenAI and ESP-BOX: A Guide to Fusing ChatGPT with Espressif SOCs](https://blog.espressif.com/unleashing-the-power-of-openai-and-esp-box-a-guide-to-fusing-chatgpt-with-espressif-socs-fba0b2d2c4f2)
-2. [OpenAI Component | Accelerating the integration of OpenAI APIs in projects](https://blog.espressif.com/openai-component-accelerating-the-integration-of-openai-apis-in-projects-e5fa87998126)
+1. BLOG: [Unleashing the Power of OpenAI and ESP-BOX: A Guide to Fusing ChatGPT with Espressif SOCs](https://blog.espressif.com/unleashing-the-power-of-openai-and-esp-box-a-guide-to-fusing-chatgpt-with-espressif-socs-fba0b2d2c4f2)
+2. BLOG: [OpenAI Component | Accelerating the integration of OpenAI APIs in projects](https://blog.espressif.com/openai-component-accelerating-the-integration-of-openai-apis-in-projects-e5fa87998126)
+3. Tutorial: [ESP Tutorial: Unleashing the Power of ESP32 S3 BOX 3 with OpenAI](https://www.youtube.com/watch?v=Y97vdw7y3S4&t=2s)
 
 ### **Note**: 
 Please note that, 
-1. You require an **OpenAI API key** to proceed with the demo. 
+1. To proceed with the demo, you need an **OpenAI API key**, and you must possess valid tokens to access the OpenAI server.
 2. To provide the WIFI credentials and the OpenAI secret key, Please follow the on display prompts to proceed.
 3. Additionally, as a result of **OpenAI's restrictions**, this particular example cannot be supported within Mainland China.
 4. ChatGPT is a large language model that is unable to distinguish between Chinese Jian ti (简体) and Fan ti (繁體) characters. Due to the constraints of LVGL (Light and Versatile Graphics Library), this project currently only supports Jian Ti (simplified Chinese characters).

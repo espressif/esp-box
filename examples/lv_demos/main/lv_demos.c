@@ -24,6 +24,8 @@ void app_main(void)
      * @note Only enable one demo every time.
      *
      */
+    bsp_display_lock(0);
+    
 #if LV_USE_DEMO_WIDGETS
     lv_demo_widgets();      /* A widgets example. This is what you get out of the box */
 #endif
@@ -43,4 +45,6 @@ void app_main(void)
 #if LV_USE_DEMO_MUSIC
     lv_demo_music();        /* A modern, smartphone-like music player demo. */
 #endif
+
+    bsp_display_unlock();
 }
