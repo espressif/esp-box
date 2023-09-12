@@ -3,7 +3,7 @@
 </p>
 
 * [中文版本](README_cn.md)
-
+* [Promotional Video](https://www.youtube.com/watch?v=KGVOi1Mrjb0)
 # ESP-BOX AIoT Development Framework
 
 <p align="left">
@@ -34,14 +34,14 @@ ESP-BOX provides a platform for developing applications in various domains, incl
 | :-----: | :---------------------: |:---------------------: |
 | [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |End of Life <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md) |
 | [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005004441701974.html?spm=a2g0o.store_pc_groupList.8148356.15.378130cf2Qwt87&pdp_npi=3%40dis%21HKD%21HKD273.50%21HKD273.50%21%21%21%21%21%40210318cb16926755466344763e3593%2112000029194032303%21sh%21HK%213721963538) <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md)|
-| [ESP32-S3-BOX-3](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005005920207976.html) <br> [User Guide](./docs/getting_started.md)|
+| [ESP32-S3-BOX-3 (beta)](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005005920207976.html) <br> [User Guide](./docs/getting_started.md)|
 
 
 ## Versions
 
 |      ESP-BOX     | Dependent ESP-IDF |  Branch Note                                           | Support State  |
 | :--------------: | :---------------: | :----------------------------------------------------: | -------------- |
-|      master      | >= release/v5.1<br/>commit id: 22cfbf30c3 |  Latest developing firmware <br/>esp-sr components version:  v1.4.1   | Partial support for ESP32-S3-BOX, ESP32-S3-BOX-Lite, and ESP32-S3-BOX-3 <br> Refer to the Examples **README** for more details. |
+|      master      | >= release/v5.1<br/>commit id: 22cfbf30c3 |  Latest developing firmware <br/>esp-sr components version:  v1.4.1   | Partial support for ESP32-S3-BOX, ESP32-S3-BOX-Lite, and ESP32-S3-BOX-3 <br>**Use menuconfig to select board**<br> Refer to the Examples **README** for more details. |
 |      Tag 0.5.0     | release/v5.1<br>commit id: 22cfbf30c3 | esp-sr components version:  v1.3.4   | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite <br/>Use menuconfig to select board |
 |      Tag 0.3.0     | release/v4.4<br>commit id: 2bdea81b2a | esp-sr version:  dev/v2.0<br>commit id: c873a35  | Compatible with ESP32-S3-BOX and ESP32-S3-BOX-Lite |
 | Tag 0.2.1 | release/v4.4 with [patch](https://github.com/espressif/esp-box/tree/v0.2.1/idf_patch) | esp-sr version: close v1.0<br/>commit id: 3ce34fe | Support ESP32-S3-BOX only |
@@ -83,18 +83,23 @@ ESP-BOX provides a platform for developing applications in various domains, incl
 
 ## Developer Guide
 
-ESP-BOX integrates components commonly used in AIoT development that you can leverage to build your own applications. Read more development guide [here](./docs/development_guide.md) (Updates in Progress).
+ESP-BOX integrates components commonly used in AIoT development that you can leverage to build your own applications. 
 
 ### Quick Start
 
 * **Step 1**. ESP-IDF (Espressif IoT Development Framework) is required to build the application. If this is your first time using the ESP-IDF, please refer to [ESP-IDF development guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/index.html) to understand the open-source drivers and components provided by Espressif.
-* **Step 2**. Next, setting up development environment. Please refer to [ESP-IDF(release/v5.1) Installation Step by Step](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/get-started/index.html#ide).
+* **Step 2**. Next, setting up development environment. Please refer to [ESP-IDF (release/v5.1) Installation Step by Step](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/get-started/index.html#ide).
 * **Step 3**. Run command `git clone --recursive https://github.com/espressif/esp-box.git` to download the code of this project and then switch the ESP-IDF version to [specified version](#versions);
 * **Step 4**. Take a small step, you can [build and flash a simple example](./examples/image_display).
 * **Step 5**. Moving further, please read [ESP-BOX technical architecture](./docs/technical_architecture.md) to understand the technical details.
 * **Step 6**. Going deeper, please read [ESP Speech Recognition Application Guide](https://github.com/espressif/esp-sr), [ESP RainMaker Programming Guide](https://docs.espressif.com/projects/esp-rainmaker/en/latest/), [LVGL GUI Quick overview](https://docs.lvgl.io/8.3/).
 * **Step 7**. For extended function, please read [Pmod™ compatible headers](./docs/hardware_overview) and [ESP-IDF API reference](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/api-reference/index.html), to develop drivers for more extended devices.
-
+### Cloud Quick Start
+The ESP BOX APP is built based on the commercial mobile APP architecture, Nova Home, which provides fancy UI and better user experience but has limited openness. To gain access to it, customers are required to contact us commercially via email at sales@espressif.com.
+For developer, we offer [ESP RainMaker](https://rainmaker.espressif.com/) solution, which includes publicly available development document and API guide. Below is the pathway to access them:
+* [ESP RainMaker Get Started](https://rainmaker.espressif.com/docs/get-started.html)
+* [ESP RainMaker Programming Guide](https://docs.espressif.com/projects/esp-rainmaker/en/latest/)
+* [RainMaker App APIs Definitions](https://swaggerapis.rainmaker.espressif.com)
 ## Contact Us
 
 * If you have any technical issues, please submit issue tickets at [GitHub Issues](https://github.com/espressif/esp-box/issues) or forum [esp32.com](https://esp32.com/) for help.
