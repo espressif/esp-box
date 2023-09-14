@@ -294,9 +294,8 @@ EXIT:
 
 void sr_handler_task(void *pvParam)
 {
-    static bool mute_state = false;
-
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX
+    static bool mute_state = false;
     mute_flag = bsp_button_get(BSP_BUTTON_MUTE);
     printf("sr handle task, mute:%d\n", mute_flag);
 #endif

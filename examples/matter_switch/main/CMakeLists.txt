@@ -12,3 +12,4 @@ set_source_files_properties(
     -DLV_LVGL_H_INCLUDE_SIMPLE)
 
 spiffs_create_partition_image(storage ../spiffs FLASH_IN_PROJECT)
+set_property(TARGET ${COMPONENT_LIB} PROPERTY CXX_STANDARD 17)

@@ -26,7 +26,9 @@ static lv_obj_t *g_btn_return = NULL;
 
 static void (*g_net_config_end_cb)(void) = NULL;
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX
 static void btn_return_down_cb(void *handle, void *arg);
+#endif
 
 static void ui_app_page_return_click_cb(lv_event_t *e)
 {

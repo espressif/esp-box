@@ -8,6 +8,9 @@ set(EXTRA_COMPONENT_DIRS
     ../../components
     )
 
-add_compile_options(-fdiagnostics-color=always)
+add_compile_options(-fdiagnostics-color=always
+                    -Wno-ignored-qualifiers
+                    -Wno-deprecated-declarations
+                    -Wno-unused-but-set-variable)
 
 project(factory_demo)

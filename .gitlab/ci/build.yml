@@ -39,45 +39,17 @@
     - pip install idf_build_apps
     - python tools/build_apps.py ${EXAMPLE_DIR} --config ${EXAMPLE_CONFIG} -t esp32s3 -vv
 
-.build_matter_examples: &build_matter_examples
-  <<: *build_template
-  variables:
-    IDF_CI_BUILD: "1"
-  script:
-    - pip install --upgrade idf-component-manager
-    - pip install idf_build_apps
-    # setup esp_matter
-    - git clone --depth 1 https://github.com/espressif/esp-matter.git
-    - cd esp-matter
-    - git submodule update --init --depth 1
-    - cd ./connectedhomeip/connectedhomeip
-    - ./scripts/checkout_submodules.py --platform linux esp32 --shallow
-    - cd ../..
-    # `|| true` below ignores errors in the process, it's okay, since we are
-    # only interested pigweed setup which goes through as expected
-    - . $IDF_PATH/export.sh
-    - ./install.sh || true
-    - . ./export.sh
-    - cd ..
-    - python -m idf_build_apps build -vv
-      -p $EXAMPLE_DIR 
-      -t all
-      --config "sdkconfig.ci.*="
-      --build-dir build_@t_@w
-      --build-log build_log.txt
-      --size-file size.json
-      --check-warnings
-      --ignore-warning-str "$WARNING_STR"
-      --collect-size-info size_info.txt
-      --default-build-targets $IDF_TARGET
+.build_matter_template: &build_matter_template
+  before_script:
+    - . ${ESP_MATTER_PATH}/export.sh
 
-build_example_matter_switch_v5.1:
+build_example_matter_switch:
   extends:
-    - .build_matter_examples
+    - .build_matter_template
+    - .build_examples_template
     - .rules:build:example_matter_switch
-  image: espressif/idf:release-v5.1
+  image: espressif/esp-matter:latest_idf_v5.1.1
   variables:
-    IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/matter_switch
 
 build_example_chatgpt_demo:
@@ -90,6 +62,17 @@ build_example_chatgpt_demo:
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/chatgpt_demo
+
+build_example_chatgpt_demo_factory_nvs:
+  extends:
+    - .build_examples_template
+    - .rules:build:example_chatgpt_demo_factory_nvs
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:latest
+  variables:
+    EXAMPLE_DIR: examples/chatgpt_demo/factory_nvs
 
 build_example_factory_demo:
   extends:

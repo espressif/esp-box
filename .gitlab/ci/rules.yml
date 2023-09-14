@@ -10,6 +10,9 @@
 .patterns-example_chatgpt_demo: &patterns-example_chatgpt_demo
   - "examples/chatgpt_demo/**/*"
 
+.patterns-example_chatgpt_demo_factory_nvs: &patterns-example_chatgpt_demo_factory_nvs
+  - "examples/chatgpt_demo/factory_nvs/**/*"
+
 .patterns-example_matter_switch: &patterns-example_matter_switch
   - "examples/matter_switch/**/*"
 
@@ -58,6 +61,15 @@
       changes: *patterns-components_bsp
     - <<: *if-dev-push
       changes: *patterns-example_chatgpt_demo
+
+.rules:build:example_chatgpt_demo_factory_nvs:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_chatgpt_demo_factory_nvs
 
 .rules:build:example_matter_switch:
   rules:

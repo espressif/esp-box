@@ -143,6 +143,7 @@ err:
     }
     return sr_current_lang;
 }
+
 void sr_handler_task(void *pvParam)
 {
     FILE *fp;

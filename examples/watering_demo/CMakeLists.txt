@@ -8,6 +8,7 @@ set(EXTRA_COMPONENT_DIRS
     ../../components
     )
 
-add_compile_options(-fdiagnostics-color=always)
+add_compile_options(-fdiagnostics-color=always
+                    -Wno-deprecated-declarations)
 
 project(watering_demo)
