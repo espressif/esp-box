@@ -43,10 +43,19 @@ set(EXTRA_COMPONENT_DIRS
     #${extra_components_dirs_append}
     )
 
-add_compile_options(-fdiagnostics-color=always)
+add_compile_options(-fdiagnostics-color=always
+                    -Wno-ignored-qualifiers
+                    -Wno-cpp
+                    -Wno-maybe-uninitialized
+                    -Wno-type-limits
+                    -Wno-uninitialized
+                    -Wno-unused-but-set-variable
+                    -Wno-array-bounds
+                    -Wno-deprecated-declarations
+                    -Wno-unused-function)
 
 project(matter_switch)
 
-idf_build_set_property(CXX_COMPILE_OPTIONS "-std=gnu++14;-Os;-DLWIP_IPV6_SCOPES=0;-DCHIP_HAVE_CONFIG_H" APPEND)
+idf_build_set_property(CXX_COMPILE_OPTIONS "-std=gnu++17;-Os;-DLWIP_IPV6_SCOPES=0;-DCHIP_HAVE_CONFIG_H" APPEND)
 idf_build_set_property(C_COMPILE_OPTIONS "-Os;-DLWIP_IPV6_SCOPES=0" APPEND)
 idf_build_set_property(COMPILE_OPTIONS "-Wno-error=uninitialized;-Wno-error=format;-Wno-error=maybe-uninitialized;-Wno-missing-field-initializers;" APPEND)

@@ -18,7 +18,11 @@ from idf_build_apps import LOGGER, App, build_apps, find_apps, setup_logging
 PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 APPS_BUILD_PER_JOB = 30
 IGNORE_WARNINGS = [
-
+    r'1/2 app partitions are too small',
+    r'\'bsp_button_get\' is deprecated: use espressif/button API instead',
+    r'default on the choice symbol SEC_CERT_DAC_PROVIDER',
+    r'the choice symbol SEC_CERT_DAC_PROVIDER',
+    r'The legacy RMT driver is deprecated, please use driver/rmt_tx.h and/or driver/rmt_rx.h',
 ]
 
 def _get_idf_version():

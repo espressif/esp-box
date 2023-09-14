@@ -15,7 +15,7 @@ supported_apps = [
     "ESP-BOX_USB_Headset_V0_0_1", 
 
     "ESP-BOX_Demo_EN_V0_3_0", 
-    "ESP-BOX_Demo_CN_V0_3_0"
+    "ESP-BOX_Demo_CN_V0_3_0",
 
     "ESP-BOX_MATTER_SWITCH_Demo_V1_0",
     "ESP-BOX-Lite_MATTER_SWITCH_Demo_V1_0",

@@ -12,8 +12,6 @@
 #include "ui_audio.h"
 #include "bsp_board.h"
 
-static const char *TAG = "mp3_demo";
-
 static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
 {
     // Volume saved when muting and restored when unmuting. Restoring volume is necessary
