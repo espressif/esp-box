@@ -1,8 +1,8 @@
 .build_template: &build_template
   stage: build
-  image: espressif/idf:release-v5.0
   tags:
     - build
+  image: ${IMAGE}
   variables:
     # Enable ccache for all build jobs. See configure_ci_environment.sh for more ccache related settings.
     IDF_CCACHE_ENABLE: "1"
@@ -31,20 +31,13 @@
     expire_in: 1 week
   variables:
     IDF_CI_BUILD: "1"
+      # By configuring this macro, you can append the compiled configuration file. 
+    # For example, using "sdkconf.etc=default" specifies the default sdkconfig file.
+    EXAMPLE_CONFIG: "="
   script:
     - pip install --upgrade idf-component-manager
     - pip install idf_build_apps
-    - python -m idf_build_apps build -vv
-      -p $EXAMPLE_DIR 
-      -t all
-      --config "sdkconfig.ci.*="
-      --build-dir build_@t_@w
-      --build-log build_log.txt
-      --size-file size.json
-      --check-warnings
-      --ignore-warning-str "$WARNING_STR"
-      --collect-size-info size_info.txt
-      --default-build-targets $IDF_TARGET
+    - python tools/build_apps.py ${EXAMPLE_DIR} --config ${EXAMPLE_CONFIG} -t esp32s3 -vv
 
 .build_matter_examples: &build_matter_examples
   <<: *build_template
@@ -87,183 +80,97 @@ build_example_matter_switch_v5.1:
     IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/matter_switch
 
-build_example_chatgpt_demo_v5.0:
+build_example_chatgpt_demo:
   extends:
     - .build_examples_template
     - .rules:build:example_chatgpt_demo
-  image: espressif/idf:release-v5.0
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:latest
   variables:
-    IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/chatgpt_demo
 
-build_example_chatgpt_demo_latest:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_chatgpt_demo
-  image: espressif/idf:latest
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/chatgpt_demo
-
-build_example_factory_demo_v5.0:
+build_example_factory_demo:
   extends:
     - .build_examples_template
     - .rules:build:example_factory_demo
-  #image: espressif/idf:release-v5.0 don't support release-v5.0 now.
-  image: espressif/idf:release-v5.1
+  parallel:
+    matrix:
+      #- IMAGE: espressif/idf:release-v5.0 don't support release-v5.0 now.
+      - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:latest
   variables:
-    IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/factory_demo
 
-build_example_factory_demo_v5.1:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_factory_demo
-  image: espressif/idf:release-v5.1
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/factory_demo
-
-build_example_factory_demo_latest:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_factory_demo
-  image: espressif/idf:latest
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/factory_demo
-
-build_example_image_display_v5.0:
+build_example_image_display:
   extends:
     - .build_examples_template
     - .rules:build:example_image_display
-  image: espressif/idf:release-v5.0
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:latest
   variables:
-    IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/image_display
 
-build_example_image_display_v5.1:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_image_display
-  image: espressif/idf:release-v5.1
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/image_display
-
-build_example_image_display_latest:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_image_display
-  image: espressif/idf:latest
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/image_display
-
-build_example_lv_demos_v5.0:
+build_example_lv_demos:
   extends:
     - .build_examples_template
     - .rules:build:example_lv_demos
-  image: espressif/idf:release-v5.0
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:latest
   variables:
-    IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/lv_demos
 
-build_example_lv_demos_v5.1:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_lv_demos
-  image: espressif/idf:release-v5.1
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/lv_demos
-
-build_example_lv_demos_latest:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_lv_demos
-  image: espressif/idf:latest
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/lv_demos
-
-build_example_mp3_demo_v5.0:
+build_example_mp3_demo:
   extends:
     - .build_examples_template
     - .rules:build:example_mp3_demo
-  image: espressif/idf:release-v5.0
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:latest
   variables:
-    IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/mp3_demo
 
-build_example_mp3_demo_v5.1:
+build_example_usb_camera_lcd_display:
   extends:
     - .build_examples_template
-    - .rules:build:example_mp3_demo
-  image: espressif/idf:release-v5.1
+    - .rules:build:example_usb_camera_lcd_display
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:latest
   variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/mp3_demo
+    EXAMPLE_DIR: examples/usb_camera_lcd_display
 
-build_example_mp3_demo_latest:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_mp3_demo
-  image: espressif/idf:latest
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/mp3_demo
-
-build_example_usb_headset_v5.0:
+build_example_usb_headset:
   extends:
     - .build_examples_template
     - .rules:build:example_usb_headset
-  image: espressif/idf:release-v5.0
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:latest
   variables:
-    IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/usb_headset
 
-build_example_usb_headset_v5.1:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_usb_headset
-  image: espressif/idf:release-v5.1
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/usb_headset
-
-build_example_usb_headset_latest:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_usb_headset
-  image: espressif/idf:latest
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/usb_headset
-
-build_example_watering_demo_v5.0:
+build_example_watering_demo:
   extends:
     - .build_examples_template
     - .rules:build:example_watering_demo
-  image: espressif/idf:release-v5.0
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:latest
   variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/watering_demo
-
-build_example_watering_demo_v5.1:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_watering_demo
-  image: espressif/idf:release-v5.1
-  variables:
-    IDF_TARGET: esp32s3
-    EXAMPLE_DIR: examples/watering_demo
-
-build_example_watering_demo_latest:
-  extends:
-    - .build_examples_template
-    - .rules:build:example_watering_demo
-  image: espressif/idf:latest
-  variables:
-    IDF_TARGET: esp32s3
     EXAMPLE_DIR: examples/watering_demo
