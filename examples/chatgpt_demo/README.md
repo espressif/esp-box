@@ -22,13 +22,13 @@ git checkout 53ff7d43dbff642d831a937b066ea0735a6aca24 && git pull && git submodu
 
 ```
 
-### Hardware Required
+### **Hardware Required**
 
 * A ESP32-S3-BOX，ESP32-S3-BOX-Lite or ESP32-S3-BOX-3
 * An USB-C cable for power supply and programming
 
 
-## **Text to speech**
+## Text to speech
 Due to the lack of native text-to-speech support in the [OpenAI](https://platform.openai.com/docs/api-reference) API, an external API is used to meet this requirement. This example utilizes the text-to-speech functionality offered by [TalkingGenie](https://www.talkinggenie.com/tts). Additional information can be found in this [blog post](https://czyt.tech/post/a-free-tts-api/?from_wecom=1).
 
 ### **Build and Flash**
