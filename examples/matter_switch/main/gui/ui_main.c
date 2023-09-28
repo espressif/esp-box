@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -234,22 +234,22 @@ static int8_t menu_direct_probe(lv_obj_t *focus_obj)
 
     index_focus = 0;
     index_prev = 0;
-    index_max_sz = sizeof(g_group_list)/ sizeof(g_group_list[0]);
+    index_max_sz = sizeof(g_group_list) / sizeof(g_group_list[0]);
 
-    for(int i = 0; i< index_max_sz; i++){
-        if(focus_obj == g_group_list[i]){
+    for (int i = 0; i < index_max_sz; i++) {
+        if (focus_obj == g_group_list[i]) {
             index_focus = i;
         }
-        if(g_focus_last_obj == g_group_list[i]){
+        if (g_focus_last_obj == g_group_list[i]) {
             index_prev = i;
         }
     }
 
-    if(NULL == g_focus_last_obj){
+    if (NULL == g_focus_last_obj) {
         direct = 0;
-    } else if(index_focus == menu_get_num_offset(index_prev, index_max_sz, 1)){
+    } else if (index_focus == menu_get_num_offset(index_prev, index_max_sz, 1)) {
         direct = 1;
-    } else if(index_focus == menu_get_num_offset(index_prev, index_max_sz, -1)){
+    } else if (index_focus == menu_get_num_offset(index_prev, index_max_sz, -1)) {
         direct = -1;
     } else {
         direct = 0;
@@ -263,7 +263,6 @@ void menu_new_item_select(lv_obj_t *obj)
 {
     int8_t direct = menu_direct_probe(obj);
     g_item_index = menu_get_num_offset(g_item_index, g_item_size, direct);
-    ESP_LOGI(TAG, "slected:%d, direct:%d", g_item_index, direct);
 
     lv_led_on(g_led_item[g_item_index]);
     lv_img_set_src(g_img_item, item[g_item_index].img_src);
@@ -340,12 +339,14 @@ static void menu_enter_cb(lv_event_t *e)
         lv_led_off(g_led_item[g_item_index]);
         menu_new_item_select(obj);
     } else if (LV_EVENT_CLICKED == code) {
-        lv_obj_t * menu_btn_parent = lv_obj_get_parent(obj);
+        lv_obj_t *menu_btn_parent = lv_obj_get_parent(obj);
         ESP_LOGI(TAG, "menu click, item index = %d", g_item_index);
         if (ui_get_btn_op_group()) {
             lv_group_remove_all_objs(ui_get_btn_op_group());
         }
-        ui_btn_rm_all_cb();
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+        bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
+#endif
         ui_led_set_visible(false);
         lv_obj_del(menu_btn_parent);
         g_focus_last_obj = NULL;
@@ -438,7 +439,7 @@ static void ui_main_menu(int32_t index_id)
     lv_obj_t *btn_prev = lv_btn_create(obj);
     lv_obj_add_style(btn_prev, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
-    lv_obj_remove_style(btn_prev, NULL, LV_STATE_PRESSED); 
+    lv_obj_remove_style(btn_prev, NULL, LV_STATE_PRESSED);
 #endif
     lv_obj_add_style(btn_prev, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
     lv_obj_add_style(btn_prev, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
@@ -474,7 +475,7 @@ static void ui_main_menu(int32_t index_id)
     lv_obj_t *btn_next = lv_btn_create(obj);
     lv_obj_add_style(btn_next, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
 #if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
-    lv_obj_remove_style(btn_next, NULL, LV_STATE_PRESSED); 
+    lv_obj_remove_style(btn_next, NULL, LV_STATE_PRESSED);
 #endif
     lv_obj_add_style(btn_next, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
     lv_obj_add_style(btn_next, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
@@ -572,7 +573,7 @@ esp_err_t ui_main_start(void)
     ui_sr_anim_init();
 
     boot_animate_start(ui_after_boot);
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
     ui_mute_init();
 #endif
     ui_release();
@@ -591,15 +592,4 @@ static void ui_led_set_visible(bool visible)
             }
         }
     }
-}
-
-void ui_btn_rm_all_cb(void)
-{
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    for (size_t i = 0; i < BOARD_BTN_ID_NUM; i++) {
-        if (BOARD_BTN_ID_HOME == i) {
-            bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
-        }
-    }
-#endif
 }

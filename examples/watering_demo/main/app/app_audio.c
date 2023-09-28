@@ -1,5 +1,5 @@
 /*
-* SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
 *
 * SPDX-License-Identifier: Unlicense OR CC0-1.0
 */
@@ -66,14 +66,12 @@ esp_err_t sr_echo_play(void *filepath)
         wav_head.BitsPerSample = 16;
     }
 
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-
     ESP_LOGD(TAG, "frame_rate= %" PRIi32 ", ch=%d, width=%d", wav_head.SampleRate, wav_head.NumChannels, wav_head.BitsPerSample);
-    codec_handle->i2s_reconfig_clk_fn(wav_head.SampleRate, wav_head.BitsPerSample, I2S_SLOT_MODE_STEREO);
+    bsp_codec_set_fs(wav_head.SampleRate, wav_head.BitsPerSample, I2S_SLOT_MODE_STEREO);
 
-    codec_handle->mute_set_fn(true);
-    codec_handle->mute_set_fn(false);
-    codec_handle->volume_set_fn(100, NULL);
+    bsp_codec_mute_set(true);
+    bsp_codec_mute_set(false);
+    bsp_codec_volume_set(100, NULL);
 
     size_t cnt, total_cnt = 0;
     do {
@@ -82,7 +80,7 @@ esp_err_t sr_echo_play(void *filepath)
         if (len <= 0) {
             break;
         } else if (len > 0) {
-            codec_handle->i2s_write_fn(buffer, len, &cnt, portMAX_DELAY);
+            bsp_i2s_write(buffer, len, &cnt, portMAX_DELAY);
             total_cnt += cnt;
         }
     } while (1);

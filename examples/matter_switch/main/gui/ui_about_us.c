@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -26,17 +26,14 @@ static void ui_about_us_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_event_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK);
-#endif
     lv_obj_del(obj);
-    bsp_btn_rm_event_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK);
+    bsp_btn_rm_event_callback(BSP_BUTTON_CONFIG, BUTTON_SINGLE_CLICK);
     if (g_about_us_end_cb) {
         g_about_us_end_cb();
     }
 }
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void btn_return_down_cb(void *handle, void *arg)
 {
     lv_obj_t *obj = (lv_obj_t *) arg;
@@ -60,7 +57,7 @@ static void btn_factory_cb(void *handle, void *arg)
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
     lv_obj_del(obj);
-    bsp_btn_rm_event_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK);
+    bsp_btn_rm_event_callback(BSP_BUTTON_CONFIG, BUTTON_SINGLE_CLICK);
     ui_factory_start(factory_end_cb);
     ui_release();
 
@@ -91,8 +88,8 @@ void ui_about_us_start(void (*fn)(void))
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_center(lab_btn_text);
     lv_obj_add_event_cb(btn_return, ui_about_us_page_return_click_cb, LV_EVENT_CLICKED, page);
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
 #endif
 
     if (ui_get_btn_op_group()) {
@@ -101,15 +98,16 @@ void ui_about_us_start(void (*fn)(void))
 
     const sys_param_t *param = settings_get_parameter();
     const boards_info_t *board = bsp_board_get_info();
-    LV_IMG_DECLARE(icon_box);
-    LV_IMG_DECLARE(icon_box_lite);
+
     lv_obj_t *img = lv_img_create(page);
     lv_obj_align(img, LV_ALIGN_TOP_MID, 0, 20);
-    if (BOARD_S3_BOX_LITE == board->id) {
-        lv_img_set_src(img, &icon_box_lite);
-    } else if (BOARD_S3_BOX == board->id) {
-        lv_img_set_src(img, &icon_box);
-    }
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    LV_IMG_DECLARE(icon_box_lite);
+    lv_img_set_src(img, &icon_box_lite);
+#else
+    LV_IMG_DECLARE(icon_box);
+    lv_img_set_src(img, &icon_box);
+#endif
 
     char msg[256] = {0};
     snprintf(msg, sizeof(msg),
@@ -127,5 +125,5 @@ void ui_about_us_start(void (*fn)(void))
     lv_label_set_text(lab, msg);
     lv_obj_align(lab, LV_ALIGN_BOTTOM_LEFT, 0, -10);
 
-    bsp_btn_register_callback(BOARD_BTN_ID_BOOT, BUTTON_SINGLE_CLICK, btn_factory_cb, (void *)page);
+    bsp_btn_register_callback(BSP_BUTTON_CONFIG, BUTTON_SINGLE_CLICK, btn_factory_cb, (void *)page);
 }

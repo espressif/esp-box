@@ -13,7 +13,7 @@ This demo makes ESP32-S3-BOX work as a USB headset that can play music and recor
 ### Hardware Required
 
 * A ESP32-S3-Box or ESP32-S3-BOX-Lite
-* An USB-C cable for power supply and programming
+* A USB-C cable for power supply and programming
 
 Follow detailed instructions provided specifically for this example. 
 

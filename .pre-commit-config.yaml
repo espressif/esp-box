@@ -17,3 +17,9 @@ repos:
         types_or: [c, c++]
         args: ['--fix=lf']
         description: Forces to replace line ending by the UNIX 'lf' character
+
+- repo: https://github.com/espressif/check-copyright/
+  rev: v1.0.3
+  hooks:
+    - id: check-copyright
+      args: ['--config', 'check_copyright_config.yaml']

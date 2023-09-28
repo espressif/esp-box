@@ -21,7 +21,7 @@ static lv_obj_t *g_sr_label = NULL;
 static lv_obj_t *g_sr_mask = NULL;
 static lv_obj_t *g_sr_bar[8] = {NULL};
 
-lv_timer_t * sr_timer;
+lv_timer_t *sr_timer;
 
 static int int16_sin(int32_t deg)
 {
@@ -62,10 +62,10 @@ static void sr_label_event_handler(lv_event_t *event)
 static void sr_mask_event_handler(lv_event_t *event)
 {
     bool active = (bool) event->param;
-    lv_obj_t * player_page = get_player_page();
+    lv_obj_t *player_page = get_player_page();
 
     if (active) {
-        if(player_page){
+        if (player_page) {
             lv_obj_add_flag(player_page, LV_OBJ_FLAG_HIDDEN);
         }
         lv_indev_t *indev = lv_indev_get_next(NULL);
@@ -83,7 +83,7 @@ static void sr_mask_event_handler(lv_event_t *event)
 static void ui_speech_anim_cb(lv_timer_t *timer)
 {
     const int32_t step = 40;
-    lv_obj_t * player_page = get_player_page();
+    lv_obj_t *player_page = get_player_page();
 
     if (g_sr_anim_active) {
         // /* Will hide hint message after wakeup */
@@ -99,7 +99,7 @@ static void ui_speech_anim_cb(lv_timer_t *timer)
             lv_obj_move_foreground(g_sr_mask);
         }
 
-        if(player_page){
+        if (player_page) {
             lv_obj_add_flag(player_page, LV_OBJ_FLAG_HIDDEN);
         }
 
@@ -132,7 +132,7 @@ static void ui_speech_anim_cb(lv_timer_t *timer)
                 lv_obj_add_flag(g_sr_mask, LV_OBJ_FLAG_HIDDEN);
             }
 
-            if(player_page){
+            if (player_page) {
                 lv_obj_clear_flag(player_page, LV_OBJ_FLAG_HIDDEN);
             }
         }
@@ -211,6 +211,5 @@ void sr_anim_set_text(char *text)
 {
     ui_acquire();
     lv_label_set_text_static(g_sr_label, text);
-    ui_release(); 
+    ui_release();
 }
-

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -37,7 +37,6 @@ file_iterator_instance_t *file_iterator;
 static void monitor_task(void *arg)
 {
     (void) arg;
-    const int STATS_TICKS = pdMS_TO_TICKS(5 * 1000);
 
     while (true) {
         ESP_LOGI(TAG, "System Info Trace");
@@ -52,8 +51,8 @@ static void monitor_task(void *arg)
                heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
                heap_caps_get_minimum_free_size(MALLOC_CAP_SPIRAM));
 
-        esp_intr_dump(stdout);
-        vTaskDelay(STATS_TICKS);
+        // esp_intr_dump(stdout);
+        vTaskDelay(pdMS_TO_TICKS(5 * 1000));
     }
 
     vTaskDelete(NULL);
@@ -71,18 +70,17 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
     // Volume saved when muting and restored when unmuting. Restoring volume is necessary
     // as es8311_set_voice_mute(true) results in voice volume (REG32) being set to zero.
     static int last_volume;
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
 
     sys_param_t *param = settings_get_parameter();
     if (param->volume != 0) {
         last_volume = param->volume;
     }
 
-    codec_handle->mute_set_fn(setting == AUDIO_PLAYER_MUTE ? true : false);
+    bsp_codec_mute_set(setting == AUDIO_PLAYER_MUTE ? true : false);
 
     // restore the voice volume upon unmuting
     if (setting == AUDIO_PLAYER_UNMUTE) {
-        codec_handle->volume_set_fn(param->volume, NULL);
+        bsp_codec_volume_set(param->volume, NULL);
     }
 
     ESP_LOGI(TAG, "mute setting %d, volume:%d", setting, last_volume);
@@ -101,7 +99,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(err);
     ESP_ERROR_CHECK(settings_read_parameter_from_nvs());
-    sensor_task_state_event_init();
+
 #if !SR_RUN_TEST && MEMORY_MONITOR
     sys_monitor_start(); // Logs should be reduced during SR testing
 #endif
@@ -117,27 +115,30 @@ void app_main(void)
     bsp_board_init();
 
     ESP_LOGI(TAG, "Display LVGL demo");
-    bsp_display_backlight_on();
+    sensor_task_state_event_init();
     ESP_ERROR_CHECK(ui_main_start());
 
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
+    vTaskDelay(pdMS_TO_TICKS(500));
+    bsp_display_backlight_on();
+
     file_iterator = file_iterator_new("/spiffs/mp3");
     assert(file_iterator != NULL);
     audio_player_config_t config = { .mute_fn = audio_mute_function,
-                                     .write_fn = codec_handle->i2s_write_fn,
-                                     .clk_set_fn = codec_handle->i2s_reconfig_clk_fn,
+                                     .write_fn = bsp_i2s_write,
+                                     .clk_set_fn = bsp_codec_set_fs,
                                      .priority = 5
                                    };
     ESP_ERROR_CHECK(audio_player_new(config));
 
     const board_res_desc_t *brd = bsp_board_get_description();
-#ifdef CONFIG_BSP_ESP32_S3_BOX_3
+#ifdef CONFIG_BSP_BOARD_ESP32_S3_BOX_3
     app_pwm_led_init(brd->PMOD2->row2[2], brd->PMOD2->row2[3], brd->PMOD2->row1[3]);
 #else
     app_pwm_led_init(brd->PMOD2->row1[1], brd->PMOD2->row1[2], brd->PMOD2->row1[3]);
 #endif
 
     ESP_LOGI(TAG, "speech recognition start");
+    // vTaskDelay(pdMS_TO_TICKS(4 * 1000));
     app_sr_start(false);
     app_rmaker_start();
 }

@@ -65,7 +65,6 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     /**
      * read head of WAV file
      */
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
 
@@ -78,21 +77,21 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     size_t len = g_audio_data[audio].len - sizeof(wav_header_t);
     len = len & 0xfffffffc;
     ESP_LOGD(TAG, "frame_rate=%d, ch=%d, width=%d", wav_head->SampleRate, wav_head->NumChannels, wav_head->BitsPerSample);
-    codec_handle->i2s_reconfig_clk_fn(wav_head->SampleRate, wav_head->BitsPerSample, I2S_SLOT_MODE_STEREO);
+    bsp_codec_set_fs(wav_head->SampleRate, wav_head->BitsPerSample, I2S_SLOT_MODE_STEREO);
 
-    codec_handle->mute_set_fn(true);
-    codec_handle->mute_set_fn(false);
-    codec_handle->volume_set_fn(100, NULL);
+    bsp_codec_mute_set(true);
+    bsp_codec_mute_set(false);
+    bsp_codec_volume_set(100, NULL);
     size_t bytes_written = 0;
     vTaskDelay(pdMS_TO_TICKS(50));
 
     b_audio_playing = true;
-    codec_handle->i2s_write_fn((char *)p, len, &bytes_written, portMAX_DELAY);
+    bsp_i2s_write((char *)p, len, &bytes_written, portMAX_DELAY);
     vTaskDelay(pdMS_TO_TICKS(20));
     b_audio_playing = false;
 
     sys_param_t *param = settings_get_parameter();
-    codec_handle->volume_set_fn(param->volume, NULL);
+    bsp_codec_volume_set(param->volume, NULL);
     return ESP_OK;
 }
 
@@ -138,6 +137,10 @@ sr_language_t sr_detect_language()
     return sr_current_lang;
 
 err:
+    if (ESP_OK != ret) {
+        ESP_LOGI(TAG, "Read audio failed");
+    }
+
     if (fp) {
         fclose(fp);
     }
@@ -247,7 +250,7 @@ void sr_handler_task(void *pvParam)
             case SR_CMD_PLAY:
                 ESP_LOGW(TAG, "SR_CMD_PLAY:%d, last_player_state:%d", audio_player_get_state(), last_player_state);
 
-                if(AUDIO_PLAYER_STATE_IDLE == audio_player_get_state()){
+                if (AUDIO_PLAYER_STATE_IDLE == audio_player_get_state()) {
                     file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
                     fp = fopen(filename, "rb");
                     if (!fp) {
@@ -255,7 +258,7 @@ void sr_handler_task(void *pvParam)
                     } else {
                         audio_player_play(fp);
                     }
-                } else if(AUDIO_PLAYER_STATE_PAUSE == audio_player_get_state()){
+                } else if (AUDIO_PLAYER_STATE_PAUSE == audio_player_get_state()) {
                     audio_player_resume();
                 }
                 last_player_state = AUDIO_PLAYER_STATE_PLAYING;

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -91,8 +91,8 @@ static void ui_dev_ctrl_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
 #endif
     lv_obj_del(obj);
     g_func_btn[0] = NULL;
@@ -104,7 +104,7 @@ static void ui_dev_ctrl_page_return_click_cb(lv_event_t *e)
     }
 }
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void btn_return_down_cb(void *handle, void *arg)
 {
     lv_obj_t *obj = (lv_obj_t *) arg;
@@ -138,8 +138,8 @@ void ui_device_ctrl_start(void (*fn)(void))
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_center(lab_btn_text);
     lv_obj_add_event_cb(btn_return, ui_dev_ctrl_page_return_click_cb, LV_EVENT_CLICKED, page);
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
 #endif
 
     for (size_t i = 0; i < 4; i++) {

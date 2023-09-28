@@ -225,8 +225,7 @@ static void audio_feed_task(void *arg)
         }
 
         /* Read audio data from I2S bus */
-        bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-        codec_handle->i2s_read_fn((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
+        bsp_i2s_read((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
 
         /* Save audio data to file if record enabled */
         if (g_sr_data->b_record_en && (NULL != g_sr_data->fp)) {
@@ -263,7 +262,7 @@ static void audio_detect_task(void *arg)
             vTaskDelete(NULL);
         }
 
-        afe_fetch_result_t* res = afe_handle->fetch(afe_data);
+        afe_fetch_result_t *res = afe_handle->fetch(afe_data);
         if (!res || res->ret_value == ESP_FAIL) {
             continue;
         }
@@ -276,8 +275,7 @@ static void audio_detect_task(void *arg)
                 .command_id = 0,
             };
             xQueueSend(g_sr_data->result_que, &result, 0);
-        }
-        else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
+        } else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
             detect_flag = true;
             g_sr_data->afe_handle->disable_wakenet(afe_data);
             ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "AFE_FETCH_CHANNEL_VERIFIED, channel index: %d\n", res->trigger_channel_id);
@@ -317,7 +315,7 @@ static void audio_detect_task(void *arg)
                 esp_mn_results_t *mn_result = g_sr_data->multinet->get_results(g_sr_data->model_data);
                 for (int i = 0; i < mn_result->num; i++) {
                     printf("TOP %d, command_id: %d, phrase_id: %d, prob: %f\n",
-                        i + 1, mn_result->command_id[i], mn_result->phrase_id[i], mn_result->prob[i]);
+                           i + 1, mn_result->command_id[i], mn_result->phrase_id[i], mn_result->prob[i]);
                 }
 
                 int sr_command_id = mn_result->command_id[0];
@@ -443,10 +441,10 @@ esp_err_t app_sr_start(bool record_en)
     ret = app_sr_set_language(param->sr_lang);
     ESP_GOTO_ON_FALSE(ESP_OK == ret, ESP_FAIL, err, TAG,  "Failed to set language");
 
-    ret_val = xTaskCreatePinnedToCore(&audio_feed_task, "Feed Task", 4 * 1024, (void*)afe_data, 5, &g_sr_data->feed_task, 0);
+    ret_val = xTaskCreatePinnedToCore(&audio_feed_task, "Feed Task", 4 * 1024, (void *)afe_data, 5, &g_sr_data->feed_task, 0);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG,  "Failed create audio feed task");
 
-    ret_val = xTaskCreatePinnedToCore(&audio_detect_task, "Detect Task", 8 * 1024, (void*)afe_data, 5, &g_sr_data->detect_task, 1);
+    ret_val = xTaskCreatePinnedToCore(&audio_detect_task, "Detect Task", 8 * 1024, (void *)afe_data, 5, &g_sr_data->detect_task, 1);
     ESP_GOTO_ON_FALSE(pdPASS == ret_val, ESP_FAIL, err, TAG,  "Failed create audio detect task");
 
     ret_val = xTaskCreatePinnedToCore(&sr_handler_task, "SR Handler Task", 6 * 1024, NULL, configMAX_PRIORITIES - 1, &g_sr_data->handle_task, 0);
@@ -612,7 +610,7 @@ esp_err_t app_sr_update_cmds(void)
     }
 
     esp_mn_error_t *err_id = esp_mn_commands_update(g_sr_data->multinet, g_sr_data->model_data);
-    if(err_id){
+    if (err_id) {
         for (int i = 0; i < err_id->num; i++) {
             ESP_LOGE(TAG, "err cmd id:%d", err_id->phrases[i]->command_id);
         }

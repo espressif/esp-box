@@ -30,7 +30,6 @@ button_style_t *ui_button_styles(void);
 lv_obj_t *ui_main_get_status_bar(void);
 void ui_main_status_bar_set_wifi(bool is_connected);
 void ui_main_status_bar_set_cloud(bool is_connected);
-void ui_btn_rm_all_cb(void);
 
 #ifdef __cplusplus
 }

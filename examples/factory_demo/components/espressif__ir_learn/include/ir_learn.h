@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
+
 #pragma once
 
 #include <stdint.h>
@@ -20,63 +21,155 @@ extern "C" {
 typedef struct ir_learn_t *ir_learn_handle_t;
 
 typedef enum {
-    IR_LEARN_STATE_STEP,
-
-    IR_LEARN_STATE_READY = 20,
-    IR_LEARN_STATE_END,
-    IR_LEARN_STATE_FAIL,
+    IR_LEARN_STATE_STEP,        /**< IR learn step, start from 1 */
+    IR_LEARN_STATE_READY = 20,  /**< IR learn ready, after successful initialization */
+    IR_LEARN_STATE_END,         /**< IR learn successfully */
+    IR_LEARN_STATE_FAIL,        /**< IR learn failure */
+    IR_LEARN_STATE_EXIT,        /**< IR learn exit */
 } ir_learn_state_t;
 
 typedef struct ir_learn_sub_list_t {
-    uint32_t timediff;
-    rmt_rx_done_event_data_t symbols;     /*!< received RMT symbols */
-    SLIST_ENTRY(ir_learn_sub_list_t) next;
+    uint32_t timediff;                      /*!< The interval time from the previous packet (ms) */
+    rmt_rx_done_event_data_t symbols;       /*!< Received RMT symbols */
+    SLIST_ENTRY(ir_learn_sub_list_t) next;  /*!< Pointer to the next packet */
 } ir_learn_sub_list_t;
 
 typedef struct ir_learn_list_t {
-    SLIST_HEAD(ir_learn_sub_list_head, ir_learn_sub_list_t) cmd_sub_node;
-    SLIST_ENTRY(ir_learn_list_t) next;
+    SLIST_HEAD(ir_learn_sub_list_head, ir_learn_sub_list_t) cmd_sub_node; /*!< Package head of every cmd */
+    SLIST_ENTRY(ir_learn_list_t) next;  /*!< Pointer to the next packet */
 } ir_learn_list_t;
 
 SLIST_HEAD(ir_learn_list_head, ir_learn_list_t);
 
-typedef void (*ir_learn_result_cb)(ir_learn_state_t, uint8_t, struct ir_learn_sub_list_head *);
+/**
+* @brief IR learn result user callback.
+*
+* @param[out] state IR learn step
+* @param[out] sub_step Interval less than 500 ms, we think it's the same command
+* @param[out] data Command list of this step
+*
+*/
+typedef void (*ir_learn_result_cb)(ir_learn_state_t state, uint8_t sub_step, struct ir_learn_sub_list_head *data);
 
 /**
  * @brief IR learn configuration
  */
 typedef struct {
-    int learn_count;
-    int learn_gpio; /*!< GPIO number that consumed by the sensor */
     rmt_clock_source_t clk_src; /*!< RMT clock source */
+    uint32_t resolution;        /*!< RMT resolution, in Hz */
 
-    ir_learn_result_cb callback;
-    int task_priority;      /*!< ir learn task priority */
-    int task_stack;         /*!< ir learn task stack size */
-    int task_affinity;      /*!< ir learn task pinned to core (-1 is no affinity) */
+    int learn_count;            /*!< IR learn count needed */
+    int learn_gpio;             /*!< IR learn io that consumed by the sensor */
+    ir_learn_result_cb callback;/*!< IR learn result callback for user */
+
+    int task_priority;          /*!< IR learn task priority */
+    int task_stack;             /*!< IR learn task stack size */
+    int task_affinity;          /*!< IR learn task pinned to core (-1 is no affinity) */
 } ir_learn_cfg_t;
 
+/**
+* @brief Create new IR learn handle.
+*
+* @param[in]  cfg Config for IR learn
+* @param[out] handle_out New IR learn handle
+* @return
+*          - ESP_OK                  Device handle creation success.
+*          - ESP_ERR_INVALID_ARG     Invalid device handle or argument.
+*          - ESP_ERR_NO_MEM          Memory allocation failed.
+*
+*/
+esp_err_t ir_learn_new(const ir_learn_cfg_t *cfg, ir_learn_handle_t *handle_out);
+
+/**
+* @brief Restart IR learn process.
+*
+* @param[in] handle IR learn handle
+* @return
+*          - ESP_OK                  Restart process success.
+*          - ESP_ERR_INVALID_ARG     Invalid device handle or argument.
+*
+*/
 esp_err_t ir_learn_restart(ir_learn_handle_t ir_learn_hdl);
 
-esp_err_t ir_learn_stop(void);
+/**
+* @brief Stop IR learn process.
+* @note Delete all
+*
+* @param[in] handle IR learn handle
+* @return
+*          - ESP_OK                  Stop process success.
+*          - ESP_ERR_INVALID_ARG     Invalid device handle or argument.
+*
+*/
+esp_err_t ir_learn_stop(ir_learn_handle_t *ir_learn_hdl);
 
-esp_err_t ir_learn_new(const ir_learn_cfg_t *cfg, ir_learn_handle_t *ret_ir_learn_hdl);
-
-esp_err_t ir_learn_del(ir_learn_handle_t ir_learn_hdl);
-
-esp_err_t ir_learn_add_symbol(const rmt_rx_done_event_data_t add_symbol);
-
-esp_err_t ir_learn_remove_all_symbol(void);
-
+/**
+* @brief Add IR learn list node, every new learn list will create it.
+*
+* @param[in] learn_head IR learn list head
+* @return
+*          - ESP_OK                  Create learn list success.
+*          - ESP_ERR_NO_MEM          Memory allocation failed.
+*
+*/
 esp_err_t ir_learn_add_list_node(struct ir_learn_list_head *learn_head);
 
-esp_err_t ir_learn_add_sub_list_node(struct ir_learn_sub_list_head *sub_head, uint32_t timediff, const rmt_rx_done_event_data_t *add_symbol);
+/**
+* @brief Add IR learn sub step list node, every sub step should be added.
+*
+* @param[in] sub_head IR learn sub step list head
+* @param[in] timediff Time diff between each sub step
+* @param[in] symbol symbols of each sub step
+* @return
+*          - ESP_OK                  Create learn list success.
+*          - ESP_ERR_NO_MEM          Memory allocation failed.
+*
+*/
+esp_err_t ir_learn_add_sub_list_node(struct ir_learn_sub_list_head *sub_head,
+                                     uint32_t timediff, const rmt_rx_done_event_data_t *symbol);
 
-esp_err_t ir_learn_check_valid(struct ir_learn_list_head *learn_head, struct ir_learn_sub_list_head *learn_result);
+/**
+* @brief Delete IR learn list node, will recursively delete sub steps.
+*
+* @param[in] learn_head IR learn list head
+*          - ESP_OK                  Stop process success.
+*          - ESP_ERR_INVALID_ARG     Invalid device handle or argument.
+*
+*/
+esp_err_t ir_learn_clean_data(struct ir_learn_list_head *learn_head);
 
-void ir_learn_clean_sub_data(struct ir_learn_sub_list_head *learn_cmd);
+/**
+* @brief Delete sub steps.
+*
+* @param[in] learn_head IR learn list head
+*          - ESP_OK                  Stop process success.
+*          - ESP_ERR_INVALID_ARG     Invalid device handle or argument.
+*
+*/
+esp_err_t ir_learn_clean_sub_data(struct ir_learn_sub_list_head *sub_head);
 
-void ir_learn_clean_data(struct ir_learn_list_head *learn_history);
+/**
+* @brief Add IR learn list node, every new learn list will create it.
+*
+* @param[in] learn_head IR learn list head
+* @param[out] result_out IR learn result
+* @return
+*          - ESP_OK                  Get learn result process.
+*          - ESP_ERR_INVALID_SIZE    Size error.
+*
+*/
+esp_err_t ir_learn_check_valid(struct ir_learn_list_head *learn_head,
+                               struct ir_learn_sub_list_head *result_out);
+
+/**
+* @brief Print the RMT symbols.
+*
+* @param[in] cmd_list IR learn list head
+*          - ESP_OK                  Stop process success.
+*          - ESP_ERR_INVALID_ARG     Invalid device handle or argument.
+*
+*/
+esp_err_t ir_learn_print_raw(struct ir_learn_sub_list_head *cmd_list);
 
 #ifdef __cplusplus
 }

@@ -63,8 +63,7 @@ static void audio_feed_task(void *arg)
         }
 
         /* Read audio data from I2S bus */
-        bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-        codec_handle->i2s_read_fn((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
+        bsp_i2s_read((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
 
         /* Channel Adjust */
         for (int  i = audio_chunksize - 1; i >= 0; i--) {

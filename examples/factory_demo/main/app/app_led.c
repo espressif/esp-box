@@ -156,7 +156,7 @@ esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio
 {
     esp_err_t ret_val = ESP_OK;
 
-    if (BOTTOM_ID_UNKNOW == bsp_get_bottom_id()) {
+    if (BOTTOM_ID_UNKNOW == bsp_board_get_sensor_handle()->get_bottom_id()) {
         ledc_timer_config_t ledc_timer = {
             .speed_mode       = LEDC_LOW_SPEED_MODE,
             .timer_num        = LEDC_TIMER_0,
@@ -217,7 +217,7 @@ esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio
 
 esp_err_t app_pwm_led_change_io(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio_b)
 {
-    if (BOTTOM_ID_UNKNOW == bsp_get_bottom_id()) {
+    if (BOTTOM_ID_UNKNOW == bsp_board_get_sensor_handle()->get_bottom_id()) {
         ESP_RETURN_ON_FALSE(g_initialized, ESP_ERR_INVALID_STATE, TAG, "pwm led is not running");
         if (g_initialized) {
             ESP_LOGI(TAG, "io set to %d,%d,%d; before: %d,%d,%d",
@@ -242,7 +242,7 @@ esp_err_t app_pwm_led_deinit(void)
 
 static void update_pwm_led(uint8_t r, uint8_t g, uint8_t b)
 {
-    if (BOTTOM_ID_UNKNOW == bsp_get_bottom_id()) {
+    if (BOTTOM_ID_UNKNOW == bsp_board_get_sensor_handle()->get_bottom_id()) {
         ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_RED, r);
         ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_GREEN, g);
         ledc_set_duty(LEDC_LOW_SPEED_MODE, LED_CHANNEL_BLUE, b);

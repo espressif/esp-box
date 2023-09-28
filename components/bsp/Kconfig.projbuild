@@ -1,22 +1,22 @@
 menu "HMI Board Config"
     choice BSP_LCD_BOARD
         prompt "Select BSP board"
-        default BSP_BOARD_ESP32_S3_BOX
-        config BSP_BOARD_ESP32_S3_BOX
-            bool "BSP board esp32_s3_box"
-        config BSP_BOARD_ESP32_S3_BOX_Lite
-            bool "BSP board esp32_s3_box_lite"
-    endchoice
+        default BSP_BOARD_ESP32_S3_BOX_3
 
-    config BSP_TOUCH_BUTTON
-        depends on BSP_BOARD_ESP32_S3_BOX
-        bool "Enable esp32_s3_box touch button"
-        default y
-        help
-            Whether to enable the touch button.
+        config BSP_BOARD_ESP32_S3_BOX
+            bool "BSP board ESP32-S3-BOX"
+
+        config BSP_BOARD_ESP32_S3_BOX_Lite
+            bool "BSP board ESP32-S3-BOX-Lite"
+
+        config BSP_BOARD_ESP32_S3_BOX_3
+            bool "BSP board ESP32-S3-BOX-3"
+
+    endchoice
 endmenu
 
 menu "Power Save Configuration"
+    depends on BSP_BOARD_ESP32_S3_BOX_3
     config EXAMPLE_WIFI_LISTEN_INTERVAL
         int "WiFi listen interval"
         default 3
@@ -112,5 +112,4 @@ menu "Power Save Configuration"
         default 10 if EXAMPLE_MIN_CPU_FREQ_10M
         default 26 if EXAMPLE_MIN_CPU_FREQ_26M
         default 13 if EXAMPLE_MIN_CPU_FREQ_13M
-
 endmenu

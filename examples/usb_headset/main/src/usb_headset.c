@@ -352,8 +352,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport, uint16_t n_bytes_received, u
 
 
     size_t bytes_written = 0;
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-    esp_err_t ret = codec_handle->i2s_write_fn(&spk_buf, spk_data_size, &bytes_written, 0);
+    esp_err_t ret = bsp_i2s_write(&spk_buf, spk_data_size, &bytes_written, 0);
 
     for (int i = 0; i < AUDIO_LENGTH ; i += 2) {
         rb_write(spk_buf + i, 2);
@@ -384,8 +383,7 @@ bool tud_audio_tx_done_post_load_cb(uint8_t rhport, uint16_t n_bytes_copied, uin
     /*** Here to fill audio buffer, only use in audio transmission begin ***/
     size_t bytes_read = 0;
 
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-    esp_err_t ret = codec_handle->i2s_read_fn(&mic_buf, AUDIO_LENGTH * 2, &bytes_read, 0);
+    esp_err_t ret = bsp_i2s_read(&mic_buf, AUDIO_LENGTH * 2, &bytes_read, 0);
     for (int i = 0; i < AUDIO_LENGTH / 2 ; i++) {
         mic_buf[i + 1] = mic_buf[2 * (i + 1)];
     }

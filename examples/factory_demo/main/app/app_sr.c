@@ -32,6 +32,7 @@
 #include "bsp_board.h"
 #include "settings.h"
 #include "ui_mute.h"
+#include "ui_sensor_monitor.h"
 
 static const char *TAG = "app_sr";
 
@@ -140,8 +141,6 @@ static const sr_cmd_t g_default_cmd_info[] = {
 #endif
 };
 
-extern bool ir_learn_enable;
-
 static void audio_feed_task(void *arg)
 {
     size_t bytes_read = 0;
@@ -163,7 +162,7 @@ static void audio_feed_task(void *arg)
             vTaskDelete(NULL);
         }
 
-        if (true == bsp_get_system_sleep_mode()) {
+        if (true == bsp_board_get_sensor_handle()->get_sleep_mode()) {
             vTaskDelay(pdMS_TO_TICKS(500));
             continue;
         }
@@ -173,14 +172,13 @@ static void audio_feed_task(void *arg)
             continue;
         }
 
-        if(true == ir_learn_enable){
+        if (true == sensor_ir_learn_enable()) {
             vTaskDelay(pdMS_TO_TICKS(100));
             continue;
         }
 
         /* Read audio data from I2S bus */
-        bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-        codec_handle->i2s_read_fn((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
+        bsp_i2s_read((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
 
         /* Save audio data to file if record enabled */
         if (g_sr_data->b_record_en && (NULL != g_sr_data->fp)) {
