@@ -1,4 +1,4 @@
-## USB Stream LCD Display Example
+## USB Camera LCD Display Example
 
 | Board             | Support Status |
 | ----------------- | -------------- |
@@ -10,38 +10,43 @@ This example demonstrates how to use the [usb_stream](https://components.espress
 
 * Pressing the boot button can switch the display resolution. 
 * For better performance, please use ESP-IDF release/v5.0 or above versions.
-* Currently only images with a resolution smaller than the screen resolution are displayed
 * When the image width is equal to the screen width, the refresh rate is at its highest.
 
 ## Hardware
 
 * An ESP32-S3-BOX-3 development board with 320*240 LCD.
-* A [USB camera](https://docs.espressif.com/projects/espressif-esp-iot-solution/zh_CN/latest/usb/usb_stream.html#id1) (Can be connected to USB port or Expansion Connector).
-* A USB Type-C cable for Power supply and programming (Please connect to UART port instead of USB port)
+* A USB Type-C cable for power supply and programming.
+* A USB camera (Can be connected to USB-A port or expansion connector).
 
-Note:
-  * While flashing, ensure that you connect the USB Type-C cable to the ESP32-S3-BOX-3. Once flashing is complete, connect the USB camera to the ESP32-S3-BOX-DOCK USB-A port, and switch the USB Type-C cable to the ESP32-S3-BOX-DOCK for regular usage. This ensures proper power supply to the USB camera.
-  * Error message with `A fatal error occurred: Could not open /dev/ttyACM0, the port doesn't exist`: Please first make sure development board connected, then make board into "Download Boot" mode to upload by following steps:
-  1. keep pressing  "BOOT(SW2)" button
-  2. short press "RST(SW1)" button
-  3. release "BOOT(SW2)".
-  4. upload program and reset
+>**Note: The USB camera used in this demo has some limitations.The USB camera must be compatible with `USB1.1` full-speed mode and support `MJPEG` output, for more details, please see the [USB Stream User Guide.](https://docs.espressif.com/projects/espressif-esp-iot-solution/en/latest/usb/usb_stream.html)**
+
+## Known Issues
+
+* Error message with `A fatal error occurred: Could not open /dev/ttyACM0, the port doesn't exist`. Please first make sure development board connection, then make board into "Download Boot" mode to upload by following steps:
+  1. Keep pressing  "BOOT" button.
+  2. Short press "RST" button.
+  3. Release "BOOT".
+  4. Upload program and reset.
+
+* Please use the USB-C port on the main unit to flash firmware. Once flashing is complete, connect the USB camera to the `ESP32-S3-BOX-DOCK` USB-A port, and switch your USB cable to the USB-C port of the `ESP32-S3-BOX-DOCK`. **Please note don't connect the USB camera while flashing the MCU.** 
+
+* The USB-C port on the `ESP32-S3-BOX-DOCK`only support `5 V` power input, which ensures proper power supply to the USB camera. **Please do not use it to flashing firmware**.
+
+* For log debugging, please access the serial connection by a standard `USB-To-TTL` device through the 12-pin female header of the `ESP32-S3-BOX-DOCK` with `U0TXD` and `U0RXD`.
+
+
+The result after the demo is correctly programmed and connected is as follows：
+
+![Dome Show](https://dl.espressif.com/AE/ESP-BOX/usb_camera_lcd_display.gif)
 
 ### How To Use 
 
-Note:       
-
-1. First delete existing `build`, `sdkconfig` , `sdkconfig.old`
+1. First delete existing `build`, `sdkconfig`, `sdkconfig.old`.
 ```
-rm -rf build sdkconfig sdkconfig.old
+idf.py set-target esp32s3
 ```
 
-2. Use the command line to enable the relevant configuration
-```
-idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.psram_octal_120m" reconfigure
-```
-
-3. Compile and burn
+2. Compile and burn.
 ```
 idf.py build flash monitor
 ```
