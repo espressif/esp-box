@@ -43,7 +43,9 @@ static void ui_hint_page_next_click_cb(lv_event_t *e)
         if (ui_get_btn_op_group()) {
             lv_group_remove_all_objs(ui_get_btn_op_group());
         }
-        ui_btn_rm_all_cb();
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+        bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
+#endif
         lv_obj_del(obj);
         g_hint_end_cb();
     } else {
@@ -99,8 +101,8 @@ void ui_hint_start(void (*fn)(void))
         lv_obj_set_style_line_color(line, lv_color_make(222, 230, 243), LV_STATE_DEFAULT);
         lv_obj_align(line, LV_ALIGN_CENTER, 100 * i - 50, 0);
     }
-#elif CONFIG_BSP_BOARD_ESP32_S3_BOX
-    // For S3 BOX
+#else
+    // For S3-BOX,S3-BOX-3
     lab_hint = lv_label_create(hint_page);
     lv_label_set_text_static(lab_hint, "Touch to return");
     lv_obj_set_style_text_align(lab_hint, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);

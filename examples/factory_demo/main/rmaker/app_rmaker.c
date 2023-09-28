@@ -60,7 +60,7 @@ static esp_err_t esp_box_init(void)
              cmd_light_off->phoneme, param->sr_lang, cmd_light_off->str,
              h, s, v, cmd_cc->phoneme, param->sr_lang, cmd_cc->str);
     esp_box_light_param_t def_light_param = {
-#ifdef CONFIG_BSP_ESP32_S3_BOX_3
+#ifdef CONFIG_BSP_BOARD_ESP32_S3_BOX_3
         .gpio_r = brd->PMOD2->row2[2],
         .gpio_g = brd->PMOD2->row2[3],
         .gpio_b = brd->PMOD2->row1[3],
@@ -88,7 +88,7 @@ static esp_err_t esp_box_init(void)
                           def_light_param.power, def_light_param.voice_cmd);
 
     esp_box_switch_param_t def_switch_param = {
-#ifdef CONFIG_BSP_ESP32_S3_BOX_3
+#ifdef CONFIG_BSP_BOARD_ESP32_S3_BOX_3
         .gpio = brd->PMOD2->row1[2],
 #else
         .gpio = brd->PMOD2->row1[0],
@@ -108,7 +108,7 @@ static esp_err_t esp_box_init(void)
     app_driver_switch_init(def_switch_param.unique_name, def_switch_param.gpio, def_switch_param.active_level, def_switch_param.power, def_switch_param.voice_cmd);
 
     esp_box_fan_param_t def_fan_param = {
-#ifdef CONFIG_BSP_ESP32_S3_BOX_3
+#ifdef CONFIG_BSP_BOARD_ESP32_S3_BOX_3
         .gpio = brd->PMOD2->row2[0],
 #else
         .gpio = brd->PMOD2->row2[0],
@@ -199,14 +199,13 @@ static void rmaker_task(void *args)
 
     ESP_ERROR_CHECK(esp_event_handler_register(RMAKER_COMMON_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL));
 
-    /* Start rmaker core. */
-    esp_rmaker_start();
-
     /* Start the Wi-Fi. */
     esp_err_t err = app_wifi_start();
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Could not start Wifi");
     }
+    /* Start rmaker core. */
+    esp_rmaker_start();
 
     vTaskDelete(NULL);
 }
@@ -219,7 +218,7 @@ static void wifi_credential_reset(void *handle, void *arg)
 
 void app_rmaker_start(void)
 {
-    bsp_btn_register_callback(BOARD_BTN_ID_BOOT, BUTTON_LONG_PRESS_START, wifi_credential_reset, NULL);
+    bsp_btn_register_callback(BSP_BUTTON_CONFIG, BUTTON_LONG_PRESS_START, wifi_credential_reset, NULL);
 
     BaseType_t ret_val = xTaskCreatePinnedToCore(rmaker_task, "RMaker Task", 6 * 1024, NULL, 1, NULL, 0);
     ESP_ERROR_CHECK_WITHOUT_ABORT((pdPASS == ret_val) ? ESP_OK : ESP_FAIL);

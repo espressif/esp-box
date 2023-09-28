@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -18,7 +18,7 @@
 #include "ui_sensor_monitor.h"
 
 #define TEST_MEMORY_LEAK_THRESHOLD      (-400)
-#define NEC_IR_RESOLUTION_HZ            1000000 // 1MHz resolution, 1 tick = 1us
+#define IR_RESOLUTION_HZ                1000000 // 1MHz resolution, 1 tick = 1us
 
 #define UPDATE_TIME_PERIOD              300
 #define POWER_ON_PATH                   BSP_SPIFFS_MOUNT_POINT"/my_learn_off.cfg"
@@ -130,17 +130,23 @@ static EventGroupHandle_t sensor_monitor_event_grp = NULL;
 
 bool ir_learn_enable = false;
 
+bool sensor_ir_learn_enable(void)
+{
+    return ir_learn_enable;
+}
+
 esp_err_t sensor_task_state_event_init(void)
 {
     sensor_monitor_event_grp = xEventGroupCreate();
     ESP_RETURN_ON_FALSE(sensor_monitor_event_grp, ESP_ERR_NO_MEM, TAG, "event group init failed");
 
     sys_param_t *param = settings_get_parameter();
+
     if (true == param->radar_en) {
-        bsp_set_system_radar_status(true);
+        bsp_board_get_sensor_handle()->set_radar_enable(true);
         xEventGroupSetBits( sensor_monitor_event_grp, RADER_SWITCH_STATE );
     } else {
-        bsp_set_system_radar_status(false);
+        bsp_board_get_sensor_handle()->set_radar_enable(false);
         xEventGroupClearBits( sensor_monitor_event_grp, RADER_SWITCH_STATE );
     }
 
@@ -178,7 +184,7 @@ esp_err_t ir_learn_save_cfg(char *filepath, struct ir_learn_sub_list_head *cmd_l
     SLIST_FOREACH(sub_it, cmd_list, next) {
         cmd_num++;
     }
-    ESP_LOGI(TAG, "save cmd_num:%d", cmd_num);
+    ESP_LOGD(TAG, "save cmd_num:%d", cmd_num);
     fwrite(&cmd_num, 1, sizeof(cmd_num), fp);
 
     cmd_num = 0;
@@ -190,7 +196,7 @@ esp_err_t ir_learn_save_cfg(char *filepath, struct ir_learn_sub_list_head *cmd_l
         size_t symbol_num = sub_it->symbols.num_symbols;
         fwrite(&symbol_num, 1, sizeof(size_t), fp);
 
-        ESP_LOGI(TAG, "save cmd :%d, symbols:%d", cmd_num++, symbol_num);
+        ESP_LOGD(TAG, "save cmd :%d, symbols:%d", cmd_num++, symbol_num);
         rmt_symbol_word_t *rmt_nec_symbols = sub_it->symbols.received_symbols;
         fwrite(rmt_nec_symbols, 1, symbol_num * sizeof(rmt_symbol_word_t), fp);
     }
@@ -208,7 +214,7 @@ esp_err_t ir_learn_read_cfg(char *filepath, struct ir_learn_sub_list_head *cmd_l
 
     uint8_t total_cmd_num = 0;
     fread(&total_cmd_num, 1, sizeof(total_cmd_num), fp);
-    ESP_LOGI(TAG, "total cmd_num:%d", total_cmd_num);
+    ESP_LOGD(TAG, "total cmd_num:%d", total_cmd_num);
 
     for (int i = 0; i < total_cmd_num; i++) {
         uint32_t timediff;
@@ -216,7 +222,7 @@ esp_err_t ir_learn_read_cfg(char *filepath, struct ir_learn_sub_list_head *cmd_l
 
         rmt_rx_done_event_data_t symbols;
         fread(&symbols.num_symbols, 1, sizeof(size_t), fp);
-        ESP_LOGI(TAG, "read cmd :%d, symbols:%d", i, symbols.num_symbols);
+        ESP_LOGD(TAG, "read cmd :%d, symbols:%d", i, symbols.num_symbols);
         symbols.received_symbols = (rmt_symbol_word_t *)heap_caps_malloc(symbols.num_symbols * sizeof(rmt_symbol_word_t), \
                                    MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
         fread(symbols.received_symbols, 1, symbols.num_symbols * sizeof(rmt_symbol_word_t), fp);
@@ -234,7 +240,7 @@ static void ir_learn_test_tx_raw(struct ir_learn_sub_list_head *rmt_out)
 {
     rmt_tx_channel_config_t tx_channel_cfg = {
         .clk_src = RMT_CLK_SRC_DEFAULT,
-        .resolution_hz = NEC_IR_RESOLUTION_HZ,
+        .resolution_hz = IR_RESOLUTION_HZ,
         .mem_block_symbols = 128, // amount of RMT symbols that the channel can store at a time
         .trans_queue_depth = 4,  // number of transactions that allowed to pending in the background, this example won't queue multiple transactions, so queue depth > 1 is sufficient
         .gpio_num = BSP_IR_TX_GPIO,
@@ -254,8 +260,8 @@ static void ir_learn_test_tx_raw(struct ir_learn_sub_list_head *rmt_out)
         .loop_count = 0, // no loop
     };
 
-    ir_nec_encoder_config_t nec_encoder_cfg = {
-        .resolution = NEC_IR_RESOLUTION_HZ,
+    ir_encoder_config_t nec_encoder_cfg = {
+        .resolution = IR_RESOLUTION_HZ,
     };
     rmt_encoder_handle_t nec_encoder = NULL;
     ESP_ERROR_CHECK(ir_encoder_new(&nec_encoder_cfg, &nec_encoder));
@@ -264,7 +270,7 @@ static void ir_learn_test_tx_raw(struct ir_learn_sub_list_head *rmt_out)
 
     ir_learn_sub_list_t *sub_it;
     SLIST_FOREACH(sub_it, rmt_out, next) {
-        ESP_LOGI(TAG, "RMT out timediff:%" PRIu32 " ms, symbols:%03u",
+        ESP_LOGD(TAG, "RMT out timediff:%" PRIu32 " ms, symbols:%03u",
                  sub_it->timediff / 1000, sub_it->symbols.num_symbols);
 
         vTaskDelay(pdMS_TO_TICKS(sub_it->timediff / 1000));
@@ -278,7 +284,7 @@ static void ir_learn_test_tx_raw(struct ir_learn_sub_list_head *rmt_out)
 
     rmt_disable(tx_channel);
     rmt_del_channel(tx_channel);
-    ir_encoder_del(nec_encoder);
+    nec_encoder->del(nec_encoder);
 }
 
 static void ir_learn_test_tx_task(void *arg)
@@ -352,6 +358,9 @@ static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_ste
     static uint8_t air_on_ir = 0;
     static uint8_t air_off_ir = 0;
     switch (state) {
+    case IR_LEARN_STATE_EXIT:
+        ESP_LOGI(TAG, "IR Learn exit");
+        break;
     case IR_LEARN_STATE_READY:
         ESP_LOGI(TAG, "IR Learn ready");
         xEventGroupClearBits( sensor_monitor_event_grp, IR_LEARNING_STATE );
@@ -410,7 +419,7 @@ static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_ste
                 printf("air_off ir-data read OK.\n");
             }
             xEventGroupSetBits( sensor_monitor_event_grp, IR_LEARNING_STATE );
-            ir_learn_stop();
+            ir_learn_stop(&ir_learn_handle);
             ir_learn_enable = false;
         } else {
             xEventGroupClearBits( sensor_monitor_event_grp, IR_LEARNING_STATE );
@@ -470,6 +479,7 @@ static esp_err_t ir_learn_test(ir_learn_result_cb cb)
         .learn_count = 4,
         .learn_gpio = BSP_IR_RX_GPIO,
         .clk_src = RMT_CLK_SRC_DEFAULT,
+        .resolution = IR_RESOLUTION_HZ,
 
         .task_stack = 4096,
         .task_priority = 5,
@@ -506,7 +516,7 @@ static void ui_sensor_monitor_page_return_click_cb(lv_event_t *e)
     }
 
     if ( 0 == (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp) )) {
-        ir_learn_stop();
+        ir_learn_stop(&ir_learn_handle);
         ir_learn_enable = false;
     }
 
@@ -517,8 +527,8 @@ static void ui_sensor_monitor_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
 #endif
     lv_obj_del(obj);
     if (g_sensor_monitor_end_cb) {
@@ -526,7 +536,7 @@ static void ui_sensor_monitor_page_return_click_cb(lv_event_t *e)
     }
 }
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void btn_return_down_cb(void *handle, void *arg)
 {
     lv_obj_t *obj = (lv_obj_t *) arg;
@@ -622,7 +632,7 @@ static void update_timer_cb(lv_timer_t *timer)
     /**
      * @brief update temperature, humidity
      */
-    esp_err_t ret = bsp_read_temp_humidity(&temperature, &humidity);
+    esp_err_t ret = bsp_board_get_sensor_handle()->get_humiture(&temperature, &humidity);
     if (ret != ESP_OK) {
         lv_label_set_text(temp_value_label, "0");
         lv_label_set_text(hum_value_label, "0");
@@ -653,7 +663,7 @@ static void update_timer_cb(lv_timer_t *timer)
      * @brief update radar status
      */
     if ( (RADER_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) ) {
-        if (true == bsp_get_system_radar_status()) {
+        if (true == bsp_board_get_sensor_handle()->get_radar_status()) {
             xEventGroupSetBits( sensor_monitor_event_grp, RADER_STATE );
             if ( SENSOR_MONITOR_ALIVE_STATE & sensor_task_state_event_get_bits() ) {
                 lv_img_set_src(rader_image, air_ctrl_btn_src_list[0].img_on);
@@ -680,7 +690,7 @@ static void ui_rader_btn_event(lv_event_t *e)
             xEventGroupSetBits( sensor_monitor_event_grp, RADER_SWITCH_STATE );
             param->radar_en = true;
         }
-        bsp_set_system_radar_status(param->radar_en);
+        bsp_board_get_sensor_handle()->set_radar_enable(param->radar_en);
         settings_write_parameter_to_nvs();
 
         if ( !(RADER_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) ) {
@@ -757,7 +767,7 @@ static void ui_sensor_monitor_relearn_btn_event(lv_event_t *e)
 
     if ( 0 == (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp) )) {
         printf("ir_learn_stop.\n");
-        ir_learn_stop();
+        ir_learn_stop(&ir_learn_handle);
         ir_learn_enable = false;
     }
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -1086,11 +1096,11 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_set_style_text_color(ac_switch_btn_lab, lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN);
     lv_obj_center(ac_switch_btn_lab);
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
 #endif
 
-    esp_err_t ret = bsp_read_temp_humidity(&temperature, &humidity);
+    esp_err_t ret = bsp_board_get_sensor_handle()->get_humiture(&temperature, &humidity);
     if (ret != ESP_OK) {
         ESP_LOGI(TAG, "Failed to read AHT21: %d", ret);
         xEventGroupClearBits( sensor_monitor_event_grp, SENSOR_BASE_CONNECT_STATE );

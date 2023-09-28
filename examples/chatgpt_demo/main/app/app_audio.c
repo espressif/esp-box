@@ -29,7 +29,7 @@
 
 static const char *TAG = "app_audio";
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static bool mute_flag = true;
 #endif
 bool record_flag = false;
@@ -46,7 +46,7 @@ extern int Cache_WriteBack_Addr(uint32_t addr, uint32_t size);
 /* main function */
 void mute_btn_handler(void *handle, void *arg)
 {
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
     button_event_t event = (button_event_t)arg;
 
     if (BUTTON_PRESS_DOWN == event) {
@@ -61,12 +61,10 @@ void mute_btn_handler(void *handle, void *arg)
 
 static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
 {
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-
-    codec_handle->mute_set_fn(setting == AUDIO_PLAYER_MUTE ? true : false);
+    bsp_codec_mute_set(setting == AUDIO_PLAYER_MUTE ? true : false);
     // restore the voice volume upon unmuting
     if (setting == AUDIO_PLAYER_UNMUTE) {
-        codec_handle->volume_set_fn(CONFIG_VOLUME_LEVEL, NULL);
+        bsp_codec_volume_set(CONFIG_VOLUME_LEVEL, NULL);
     } else {
         if (audio_play_finish_cb) {
             audio_play_finish_cb();
@@ -87,8 +85,7 @@ void audio_record_init()
     printf("audio_rx_buffer with a size: %zu\n", MAX_FILE_SIZE);
 #endif
 
-    if (record_audio_buffer == NULL || audio_rx_buffer == NULL)
-    {
+    if (record_audio_buffer == NULL || audio_rx_buffer == NULL) {
         printf("Error: Failed to allocate memory for buffers\n");
         return; // Return or handle the error condition appropriately
     }
@@ -96,10 +93,9 @@ void audio_record_init()
     file_iterator_instance_t *file_iterator = file_iterator_new(BSP_SPIFFS_MOUNT_POINT);
     assert(file_iterator != NULL);
 
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
     audio_player_config_t config = { .mute_fn = audio_mute_function,
-                                     .write_fn = codec_handle->i2s_write_fn,
-                                     .clk_set_fn = codec_handle->i2s_reconfig_clk_fn,
+                                     .write_fn = bsp_i2s_write,
+                                     .clk_set_fn = bsp_codec_set_fs,
                                      .priority = 5
                                    };
     ESP_ERROR_CHECK(audio_player_new(config));
@@ -156,8 +152,8 @@ static esp_err_t audio_record_stop()
 #endif
     file_total_len += record_total_len;
     ESP_LOGI(TAG, "### record Stop, %" PRIu32 " %" PRIu32 "K", \
-         record_total_len, \
-         record_total_len / 1024);
+             record_total_len, \
+             record_total_len / 1024);
 
     FILE *fp = fopen("/spiffs/echo_en_wake.wav", "r");
     ESP_GOTO_ON_FALSE(NULL != fp, ESP_FAIL, err, TAG, "Failed create record file");
@@ -220,14 +216,12 @@ esp_err_t audio_play_task(void *filepath)
         wav_head.BitsPerSample = 16;
     }
 
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-
     ESP_LOGI(TAG, "frame_rate= %" PRIi32 ", ch=%d, width=%d", wav_head.SampleRate, wav_head.NumChannels, wav_head.BitsPerSample);
-    codec_handle->i2s_reconfig_clk_fn(wav_head.SampleRate, wav_head.BitsPerSample, I2S_SLOT_MODE_STEREO);
+    bsp_codec_set_fs(wav_head.SampleRate, wav_head.BitsPerSample, I2S_SLOT_MODE_STEREO);
 
-    codec_handle->mute_set_fn(true);
-    codec_handle->mute_set_fn(false);
-    codec_handle->volume_set_fn(CONFIG_VOLUME_LEVEL,NULL);
+    bsp_codec_mute_set(true);
+    bsp_codec_mute_set(false);
+    bsp_codec_volume_set(CONFIG_VOLUME_LEVEL, NULL);
 
     size_t cnt, total_cnt = 0;
     do {
@@ -236,7 +230,7 @@ esp_err_t audio_play_task(void *filepath)
         if (len <= 0) {
             break;
         } else if (len > 0) {
-            codec_handle->i2s_write_fn(buffer, len, &cnt, portMAX_DELAY);
+            bsp_i2s_write(buffer, len, &cnt, portMAX_DELAY);
             total_cnt += cnt;
         }
     } while (1);
@@ -294,9 +288,9 @@ EXIT:
 
 void sr_handler_task(void *pvParam)
 {
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
     static bool mute_state = false;
-    mute_flag = bsp_button_get(BSP_BUTTON_MUTE);
+    mute_flag = gpio_get_level(BSP_BUTTON_MUTE_IO);
     printf("sr handle task, mute:%d\n", mute_flag);
 #endif
 
@@ -313,13 +307,11 @@ void sr_handler_task(void *pvParam)
 
         app_sr_get_result(&result, pdMS_TO_TICKS(1 * 1000));
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
         if (mute_state != mute_flag) {
             mute_state = mute_flag;
             if (false == mute_state) {
-                ESP_LOGI(TAG, "reset CODEC");
-                bsp_codec_config_t *bsp_codec_config = bsp_board_get_codec_handle();
-                bsp_codec_config->codec_reconfig_fn();
+                bsp_codec_set_fs(16000, 16, 2);
             }
         }
 #endif

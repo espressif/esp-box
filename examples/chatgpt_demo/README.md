@@ -25,7 +25,7 @@ git checkout 53ff7d43dbff642d831a937b066ea0735a6aca24 && git pull && git submodu
 ### **Hardware Required**
 
 * A ESP32-S3-BOX，ESP32-S3-BOX-Lite or ESP32-S3-BOX-3
-* An USB-C cable for power supply and programming
+* A USB-C cable for power supply and programming
 
 
 ## Text to speech

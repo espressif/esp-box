@@ -56,6 +56,7 @@ typedef enum {
 esp_err_t sensor_task_state_event_init(void);
 EventBits_t sensor_task_state_event_get_bits(void);
 void ui_sensor_monitor_start(void (*fn)(void));
+bool sensor_ir_learn_enable(void);
 
 #ifdef __cplusplus
 }

@@ -20,7 +20,6 @@
 
 #include <wifi_provisioning/manager.h>
 #include <wifi_provisioning/scheme_ble.h>
-#include <esp_rmaker_core.h>
 
 #include "app_wifi.h"
 #include "app_sntp.h"
@@ -46,9 +45,11 @@ static EventGroupHandle_t wifi_event_group;
 #define RANDOM_NVS_KEY          "random"
 
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_3
 /*set the ssid and password via "idf.py menuconfig"*/
 #define DEFAULT_LISTEN_INTERVAL CONFIG_EXAMPLE_WIFI_LISTEN_INTERVAL
 #define DEFAULT_BEACON_TIMEOUT  CONFIG_EXAMPLE_WIFI_BEACON_TIMEOUT
+#endif
 
 #if CONFIG_EXAMPLE_POWER_SAVE_MIN_MODEM
 #define DEFAULT_PS_MODE WIFI_PS_MIN_MODEM
@@ -149,7 +150,6 @@ static void event_handler(void *arg, esp_event_base_t event_base,
 
 static void wifi_init_sta()
 {
-    ESP_LOGI(TAG, "wifi_init_sta DEFAULT_PS_MODE().");
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_ps(DEFAULT_PS_MODE));
     ESP_ERROR_CHECK(esp_wifi_start());
@@ -222,6 +222,7 @@ void app_wifi_init(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_3
     wifi_config_t wifi_cfg;
     ESP_ERROR_CHECK(esp_wifi_get_config(WIFI_IF_STA, &wifi_cfg));
     wifi_cfg.sta.listen_interval = DEFAULT_LISTEN_INTERVAL;
@@ -230,6 +231,7 @@ void app_wifi_init(void)
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg));
     ESP_ERROR_CHECK(esp_wifi_start());
     ESP_ERROR_CHECK(esp_wifi_set_inactive_time(WIFI_IF_STA, DEFAULT_BEACON_TIMEOUT));
+#endif
 }
 
 esp_err_t app_wifi_prov_start(void)
@@ -264,7 +266,6 @@ esp_err_t app_wifi_start(void)
     esp_err_t err;
 
     ui_net_config_update_cb(UI_NET_EVT_START, NULL);
-    esp_rmaker_wait_user_ready();
 
     xEventGroupClearBits(wifi_event_group, WIFI_STA_CONNECT_OK);
     xEventGroupClearBits(wifi_event_group, WIFI_PROV_EVENT_START);
@@ -360,8 +361,6 @@ esp_err_t app_wifi_start(void)
         printf("Largest Free Block\t%d\t\t%d\n",
                heap_caps_get_largest_free_block(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
                heap_caps_get_largest_free_block(MALLOC_CAP_SPIRAM));
-
-        esp_rmaker_user_ready();
         return ESP_OK;
     }
 }

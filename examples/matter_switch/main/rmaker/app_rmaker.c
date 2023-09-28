@@ -205,7 +205,7 @@ static void wifi_credential_reset(void *handle, void *arg)
 
 void app_rmaker_start(void)
 {
-    bsp_btn_register_callback(BOARD_BTN_ID_BOOT, BUTTON_LONG_PRESS_START, wifi_credential_reset, NULL);
+    bsp_btn_register_callback(BSP_BUTTON_CONFIG, BUTTON_LONG_PRESS_START, wifi_credential_reset, NULL);
 
     BaseType_t ret_val = xTaskCreatePinnedToCore(rmaker_task, "RMaker Task", 6 * 1024, NULL, 1, NULL, 0);
     ESP_ERROR_CHECK_WITHOUT_ABORT((pdPASS == ret_val) ? ESP_OK : ESP_FAIL);

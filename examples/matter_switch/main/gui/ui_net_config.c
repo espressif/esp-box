@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -25,7 +25,9 @@ static lv_obj_t *g_btn_return = NULL;
 
 static void (*g_net_config_end_cb)(void) = NULL;
 
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void btn_return_down_cb(void *handle, void *arg);
+#endif
 
 static void ui_app_page_return_click_cb(lv_event_t *e)
 {
@@ -33,14 +35,14 @@ static void ui_app_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_focus_freeze(ui_get_btn_op_group(), false);
     }
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
 #endif
     lv_obj_del(obj);
 }
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void btn_return_down_cb(void *handle, void *arg)
 {
     lv_obj_t *obj = (lv_obj_t *) arg;
@@ -52,57 +54,55 @@ static void btn_return_down_cb(void *handle, void *arg)
 
 static void ui_net_config_page_app_click_cb(lv_event_t *e)
 {
-    {
-        /* **************** FRAMWORK **************** */
-        lv_obj_t *page = lv_obj_create(lv_scr_act());
-        lv_obj_set_size(page, lv_obj_get_width(lv_obj_get_parent(page)), 185);
-        lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
-        lv_obj_set_style_radius(page, 15, LV_STATE_DEFAULT);
-        lv_obj_set_style_border_width(page, 1, LV_STATE_DEFAULT);
-        lv_obj_set_style_shadow_width(page, 20, LV_PART_MAIN);
-        lv_obj_set_style_shadow_opa(page, LV_OPA_30, LV_PART_MAIN);
-        lv_obj_align(page, LV_ALIGN_CENTER, 0, 0);
+    /* **************** FRAMWORK **************** */
+    lv_obj_t *page = lv_obj_create(lv_scr_act());
+    lv_obj_set_size(page, lv_obj_get_width(lv_obj_get_parent(page)), 185);
+    lv_obj_clear_flag(page, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_style_radius(page, 15, LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(page, 1, LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(page, 20, LV_PART_MAIN);
+    lv_obj_set_style_shadow_opa(page, LV_OPA_30, LV_PART_MAIN);
+    lv_obj_align(page, LV_ALIGN_CENTER, 0, 0);
 
-        lv_obj_t *btn_return = lv_btn_create(page);
-        lv_obj_set_size(btn_return, 24, 24);
-        lv_obj_add_style(btn_return, &ui_button_styles()->style, 0);
-        lv_obj_add_style(btn_return, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
-        lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUS_KEY);
-        lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUSED);
-        lv_obj_align(btn_return, LV_ALIGN_TOP_LEFT, 0, 0);
-        lv_obj_t *lab_btn_text = lv_label_create(btn_return);
-        lv_label_set_text_static(lab_btn_text, LV_SYMBOL_LEFT);
-        lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
-        lv_obj_center(lab_btn_text);
-        lv_obj_add_event_cb(btn_return, ui_app_page_return_click_cb, LV_EVENT_CLICKED, page);
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-        bsp_btn_rm_event_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP);
-        bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+    lv_obj_t *btn_return = lv_btn_create(page);
+    lv_obj_set_size(btn_return, 24, 24);
+    lv_obj_add_style(btn_return, &ui_button_styles()->style, 0);
+    lv_obj_add_style(btn_return, &ui_button_styles()->style_pr, LV_STATE_PRESSED);
+    lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUS_KEY);
+    lv_obj_add_style(btn_return, &ui_button_styles()->style_focus, LV_STATE_FOCUSED);
+    lv_obj_align(btn_return, LV_ALIGN_TOP_LEFT, 0, 0);
+    lv_obj_t *lab_btn_text = lv_label_create(btn_return);
+    lv_label_set_text_static(lab_btn_text, LV_SYMBOL_LEFT);
+    lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
+    lv_obj_center(lab_btn_text);
+    lv_obj_add_event_cb(btn_return, ui_app_page_return_click_cb, LV_EVENT_CLICKED, page);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_rm_event_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP);
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
 #endif
-        if (ui_get_btn_op_group()) {
-            lv_group_add_obj(ui_get_btn_op_group(), btn_return);
-            lv_group_focus_obj(btn_return);
-            lv_group_focus_freeze(ui_get_btn_op_group(), true);
-        }
-
-        /* **************** HINT MESSAGE **************** */
-        lv_obj_t *hint_label = lv_label_create(page);
-        lv_label_set_text_static(hint_label,
-                                 "Please scan the QR code below to\n"
-                                 "download the ESP-BOX APP.");
-        lv_obj_align(hint_label, LV_ALIGN_TOP_MID, 10, 0);
-
-        /* **************** QR CODE **************** */
-        static const char *qr_payload = "https://espressif.com/esp-box";
-        lv_obj_t *qr = lv_qrcode_create(page, 92, lv_color_black(), lv_color_white());
-        lv_qrcode_update(qr, qr_payload, strlen(qr_payload));
-        lv_obj_align(qr, LV_ALIGN_CENTER, 0, 10);
-
-        /* **************** LINK ADDR **************** */
-        lv_obj_t *lab_link = lv_label_create(page);
-        lv_label_set_text_static(lab_link, qr_payload);
-        lv_obj_align(lab_link, LV_ALIGN_BOTTOM_MID, 0, 0);
+    if (ui_get_btn_op_group()) {
+        lv_group_add_obj(ui_get_btn_op_group(), btn_return);
+        lv_group_focus_obj(btn_return);
+        lv_group_focus_freeze(ui_get_btn_op_group(), true);
     }
+
+    /* **************** HINT MESSAGE **************** */
+    lv_obj_t *hint_label = lv_label_create(page);
+    lv_label_set_text_static(hint_label,
+                             "Please scan the QR code below to\n"
+                             "download the ESP-BOX APP.");
+    lv_obj_align(hint_label, LV_ALIGN_TOP_MID, 10, 0);
+
+    /* **************** QR CODE **************** */
+    static const char *qr_payload = "https://espressif.com/esp-box";
+    lv_obj_t *qr = lv_qrcode_create(page, 92, lv_color_black(), lv_color_white());
+    lv_qrcode_update(qr, qr_payload, strlen(qr_payload));
+    lv_obj_align(qr, LV_ALIGN_CENTER, 0, 10);
+
+    /* **************** LINK ADDR **************** */
+    lv_obj_t *lab_link = lv_label_create(page);
+    lv_label_set_text_static(lab_link, qr_payload);
+    lv_obj_align(lab_link, LV_ALIGN_BOTTOM_MID, 0, 0);
 }
 
 static void ui_net_config_page_return_click_cb(lv_event_t *e)
@@ -112,8 +112,8 @@ static void ui_net_config_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
 #endif
     lv_obj_del(obj);
     g_page = NULL;
@@ -229,8 +229,8 @@ void ui_net_config_start(void (*fn)(void))
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_center(lab_btn_text);
     lv_obj_add_event_cb(g_btn_return, ui_net_config_page_return_click_cb, LV_EVENT_CLICKED, g_page);
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
 #endif
 
     if (ui_get_btn_op_group()) {

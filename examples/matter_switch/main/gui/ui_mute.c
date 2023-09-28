@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -41,8 +41,7 @@ static void mute_timer_cb(lv_timer_t *timer)
             lv_obj_clear_flag(obj, LV_OBJ_FLAG_HIDDEN);
             lv_obj_move_foreground(obj);
             if ((mute_disp_count == 2) && (!mute_state)) {
-                bsp_codec_config_t *bsp_codec_config = bsp_board_get_codec_handle();
-                bsp_codec_config->codec_reconfig_fn();
+                bsp_codec_set_fs(16000, 16, 2);
                 mute_play_flag = true;
             }
         } else {
@@ -84,7 +83,7 @@ void ui_mute_init(void)
 
 }
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void ui_mute_set_state(bool mute)
 {
     if (mute_state) {
@@ -106,7 +105,7 @@ static void ui_mute_set_state(bool mute)
  */
 void mute_btn_handler(void *handle, void *arg)
 {
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
     button_event_t event = (button_event_t)arg;
 
     if (BUTTON_PRESS_DOWN == event) {

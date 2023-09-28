@@ -58,7 +58,6 @@ void ui_release(void)
     bsp_display_unlock();
 }
 
-
 static void ui_button_style_init(void)
 {
     /*Init the style for the default state*/
@@ -166,11 +165,13 @@ static void player_end_cb(void)
     ui_main_menu(g_item_index);
 }
 
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_3
 static void sensor_monitor_end_cb(void)
 {
     ESP_LOGI(TAG, "sensor_monitor end");
     ui_main_menu(g_item_index);
 }
+#endif
 
 static void dev_ctrl_end_cb(void)
 {
@@ -190,7 +191,7 @@ static void net_end_cb(void)
     ui_main_menu(g_item_index);
 }
 
-static void ui_help(void)
+static void ui_help(void (*fn)(void))
 {
     ui_hint_start(hint_end_cb);
 }
@@ -198,6 +199,8 @@ static void ui_help(void)
 typedef struct {
     char *name;
     void *img_src;
+    void (*start_fn)(void (*fn)(void));
+    void (*end_fn)(void);
 } item_desc_t;
 
 LV_IMG_DECLARE(icon_about_us)
@@ -208,12 +211,14 @@ LV_IMG_DECLARE(icon_help)
 LV_IMG_DECLARE(icon_network)
 
 static item_desc_t item[] = {
-    { .name = "Sensor Monitor", .img_src = (void *) &icon_sensor_monitor},
-    { .name = "Device Control", .img_src = (void *) &icon_dev_ctrl},
-    { .name = "Network",        .img_src = (void *) &icon_network},
-    { .name = "Media Player",   .img_src = (void *) &icon_media_player},
-    { .name = "Help",           .img_src = (void *) &icon_help},
-    { .name = "About Us",       .img_src = (void *) &icon_about_us},
+#if CONFIG_BSP_BOARD_ESP32_S3_BOX_3
+    { "Sensor Monitor", (void *) &icon_sensor_monitor,  ui_sensor_monitor_start, sensor_monitor_end_cb},
+#endif
+    { "Device Control", (void *) &icon_dev_ctrl,        ui_device_ctrl_start, dev_ctrl_end_cb},
+    { "Network",        (void *) &icon_network,         ui_net_config_start, net_end_cb},
+    { "Media Player",   (void *) &icon_media_player,    ui_media_player, player_end_cb},
+    { "Help",           (void *) &icon_help,            ui_help, NULL},
+    { "About Us",       (void *) &icon_about_us,        ui_about_us_start, about_us_end_cb},
 };
 
 static lv_obj_t *g_img_btn, *g_img_item = NULL;
@@ -358,39 +363,15 @@ static void menu_enter_cb(lv_event_t *e)
         if (ui_get_btn_op_group()) {
             lv_group_remove_all_objs(ui_get_btn_op_group());
         }
-        ui_btn_rm_all_cb();
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+        bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
+#endif
         ui_led_set_visible(false);
         lv_obj_del(menu_btn_parent);
         g_focus_last_obj = NULL;
 
-        switch (g_item_index) {
-        case 0:
-            ui_status_bar_set_visible(true);
-            ui_sensor_monitor_start(sensor_monitor_end_cb);
-            break;
-        case 1:
-            ui_status_bar_set_visible(true);
-            ui_device_ctrl_start(dev_ctrl_end_cb);
-            break;
-        case 2:
-            ui_status_bar_set_visible(true);
-            ui_net_config_start(net_end_cb);
-            break;
-        case 3:
-            ui_status_bar_set_visible(true);
-            ui_media_player(player_end_cb);
-            break;
-        case 4:
-            ui_status_bar_set_visible(false);
-            ui_help();
-            break;
-        case 5:
-            ui_status_bar_set_visible(true);
-            ui_about_us_start(about_us_end_cb);
-            break;
-        default:
-            break;
-        }
+        ui_status_bar_set_visible(true);
+        item[g_item_index].start_fn(item[g_item_index].end_fn);
     }
 }
 
@@ -523,7 +504,7 @@ static void ui_after_boot(void)
     sys_param_t *param = settings_get_parameter();
     if (param->need_hint) {
         /* Show default hint page */
-        ui_help();
+        ui_help(NULL);
     } else {
         ui_main_menu(g_item_index);
     }
@@ -587,7 +568,7 @@ esp_err_t ui_main_start(void)
     ui_sr_anim_init();
 
     boot_animate_start(ui_after_boot);
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
     ui_mute_init();
 #endif
     ui_release();
@@ -606,15 +587,4 @@ static void ui_led_set_visible(bool visible)
             }
         }
     }
-}
-
-void ui_btn_rm_all_cb(void)
-{
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    for (size_t i = 0; i < BOARD_BTN_ID_NUM; i++) {
-        if (BOARD_BTN_ID_HOME == i) {
-            bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
-        }
-    }
-#endif
 }

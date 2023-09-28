@@ -245,8 +245,7 @@ static void volume_slider_cb(lv_event_t *event)
 {
     lv_obj_t *slider = (lv_obj_t *) event->target;
     int volume = lv_slider_get_value(slider);
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-    codec_handle->volume_set_fn(volume, NULL);
+    bsp_codec_volume_set(volume, NULL);
     g_sys_volume = volume;
     ESP_LOGI(TAG, "volume '%d'", volume);
 }

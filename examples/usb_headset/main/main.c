@@ -23,10 +23,9 @@ void app_main(void)
 
     bsp_board_init();
 
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-    codec_handle->i2s_reconfig_clk_fn(SAMPLE_RATE, WIDTH, CHANNEL);
-    codec_handle->volume_set_fn(80, NULL);
-    codec_handle->mute_set_fn(false);
+    bsp_codec_set_fs(SAMPLE_RATE, WIDTH, CHANNEL);
+    bsp_codec_volume_set(80, NULL);
+    bsp_codec_mute_set(false);
 
     usb_headset_init();
 }

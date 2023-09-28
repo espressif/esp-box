@@ -1,5 +1,5 @@
 /*
-* SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
 *
 * SPDX-License-Identifier: Unlicense OR CC0-1.0
 */
@@ -62,8 +62,7 @@ static void audio_feed_task(void *pvParam)
 
     while (true) {
         /* Read audio data from I2S bus */
-        bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
-        codec_handle->i2s_read_fn((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
+        bsp_i2s_read((char *)audio_buffer, audio_chunksize * I2S_CHANNEL_NUM * sizeof(int16_t), &bytes_read, portMAX_DELAY);
 
         /* Save audio data to file if record enabled */
         if (b_record_en && (NULL != fp)) {

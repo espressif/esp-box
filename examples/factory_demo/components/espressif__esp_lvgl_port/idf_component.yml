@@ -1,9 +1,0 @@
-dependencies:
-  idf:
-    version: '>=4.4'
-  lvgl/lvgl:
-    public: true
-    version: ^8
-description: ESP LVGL port
-url: https://github.com/espressif/esp-bsp/tree/master/components/esp_lvgl_port
-version: 1.2.0~1

@@ -1,2 +1,0 @@
-This is an example of using ESP-BSP with ESP-BOX. 
-This example shows files saved in SPI flash file system. Each file can be opened in new window (supported only *.txt, *.jpg and *.wav files). The SPI flash file system is not support directories.

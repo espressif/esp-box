@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -28,7 +28,7 @@ static const char *TAG = "sr_handler";
 
 static bool b_audio_playing = false;
 
-extern file_iterator_instance_t* file_iterator;
+extern file_iterator_instance_t *file_iterator;
 
 typedef enum {
     AUDIO_WAKE,
@@ -69,7 +69,6 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     /**
      * read head of WAV file
      */
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
     uint8_t *p = g_audio_data[audio].audio_buffer;
     wav_header_t *wav_head = (wav_header_t *)p;
 
@@ -82,23 +81,21 @@ static esp_err_t sr_echo_play(audio_segment_t audio)
     p += sizeof(wav_header_t);
     size_t len = g_audio_data[audio].len - sizeof(wav_header_t);
     len = len & 0xfffffffc;
-    ESP_LOGD(TAG, "frame_rate=%ld, ch=%d, width=%d", wav_head->SampleRate, wav_head->NumChannels, wav_head->BitsPerSample);
-    codec_handle->i2s_reconfig_clk_fn(wav_head->SampleRate, wav_head->BitsPerSample, I2S_SLOT_MODE_STEREO);
+    bsp_codec_set_fs(wav_head->SampleRate, wav_head->BitsPerSample, I2S_SLOT_MODE_STEREO);
 
-    codec_handle->mute_set_fn(true);
-    codec_handle->mute_set_fn(false);
-    codec_handle->volume_set_fn(100, NULL);
+    bsp_codec_mute_set(true);
+    bsp_codec_mute_set(false);
+    bsp_codec_volume_set(100, NULL);
     size_t bytes_written = 0;
-
     vTaskDelay(pdMS_TO_TICKS(50));
 
     b_audio_playing = true;
-    codec_handle->i2s_write_fn((char *)p, len, &bytes_written, portMAX_DELAY);
+    bsp_i2s_write((char *)p, len, &bytes_written, portMAX_DELAY);
     vTaskDelay(pdMS_TO_TICKS(20));
     b_audio_playing = false;
 
     sys_param_t *param = settings_get_parameter();
-    codec_handle->volume_set_fn(param->volume, NULL);
+    bsp_codec_volume_set(param->volume, NULL);
     return ESP_OK;
 }
 
@@ -112,7 +109,7 @@ sr_language_t sr_detect_language()
     static sr_language_t sr_current_lang = SR_LANG_MAX;
     esp_err_t ret;
     FILE *fp = NULL;
-    const sys_param_t * param = settings_get_parameter();
+    const sys_param_t *param = settings_get_parameter();
 
     if (param->sr_lang ^ sr_current_lang) {
         sr_current_lang = param->sr_lang;
@@ -130,7 +127,7 @@ sr_language_t sr_detect_language()
             ESP_GOTO_ON_FALSE(NULL != fp, ESP_ERR_NOT_FOUND, err, TAG, "Open file %s failed", audio_file);
             size_t file_size = fm_get_file_size(audio_file);
 
-            if(g_audio_data[i].audio_buffer){
+            if (g_audio_data[i].audio_buffer) {
                 heap_caps_free(g_audio_data[i].audio_buffer);
                 g_audio_data[i].len = 0;
             }
@@ -144,7 +141,11 @@ sr_language_t sr_detect_language()
     return sr_current_lang;
 
 err:
-    if(fp){
+    if (ESP_OK != ret) {
+        ESP_LOGI(TAG, "Read audio failed");
+    }
+
+    if (fp) {
         fclose(fp);
     }
     return sr_current_lang;
@@ -186,7 +187,6 @@ void sr_handler_task(void *pvParam)
             sr_anim_start();
             last_player_state = audio_player_get_state();
             audio_player_pause();
-
             if (SR_LANG_EN == sr_current_lang) {
                 sr_anim_set_text("Say command");
             } else {
@@ -270,7 +270,7 @@ void sr_handler_task(void *pvParam)
             case SR_CMD_PLAY:
                 ESP_LOGW(TAG, "SR_CMD_PLAY:%d, last_player_state:%d", audio_player_get_state(), last_player_state);
 
-                if(AUDIO_PLAYER_STATE_IDLE == audio_player_get_state()){
+                if (AUDIO_PLAYER_STATE_IDLE == audio_player_get_state()) {
                     file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
                     fp = fopen(filename, "rb");
                     if (!fp) {
@@ -278,7 +278,7 @@ void sr_handler_task(void *pvParam)
                     } else {
                         audio_player_play(fp);
                     }
-                } else if(AUDIO_PLAYER_STATE_PAUSE == audio_player_get_state()){
+                } else if (AUDIO_PLAYER_STATE_PAUSE == audio_player_get_state()) {
                     audio_player_resume();
                 }
                 last_player_state = AUDIO_PLAYER_STATE_PLAYING;

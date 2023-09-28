@@ -68,18 +68,17 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
     // Volume saved when muting and restored when unmuting. Restoring volume is necessary
     // as es8311_set_voice_mute(true) results in voice volume (REG32) being set to zero.
     static int last_volume;
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
 
     sys_param_t *param = settings_get_parameter();
     if (param->volume != 0) {
         last_volume = param->volume;
     }
 
-    codec_handle->mute_set_fn(setting == AUDIO_PLAYER_MUTE ? true : false);
+    bsp_codec_mute_set(setting == AUDIO_PLAYER_MUTE ? true : false);
 
     // restore the voice volume upon unmuting
     if (setting == AUDIO_PLAYER_UNMUTE) {
-        codec_handle->volume_set_fn(param->volume, NULL);
+        bsp_codec_volume_set(param->volume, NULL);
     }
 
     ESP_LOGI(TAG, "mute setting %d, volume:%d", setting, last_volume);
@@ -106,7 +105,8 @@ void box_main(void)
     bsp_i2c_init();
 
     bsp_display_cfg_t cfg = {
-        .lvgl_port_cfg = {                               \
+        .lvgl_port_cfg = {
+            \
             .task_priority = 4,       \
             .task_stack = 8192,       \
             .task_affinity = -1,      \
@@ -122,12 +122,11 @@ void box_main(void)
     bsp_display_backlight_on();
     ESP_ERROR_CHECK(ui_main_start());
 
-    bsp_codec_config_t *codec_handle = bsp_board_get_codec_handle();
     file_iterator = file_iterator_new("/spiffs/mp3");
     assert(file_iterator != NULL);
     audio_player_config_t config = { .mute_fn = audio_mute_function,
-                                     .write_fn = codec_handle->i2s_write_fn,
-                                     .clk_set_fn = codec_handle->i2s_reconfig_clk_fn,
+                                     .write_fn = bsp_i2s_write,
+                                     .clk_set_fn = bsp_codec_set_fs,
                                      .priority = 5
                                    };
     ESP_ERROR_CHECK(audio_player_new(config));

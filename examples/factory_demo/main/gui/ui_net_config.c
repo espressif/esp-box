@@ -26,7 +26,7 @@ static lv_obj_t *g_btn_return = NULL;
 
 static void (*g_net_config_end_cb)(void) = NULL;
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void btn_return_down_cb(void *handle, void *arg);
 #endif
 
@@ -36,14 +36,14 @@ static void ui_app_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_focus_freeze(ui_get_btn_op_group(), false);
     }
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
 #endif
     lv_obj_del(obj);
 }
 
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
 static void btn_return_down_cb(void *handle, void *arg)
 {
     lv_obj_t *obj = (lv_obj_t *) arg;
@@ -77,9 +77,9 @@ static void ui_net_config_page_app_click_cb(lv_event_t *e)
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_center(lab_btn_text);
     lv_obj_add_event_cb(btn_return, ui_app_page_return_click_cb, LV_EVENT_CLICKED, page);
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_event_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP);
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_rm_event_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP);
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)btn_return);
 #endif
     if (ui_get_btn_op_group()) {
         lv_group_add_obj(ui_get_btn_op_group(), btn_return);
@@ -119,8 +119,8 @@ static void ui_net_config_page_return_click_cb(lv_event_t *e)
     if (ui_get_btn_op_group()) {
         lv_group_remove_all_objs(ui_get_btn_op_group());
     }
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_rm_all_callback(BOARD_BTN_ID_HOME);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_rm_all_callback(BSP_BUTTON_MAIN);
 #endif
     lv_obj_del(obj);
     g_page = NULL;
@@ -133,7 +133,7 @@ static void ui_net_config_page_return_click_cb(lv_event_t *e)
 
 void ui_net_config_update_cb(ui_net_state_t state, void *args)
 {
-    if((UI_NET_EVT_WIFI_CONNECTED == state) && (UI_NET_EVT_CLOUD_CONNECTED == g_net_state)){
+    if ((UI_NET_EVT_WIFI_CONNECTED == state) && (UI_NET_EVT_CLOUD_CONNECTED == g_net_state)) {
         return;
     }
 
@@ -290,8 +290,8 @@ void ui_net_config_start(void (*fn)(void))
     lv_obj_set_style_text_color(lab_btn_text, lv_color_make(158, 158, 158), LV_STATE_DEFAULT);
     lv_obj_center(lab_btn_text);
     lv_obj_add_event_cb(g_btn_return, ui_net_config_page_return_click_cb, LV_EVENT_CLICKED, g_page);
-#if CONFIG_BSP_BOARD_ESP32_S3_BOX
-    bsp_btn_register_callback(BOARD_BTN_ID_HOME, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
+#if !CONFIG_BSP_BOARD_ESP32_S3_BOX_Lite
+    bsp_btn_register_callback(BSP_BUTTON_MAIN, BUTTON_PRESS_UP, btn_return_down_cb, (void *)g_btn_return);
 #endif
 
     if (ui_get_btn_op_group()) {
