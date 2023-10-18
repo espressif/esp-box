@@ -34,7 +34,7 @@ ESP-BOX 为各个领域的应用提供了开发资源，包括离线语音助手
 | :-----: | :---------------------: |:---------------------: |
 | [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box_cn.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |寿命终止 <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md) |
 | [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-8715811646.9.4048605fNqggSF&id=658634202331) <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md)|
-| [ESP32-S3-BOX-3 (beta)](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3_cn.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?ft=t&id=732842971319) <br> [用户指南](./docs/getting_started_cn.md)|
+| [ESP32-S3-BOX-3](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3_cn.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?ft=t&id=732842971319) <br> [用户指南](./docs/getting_started_cn.md)|
 
 
 ## 版本信息
@@ -67,7 +67,7 @@ ESP-BOX 为各个领域的应用提供了开发资源，包括离线语音助手
 
 > 基于 [Apache 2.0](https://github.com/espressif/esp-box/blob/master/LICENSE) 开源协议，你可以免费且自由的修改、创作和分享。
 
-## 使用指引
+## 内置固件使用指引
 
 * 首次拿到开发板，建议先阅读产品[硬件概览](./docs/hardware_overview)；
 * 接着可以查看[首次使用操作指引](./docs/getting_started_cn.md#开始使用)；
@@ -81,7 +81,7 @@ ESP-BOX 为各个领域的应用提供了开发资源，包括离线语音助手
 
 ## 开发指引
 
-ESP-BOX 调用乐鑫包管理器 ESP Registry 中常用的组件，您可以利用这些组件构建自己的应用。
+ESP-BOX 调用乐鑫 ESP-IDF 的包管理器 [ESP Registry](https://components.espressif.com/components?q=lcd) 中常用的组件，您可以利用这些组件构建自己的应用。
 
 ### 快速开始
 
@@ -92,7 +92,6 @@ ESP-BOX 调用乐鑫包管理器 ESP Registry 中常用的组件，您可以利�
 * **Step 5**. 更进一步，您可以阅读 [ESP-BOX 技术架构说明](./docs/technical_architecture_cn.md)，了解更多技术细节；
 * **Step 6**. 深入开发，您可以阅读 [ESP 语音识别应用开发指南](https://github.com/espressif/esp-sr)，[ESP RainMaker 编程指南](https://docs.espressif.com/projects/esp-rainmaker/en/latest/)，[LVGL UI 界面开发快速总览](https://docs.lvgl.io/8.3/)；
 * **Step 7**. 扩展功能，您可以阅读 [开发板 Pmod™ 兼容接口介绍](./docs/hardware_overview) 和 [ESP-IDF API 参考手册](https://docs.espressif.com/projects/esp-idf/en/release-v5.1/esp32s3/api-reference/index.html)，为更多扩展设备开发驱动。
-ESP BOX APP基于商业软件架构Nova Home构建，提供了精美的用户界面和更好的用户体验，但开放性有限，客户需要通过电子邮件sales@espressif.com与我们联系以获取访问权限。
 
 ### 云连接开发指南
 
@@ -102,6 +101,10 @@ ESP BOX APP 基于商业版 Nova Home 应用 APP 构建，拥有精美的用户�
 - [ESP RainMaker 快速入门](https://rainmaker.espressif.com/docs/get-started.html) 
 - [RainMaker App API 定义](https://swaggerapis.rainmaker.espressif.com)
 - [ESP RainMaker 编程指南](https://docs.espressif.com/projects/esp-rainmaker/en/latest/index.html#)
+
+
+### NuttX
+ESP32-S3-BOX-3 支持与 [NuttX](https://github.com/apache/nuttx/tree/master/boards/xtensa/esp32s3/esp32s3-box) 集成，提供了更多的灵活性和功能。Nuttx 是一款以其小巧、高效和实时性能而闻名的实时操作系统（RTOS），使其成为嵌入式系统的绝佳选择。
 
 ## 联系我们
 

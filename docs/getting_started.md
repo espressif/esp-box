@@ -144,6 +144,7 @@ Perform an `ON/OFF` test on your air conditioner by pointing the ESP32-S3-BOX-3-
  >**Tips:**
    >* Please be aware that when the ESP32-S3-BOX-3 is not mounted to the ESP32-S3-BOX-3-SENSOR dock, the entire `Sensor Monitor` function will not be operational.
    >* During the period of experiencing the built-in firmware with ESP32-S3-BOX-3-DOCK, **avoid hot-plugging** ESP32-S3-BOX-3-DOCK and switching to ESP32-S3-BOX-3-SENSOR. This action could result in ESP32-S3-BOX-3-SENSOR **not being recognized and functioning properly**. To resolve this, simply power again ESP32-S3-BOX-3-SENSOR to restore normal operation.
+   >* Due to the power limitations of the infrared emitter and differences among air conditioner brands, the effective control range for the **IR learning** feature has been tested to be between **1 to 1.5 meters**.
 
 ## Offline Voice Assistant
 
@@ -153,7 +154,7 @@ Firstly, connect the RGB LED module to your device. Refer to the pin definitions
 <img src="./_static/_get_started_static/LED_pin_defination.png">
 </div>
 
-1. You may say `"Hi E. S. P." (pronounce in alphabet) ` at any screen to wake up your device. When it wakes up, the screen will display the wake word you just used. If the wake word isn't displayed, give it another try. The screen below indicates your device is listening. 
+1. You may say `"Hi E. S. P." (pronounce in alphabet)` at any screen to wake up your device. When it wakes up, the screen will display the wake word you just used. If the wake word isn't displayed, give it another try. The screen below indicates your device is listening. 
 
 <div align="center">
 <img src="./_static/_get_started_static/17.png">
