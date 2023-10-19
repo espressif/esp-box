@@ -316,10 +316,12 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
     g_sr_data->cmd_num = 0;
 
     char *wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, (SR_LANG_EN == g_sr_data->lang ? "hiesp" : "hilexin"));
+    ESP_RETURN_ON_FALSE(NULL != wn_name, ESP_ERR_INVALID_ARG, TAG, "Modifications to the code are required to support the relevant configuration");
     g_sr_data->afe_handle->set_wakenet(g_sr_data->afe_data, wn_name);
     ESP_LOGI(TAG, "load wakenet:%s", wn_name);
 
     char *mn_name = esp_srmodel_filter(models, ESP_MN_PREFIX, ((SR_LANG_EN == g_sr_data->lang) ? ESP_MN_ENGLISH : ESP_MN_CHINESE));
+    ESP_RETURN_ON_FALSE(NULL != mn_name, ESP_ERR_INVALID_ARG, TAG, "Modifications to the code are required to support the relevant configuration");
     esp_mn_iface_t *multinet = esp_mn_handle_from_name(mn_name);
     model_iface_data_t *model_data = multinet->create(mn_name, 5760);
     g_sr_data->multinet = multinet;

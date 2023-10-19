@@ -138,7 +138,7 @@ void app_main(void)
 #endif
 
     ESP_LOGI(TAG, "speech recognition start");
-    // vTaskDelay(pdMS_TO_TICKS(4 * 1000));
+    vTaskDelay(pdMS_TO_TICKS(4 * 1000));
     app_sr_start(false);
     app_rmaker_start();
 }
