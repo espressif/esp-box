@@ -18,7 +18,9 @@ This example demonstrates how to use the [usb_stream](https://components.espress
 * A USB Type-C cable for power supply and programming.
 * A USB camera (Can be connected to USB-A port or expansion connector).
 
->**Note: The USB camera used in this demo has some limitations.The USB camera must be compatible with `USB1.1` full-speed mode and support `MJPEG` output, for more details, please see the [USB Stream User Guide.](https://docs.espressif.com/projects/espressif-esp-iot-solution/en/latest/usb/usb_stream.html)**
+**Note:**
+ >* The USB camera used in this demo has some limitations. The USB camera must be compatible with `USB1.1` full-speed mode and support `MJPEG` output, for more details, please see the [USB Stream User Guide.](https://docs.espressif.com/projects/espressif-esp-iot-solution/en/latest/usb/usb_stream.html)
+ >* For access to the USB camera sample, you can visit [TaoBao](https://item.taobao.com/item.htm?ft=t&id=742819252609) or [Aliexpress](https://www.aliexpress.us/item/3256805938146328.html?gatewayAdapt=glo2usa4itemAdapt).
 
 ## Known Issues
 

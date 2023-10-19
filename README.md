@@ -34,7 +34,7 @@ ESP-BOX provides a platform for developing applications in various domains, incl
 | :-----: | :---------------------: |:---------------------: |
 | [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |End of Life <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md) |
 | [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005004441701974.html?spm=a2g0o.store_pc_groupList.8148356.15.378130cf2Qwt87&pdp_npi=3%40dis%21HKD%21HKD273.50%21HKD273.50%21%21%21%21%21%40210318cb16926755466344763e3593%2112000029194032303%21sh%21HK%213721963538) <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md)|
-| [ESP32-S3-BOX-3 (beta)](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005005920207976.html) <br> [User Guide](./docs/getting_started.md)|
+| [ESP32-S3-BOX-3](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005005920207976.html) <br> [User Guide](./docs/getting_started.md)|
 
 
 ## Versions
@@ -83,7 +83,7 @@ ESP-BOX provides a platform for developing applications in various domains, incl
 
 ## Developer Guide
 
-ESP-BOX integrates components commonly used in AIoT development that you can leverage to build your own applications. 
+ESP-BOX integrates ESP-IDF components commonly used in AIoT development from [ESP Registry](https://components.espressif.com/components?q=lcd) that you can leverage to build your own applications. 
 
 ### Quick Start
 
@@ -100,6 +100,10 @@ For developer, we offer [ESP RainMaker](https://rainmaker.espressif.com/) soluti
 * [ESP RainMaker Get Started](https://rainmaker.espressif.com/docs/get-started.html)
 * [ESP RainMaker Programming Guide](https://docs.espressif.com/projects/esp-rainmaker/en/latest/)
 * [RainMaker App APIs Definitions](https://swaggerapis.rainmaker.espressif.com)
+
+### NuttX
+The ESP32-S3-BOX-3 also supports integration with [NuttX](https://github.com/apache/nuttx/tree/master/boards/xtensa/esp32s3/esp32s3-box), offering further flexibility and functionality. Nuttx is a real-time operating system (RTOS) known for its compact size, efficiency, and real-time performance, making it an excellent choice for embedded systems.
+
 ## Contact Us
 
 * If you have any technical issues, please submit issue tickets at [GitHub Issues](https://github.com/espressif/esp-box/issues) or forum [esp32.com](https://esp32.com/) for help.
