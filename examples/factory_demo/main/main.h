@@ -11,7 +11,7 @@
 /** Minor version number (x.X.x) */
 #define BOX_DEMO_VERSION_MINOR 2
 /** Patch version number (x.x.X) */
-#define BOX_DEMO_VERSION_PATCH 0
+#define BOX_DEMO_VERSION_PATCH 1
 
 /**
  * Macro to convert version number into an integer

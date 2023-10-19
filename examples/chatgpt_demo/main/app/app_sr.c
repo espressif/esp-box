@@ -170,7 +170,7 @@ esp_err_t app_sr_set_language(sr_language_t new_lang)
     if (g_sr_data->model_data) {
         g_sr_data->multinet->destroy(g_sr_data->model_data);
     }
-    char *wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, "hiesp");
+    char *wn_name = esp_srmodel_filter(models, ESP_WN_PREFIX, "");
     ESP_LOGI(TAG, "load wakenet:%s", wn_name);
     g_sr_data->afe_handle->set_wakenet(g_sr_data->afe_data, wn_name);
     return ESP_OK;
