@@ -37,6 +37,9 @@
 .patterns-example_watering_demo: &patterns-example_watering_demo
   - "examples/watering_demo/**/*"
 
+.patterns-docs_md: &patterns-docs_md
+  - "**/*.md"
+
 ##############
 # if anchors #
 ##############
@@ -51,6 +54,9 @@
 ##################
 .if-label-build: &if-label-build
   if: '$CI_MERGE_REQUEST_LABELS =~ /^(?:[^,\n\r]+,)*build(?:,[^,\n\r]+)*$/i'
+
+.if-label-pre_check: &if-label-pre_check
+  if: '$BOT_LABEL_PRE_CHECK || $CI_MERGE_REQUEST_LABELS =~ /^(?:[^,\n\r]+,)*pre_check(?:,[^,\n\r]+)*$/i'
 
 # rules for examples
 .rules:build:example_chatgpt_demo:
@@ -142,3 +148,12 @@
       changes: *patterns-components_bsp
     - <<: *if-dev-push
       changes: *patterns-example_watering_demo
+
+.rules:pre_check:readme:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-pre_check
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-docs_md
