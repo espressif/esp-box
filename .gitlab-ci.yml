@@ -1,4 +1,5 @@
 stages:
+  - pre_check
   - build
   - deploy
 
@@ -36,5 +37,6 @@ before_script:
 
 include:
   - '.gitlab/ci/rules.yml'
+  - '.gitlab/ci/pre_check.yml'
   - '.gitlab/ci/build.yml'
   - '.gitlab/ci/deploy.yml'

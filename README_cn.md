@@ -23,7 +23,7 @@
 </a>
 
 **重要提醒：**
-> 对于 ESP32-S3-BOX 和 ESP32-S3-BOX-Lite，我们建议您更新内置的[出厂应用固件](./docs/firmware_update_cn.md)以确保拥有最新的 bug 修复。在 Master 分支，我们将逐步对这两款开发板提供有限的支持。有关更多信息，请阅读各例程的 README。
+> 在收到 ESP32-S3-BOX-3 后，我们建议您更新内置的出厂固件，以确保拥有最新的 bug 修复。您可以使用乐鑫在线固件烧录工具 ESP Launchpad 进行此操作。截止目前，最新版本为 **ESP-BOX-3_Demo_V1.2.3**。请前往“About Us”页面验证设备出厂固件版本。
 
 ESP-BOX 是乐鑫科技推出的面向 AIoT、边缘 AI 和 IIoT 应用的开发平台。ESP32-S3-BOX、ESP32-S3-BOX-Lite 和 ESP32-S3-BOX-3 是为该平台设计的系列开发板，它们基于乐鑫强大的 ESP32-S3 Wi-Fi + Bluetooth 5（LE） SoC 构建，并拥有紧凑美观的外壳结构。借助多功能配件和 ESP-BOX 项目内的可靠例程，这些开发板既适用于构建新项目原型，也适用于打造复杂的物联网系统，提供了形式上和功能上的完美平衡。
 
@@ -32,10 +32,11 @@ ESP-BOX 为各个领域的应用提供了开发资源，包括离线语音助手
 
 | 产品名称 |        产品图      |   市场状态      |
 | :-----: | :---------------------: |:---------------------: |
-| [ESP32-S3-BOX](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box_cn.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |寿命终止 <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md) |
-| [ESP32-S3-BOX-Lite](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-8715811646.9.4048605fNqggSF&id=658634202331) <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md)|
+| [ESP32-S3-BOX<sup> **1** </sup>](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box_cn.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |寿命终止 <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md) |
+| [ESP32-S3-BOX-Lite<sup> **1** </sup>](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |寿命终止[（仅剩裸板在售）](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-8715811646.9.4048605fNqggSF&id=658634202331) <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md)|
 | [ESP32-S3-BOX-3](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3_cn.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?ft=t&id=732842971319) <br> [用户指南](./docs/getting_started_cn.md)|
 
+**Note 1**: 对于 ESP32-S3-BOX 和 ESP32-S3-BOX-Lite，我们建议您更新内置的[出厂应用固件](./docs/firmware_update_cn.md)以确保拥有最新的 bug 修复。在 Master 分支，我们将逐步对这两款开发板提供有限的支持。有关更多信息，请阅读各例程的 README。
 
 ## 版本信息
 
