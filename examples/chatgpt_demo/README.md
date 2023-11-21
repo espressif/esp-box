@@ -4,7 +4,7 @@
 | ----------------- | -------------- |
 | ESP32-S3-BOX      | YES            |
 | ESP32-S3-BOX-Lite | YES            |
-| ESP32-S3-BOX-3    | YES             |
+| ESP32-S3-BOX-3    | YES            |
 
 
 In this example, we are utilizing the OpenAI API in conjunction with an ESP-BOX to create a voice-based chatbot. The ESP-BOX is a device or system that incorporates an ESP32-S3 microcontroller. The purpose of this implementation is to enable users to communicate with the chatbot using spoken language. The process involves capturing audio input from the user, sending it to the OpenAI API for processing, and receiving a response that is then converted into speech and played back to the user.
@@ -32,7 +32,7 @@ git checkout 53ff7d43dbff642d831a937b066ea0735a6aca24 && git pull && git submodu
 Due to the lack of native text-to-speech support in the [OpenAI](https://platform.openai.com/docs/api-reference) API, an external API is used to meet this requirement. This example utilizes the text-to-speech functionality offered by [TalkingGenie](https://www.talkinggenie.com/tts). Additional information can be found in this [blog post](https://czyt.tech/post/a-free-tts-api/?from_wecom=1).
 
 ### **Build and Flash**
-There is another project called **factory_nvs** within the **ChatGPT_demo** project. It includes the code to store credentials in the NVS (Non-Volatile Storage) of the ESP-Box. On the other hand, **Chat_GPT Demo** consists of the demo code. Therefore, it is essential to build both projects.
+There is another project named **factory_nvs** within the **ChatGPT_demo** project. It includes the code to store credentials in the NVS (Non-Volatile Storage) of the ESP-Box. On the other hand, **Chat_GPT Demo** consists of the demo code. Therefore, it is essential to build both projects.
 
 
 **1. Clone the Github repository**
@@ -49,13 +49,13 @@ cd examples/chatgpt_demo/factory_nvs
 
 ```
 
-**3. Hardware Selection** 
+**3. Hardware Selection**
 
 To select the appropriate hardware ([ESP32-S3-BOX](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md), [ESP32-S3-BOX-Lite](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) or [ESP32-S3-BOX-3](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md)) and access the **HMI Board Cofig**, use the following command.
 
 
 ```bash
-idf.py menuconfig 
+idf.py menuconfig
 
 ```
 
@@ -72,12 +72,12 @@ idf.py build
 cd examples/chatgpt_demo/
 
 ```
-**6. Hardware Selection** 
+**6. Hardware Selection**
 
 To select the appropriate hardware ([ESP32-S3-BOX](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md), [ESP32-S3-BOX-Lite](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) or [ESP32-S3-BOX-3](https://github.com/espressif/esp-box/blob/master/docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md)) and access the **HMI Board Cofig**, use the following command.
 
 ```bash
-idf.py menuconfig 
+idf.py menuconfig
 
 ```
 
@@ -108,8 +108,8 @@ Follow the [blog posts](https://blog.espressif.com/), [demos and tutorials](http
 2. BLOG: [OpenAI Component | Accelerating the integration of OpenAI APIs in projects](https://blog.espressif.com/openai-component-accelerating-the-integration-of-openai-apis-in-projects-e5fa87998126)
 3. Tutorial: [ESP Tutorial: Unleashing the Power of ESP32 S3 BOX 3 with OpenAI](https://www.youtube.com/watch?v=Y97vdw7y3S4&t=2s)
 
-## **Note** 
-Please note that, 
+## **Note**
+Please note that,
 1. To proceed with the demo, you need an **OpenAI API key**, and you must possess valid tokens to access the OpenAI server.
 2. To provide the WIFI credentials and the OpenAI secret key, please follow the on display prompts to proceed.
 3. Additionally, as a result of **OpenAI's restrictions**, this particular example cannot be supported within Mainland China.

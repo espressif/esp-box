@@ -65,11 +65,21 @@ esp_err_t settings_read_parameter_from_nvs(void)
         ESP_LOGI(TAG, "No OpenAI key found");
         goto err;
     }
+
+    // Read url
+    len = sizeof(g_sys_param.url);
+    ret = nvs_get_str(my_handle, "Base_url", g_sys_param.url, &len);
+    if (ret != ESP_OK || len == 0) {
+        ESP_LOGI(TAG, "No OpenAI Base url found");
+        goto err;
+    }
+
     nvs_close(my_handle);
 
     ESP_LOGI(TAG, "stored ssid:%s", g_sys_param.ssid);
     ESP_LOGI(TAG, "stored password:%s", g_sys_param.password);
     ESP_LOGI(TAG, "stored OpenAI:%s", g_sys_param.key);
+    ESP_LOGI(TAG, "stored Base URL:%s", g_sys_param.url);
     return ESP_OK;
 
 err:
