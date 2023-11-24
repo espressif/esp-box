@@ -28,9 +28,6 @@ git checkout 53ff7d43dbff642d831a937b066ea0735a6aca24 && git pull && git submodu
 * A USB-C cable for power supply and programming
 
 
-## Text to speech
-Due to the lack of native text-to-speech support in the [OpenAI](https://platform.openai.com/docs/api-reference) API, an external API is used to meet this requirement. This example utilizes the text-to-speech functionality offered by [TalkingGenie](https://www.talkinggenie.com/tts). Additional information can be found in this [blog post](https://czyt.tech/post/a-free-tts-api/?from_wecom=1).
-
 ### **Build and Flash**
 There is another project named **factory_nvs** within the **ChatGPT_demo** project. It includes the code to store credentials in the NVS (Non-Volatile Storage) of the ESP-Box. On the other hand, **Chat_GPT Demo** consists of the demo code. Therefore, it is essential to build both projects.
 
@@ -114,4 +111,3 @@ Please note that,
 2. To provide the WIFI credentials and the OpenAI secret key, please follow the on display prompts to proceed.
 3. Additionally, as a result of **OpenAI's restrictions**, this particular example cannot be supported within Mainland China.
 4. ChatGPT is a large language model that is unable to distinguish between Chinese Jian ti (简体) and Fan ti (繁體) characters. Due to the constraints of LVGL (Light and Versatile Graphics Library), this project currently only supports Jian Ti (simplified Chinese characters).
-
