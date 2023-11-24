@@ -92,5 +92,5 @@ ESP32-S3-BOX-3-BREAD is an adapter that enables easy connection of the ESP32-S3-
 ## Hardware Source Files
 * [ESP32-S3-BOX-3 Kit PCB](../../../hardware/PCB_ESP32-S3-BOX-3_V1.0)
 * [ESP32-S3-BOX-3 Kit Schematic](../../../hardware/SCH_ESP32-S3-BOX-3_V1.0)
-* [ESP32-S3-BOX-3 3D Shell CAD](../../../hardware/esp32_s3_box_3_shell_stl)
+* [ESP32-S3-BOX-3 3D Shell CAD](../../../hardware/esp32_s3_box_3_shell)
 * [ESP32-S3-BOX-3 Bracket Mounting Template](../../../hardware/ESP32-S3-BOX-3-BRACKET_template.PDF)

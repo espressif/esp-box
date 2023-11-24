@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -19,7 +19,7 @@
 #include "ui_sr.h"
 #include "app_sr_handler.h"
 #include "settings.h"
-
+#include "ui_sensor_monitor.h"
 
 static const char *TAG = "sr_handler";
 
@@ -248,8 +248,7 @@ void sr_handler_task(void *pvParam)
                 last_player_state = AUDIO_PLAYER_STATE_PLAYING;
                 break;
             case SR_CMD_PLAY:
-                ESP_LOGW(TAG, "SR_CMD_PLAY:%d, last_player_state:%d", audio_player_get_state(), last_player_state);
-
+                ESP_LOGD(TAG, "SR_CMD_PLAY:%d, last_player_state:%d", audio_player_get_state(), last_player_state);
                 if (AUDIO_PLAYER_STATE_IDLE == audio_player_get_state()) {
                     file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
                     fp = fopen(filename, "rb");
@@ -267,6 +266,15 @@ void sr_handler_task(void *pvParam)
                 audio_player_pause();
                 last_player_state = AUDIO_PLAYER_STATE_PAUSE;
                 break;
+
+            case SR_CMD_AC_ON:
+                ui_sensor_set_ac_poweron();
+                break;
+
+            case SR_CMD_AC_OFF:
+                ui_sensor_set_ac_poweroff();
+                break;
+
             default:
                 ESP_LOGE(TAG, "Unknow cmd");
                 break;

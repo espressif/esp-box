@@ -27,10 +27,6 @@ It does however have a number of advantages at the moment including:
 
 For MP3 support you'll need the [esp-libhelix-mp3](https://github.com/chmorgan/esp-libhelix-mp3) component.
 
-## Tests
-
-Unity tests are implemented in the [test/](../test) folder.
-
 ## States
 
 ```mermaid

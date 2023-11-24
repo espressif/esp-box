@@ -19,3 +19,6 @@ dependencies:
   espressif/json_generator: ^1
   espressif/json_parser: =1.0.0
   espressif/qrcode: ^0.1.0
+  espressif/ir_learn: ^0.1.0
+  espressif/aht20: "^0.1.0"
+  espressif/at581x: "^0.1.0"

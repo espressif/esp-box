@@ -1,8 +1,8 @@
 /*
-* SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
-*
-* SPDX-License-Identifier: Unlicense OR CC0-1.0
-*/
+ * SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Unlicense OR CC0-1.0
+ */
 
 #include <string.h>
 #include <freertos/FreeRTOS.h>

@@ -1,8 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
  *
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
+
 #pragma once
 
 #ifdef __cplusplus
@@ -18,8 +19,8 @@ extern "C" {
 
 /**
  * @brief Initialize the usb headset function
- * 
- * @return esp_err_t 
+ *
+ * @return esp_err_t
  *         ESP_OK   Success
  *         ESP_FAIL Failed
  */

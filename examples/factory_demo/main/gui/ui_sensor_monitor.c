@@ -47,6 +47,8 @@ LV_FONT_DECLARE(font_en_12);
 LV_FONT_DECLARE(font_en_bold_10);
 LV_FONT_DECLARE(font_en_16);
 LV_FONT_DECLARE(font_en_22);
+LV_FONT_DECLARE(font_cn_gb1_16);
+LV_FONT_DECLARE(font_cn_gb2_16);
 
 LV_IMG_DECLARE(icon_temp)
 LV_IMG_DECLARE(icon_humidity)
@@ -57,13 +59,14 @@ LV_IMG_DECLARE(icon_rader_off)
 LV_IMG_DECLARE(icon_air_switch)
 LV_IMG_DECLARE(icon_esp_sensor_base)
 
+
 // static ui_sensor_monitor_img_type_t g_active_air_ctrl_btn_type = UI_AIR_SWITCH;
 
 static void (*g_sensor_monitor_end_cb)(void) = NULL;
 
 //aht21
 static float temperature = 0;
-static uint8_t humidity = 0;
+static float humidity = 0;
 static uint8_t Temp = 0;
 static uint8_t Hum = 0;
 
@@ -80,7 +83,7 @@ typedef struct {
 } image_src_t;
 
 static const btn_image_src_t air_ctrl_btn_src_list[] = {
-    { .type = UI_RADER, .name = "Rader", .img_on = &icon_rader_on, .img_off = &icon_rader_off },
+    { .type = UI_RADAR, .name = "Radar", .img_on = &icon_rader_on, .img_off = &icon_rader_off },
     { .type = UI_AIR_SWITCH, .name = "Air Switch", .img_on = &icon_air_switch, .img_off = &icon_air_switch },
 };
 
@@ -105,10 +108,10 @@ static lv_obj_t *reversal_lab = NULL;
 static lv_obj_t *temp_sensor_panel = NULL;
 static lv_obj_t *temp_value_label;
 static lv_obj_t *hum_value_label;
-static lv_obj_t *rader_panel = NULL;
-static lv_obj_t *rader_image = NULL;
-static lv_obj_t *rader_btn = NULL;
-static lv_obj_t *rader_btn_lab = NULL;
+static lv_obj_t *radar_panel = NULL;
+static lv_obj_t *radar_image = NULL;
+static lv_obj_t *radar_btn = NULL;
+static lv_obj_t *radar_btn_lab = NULL;
 static lv_obj_t *air_ctrl_panel = NULL;
 static lv_obj_t *btn_ir_setting = NULL;
 static lv_obj_t *ir_learning_tips_lab = NULL;
@@ -135,6 +138,48 @@ bool sensor_ir_learn_enable(void)
     return ir_learn_enable;
 }
 
+esp_err_t ui_sensor_set_ac_poweroff(void)
+{
+    if (!SLIST_EMPTY(&ir_leran_read_off)) {
+        if (rmt_out_queue) {
+            xQueueSendFromISR(rmt_out_queue, &ir_leran_read_off, 0);
+        }
+        ui_acquire();
+        if (AIR_SWITCH_REVERSE_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
+            lv_label_set_text(ac_switch_btn_lab, "Turn off the air");
+        } else {
+            lv_label_set_text(ac_switch_btn_lab, "Turn on the air");
+        }
+        ui_release();
+        xEventGroupClearBits(sensor_monitor_event_grp, AIR_POWER_STATE);
+        return ESP_OK;
+    } else {
+        ESP_LOGW(TAG, "not supported");
+        return ESP_ERR_NOT_SUPPORTED;
+    }
+}
+
+esp_err_t ui_sensor_set_ac_poweron(void)
+{
+    if (!SLIST_EMPTY(&ir_leran_read_on)) {
+        if (rmt_out_queue) {
+            xQueueSendFromISR(rmt_out_queue, &ir_leran_read_on, 0);
+        }
+        ui_acquire();
+        if (AIR_SWITCH_REVERSE_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
+            lv_label_set_text(ac_switch_btn_lab, "Turn on the air");
+        } else {
+            lv_label_set_text(ac_switch_btn_lab, "Turn off the air");
+        }
+        ui_release();
+        xEventGroupSetBits(sensor_monitor_event_grp, AIR_POWER_STATE);
+        return ESP_OK;
+    } else {
+        ESP_LOGW(TAG, "not supported");
+        return ESP_ERR_NOT_SUPPORTED;
+    }
+}
+
 esp_err_t sensor_task_state_event_init(void)
 {
     sensor_monitor_event_grp = xEventGroupCreate();
@@ -144,10 +189,10 @@ esp_err_t sensor_task_state_event_init(void)
 
     if (true == param->radar_en) {
         bsp_board_get_sensor_handle()->set_radar_enable(true);
-        xEventGroupSetBits( sensor_monitor_event_grp, RADER_SWITCH_STATE );
+        xEventGroupSetBits(sensor_monitor_event_grp, RADAR_SWITCH_STATE);
     } else {
         bsp_board_get_sensor_handle()->set_radar_enable(false);
-        xEventGroupClearBits( sensor_monitor_event_grp, RADER_SWITCH_STATE );
+        xEventGroupClearBits(sensor_monitor_event_grp, RADAR_SWITCH_STATE);
     }
 
     return ESP_OK;
@@ -156,7 +201,7 @@ esp_err_t sensor_task_state_event_init(void)
 EventBits_t sensor_task_state_event_get_bits(void)
 {
     ESP_RETURN_ON_FALSE(sensor_monitor_event_grp, ESP_ERR_INVALID_STATE, TAG, "event group don't init");
-    return xEventGroupGetBits( sensor_monitor_event_grp );
+    return xEventGroupGetBits(sensor_monitor_event_grp);
 }
 
 static void user_info_send(uint8_t num, char *tips, uint16_t next_delay)
@@ -167,7 +212,6 @@ static void user_info_send(uint8_t num, char *tips, uint16_t next_delay)
         memcpy(user_tips_info[num].tips_info, tips, strlen(tips) > 30 ? 30 : strlen(tips));
         if (user_info_queue) {
             xQueueSendFromISR(user_info_queue, &user_tips_info[num], 0);
-            // xQueueSend(user_info_queue, &user_tips_info[num], 0);
         }
     }
 }
@@ -289,8 +333,6 @@ static void ir_learn_test_tx_raw(struct ir_learn_sub_list_head *rmt_out)
 
 static void ir_learn_test_tx_task(void *arg)
 {
-    printf("ir learn tx_task start.\n");
-
     struct ir_learn_sub_list_head tx_data;
 
     gpio_config_t io_conf = {};
@@ -305,23 +347,23 @@ static void ir_learn_test_tx_task(void *arg)
         ESP_LOGW(TAG, "receive queue creation failed");
     }
 
-    if ( IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
+    if (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
         esp_err_t ret = ir_learn_read_cfg(POWER_ON_PATH, &ir_leran_read_on);
         if (ret == ESP_OK) {
-            printf("air_on ir-data read OK.\n");
+            ESP_LOGD(TAG, "air_on ir-data read OK.");
         }
         ret = ir_learn_read_cfg(POWER_OFF_PATH, &ir_leran_read_off);
         if (ret == ESP_OK) {
-            printf("air_off ir-data read OK.\n");
+            ESP_LOGD(TAG, "air_off ir-data read OK.");
         }
     }
 
-    xEventGroupClearBits( sensor_monitor_event_grp, NEED_DELETE );
+    xEventGroupClearBits(sensor_monitor_event_grp, NEED_DELETE);
 
     while (1) {
         if ((NEED_DELETE & xEventGroupGetBits(sensor_monitor_event_grp))) {
             xEventGroupSetBits(sensor_monitor_event_grp, TX_CH_DELETED);
-            printf("ir learn tx_task delete.\n");
+            ESP_LOGD(TAG, "ir learn tx_task delete.");
             if (rmt_out_queue) {
                 vQueueDelete(rmt_out_queue);
                 rmt_out_queue = NULL;
@@ -353,8 +395,7 @@ static void ir_learn_test_save_result(struct ir_learn_sub_list_head *data_save, 
 
 static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_step, struct ir_learn_sub_list_head *data)
 {
-    // ESP_LOGI(TAG, "Free Stack for server task: '%d'", uxTaskGetStackHighWaterMark(NULL));
-
+    const sys_param_t *param = settings_get_parameter();
     static uint8_t air_on_ir = 0;
     static uint8_t air_off_ir = 0;
     switch (state) {
@@ -363,7 +404,7 @@ static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_ste
         break;
     case IR_LEARN_STATE_READY:
         ESP_LOGI(TAG, "IR Learn ready");
-        xEventGroupClearBits( sensor_monitor_event_grp, IR_LEARNING_STATE );
+        xEventGroupClearBits(sensor_monitor_event_grp, IR_LEARNING_STATE);
         ui_acquire();
         lv_obj_add_flag(ir_learning_tips_lab, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ir_learning_btn, LV_OBJ_FLAG_HIDDEN);
@@ -374,7 +415,6 @@ static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_ste
         break;
     case IR_LEARN_STATE_END:
     case IR_LEARN_STATE_FAIL:
-        ESP_LOGI(TAG, "IR_LEARN_STATE_FAIL");
         if (ESP_OK == ir_learn_check_valid(&learn_on_head, &ir_leran_data_on)) {
             ESP_LOGI(TAG, "IR Learn on ok");
             air_on_ir = 1;
@@ -391,7 +431,7 @@ static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_ste
             air_off_ir = 0;
         }
 
-        if ( air_on_ir && air_off_ir ) {
+        if (air_on_ir && air_off_ir) {
             ui_acquire();
             lv_label_set_text(ir_learning_state_lab, "Learning successful.");
             ui_release();
@@ -402,8 +442,13 @@ static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_ste
             lv_obj_add_flag(ir_learning_prompt_words, LV_OBJ_FLAG_HIDDEN);
 
             lv_obj_clear_flag(btn_ir_setting, LV_OBJ_FLAG_HIDDEN);
-            lv_label_set_text(ir_learning_tips_lab,
-                              "Click the button below to control your air conditioner!");
+            if (SR_LANG_EN == param->sr_lang) {
+                lv_label_set_text(ir_learning_tips_lab,
+                                  "Click the buton or say\n 'Turn on/off the Air'\n to control your air.");
+            } else {
+                lv_label_set_text(ir_learning_tips_lab,
+                                  "Click the buton or say\n '打开/关闭空调'\n to control your air.");
+            }
             lv_obj_clear_flag(ir_learning_tips_lab, LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(ac_switch_btn, LV_OBJ_FLAG_HIDDEN);
             ui_release();
@@ -411,18 +456,18 @@ static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_ste
             ir_learn_save_cfg(POWER_ON_PATH, &ir_leran_data_on);
             esp_err_t ret = ir_learn_read_cfg(POWER_ON_PATH, &ir_leran_read_on);
             if (ret == ESP_OK) {
-                printf("air_on ir-data read OK.\n");
+                ESP_LOGD(TAG, "air_on ir-data read OK.");
             }
             ir_learn_save_cfg(POWER_OFF_PATH, &ir_leran_data_off);
             ret = ir_learn_read_cfg(POWER_OFF_PATH, &ir_leran_read_off);
             if (ret == ESP_OK) {
-                printf("air_off ir-data read OK.\n");
+                ESP_LOGD(TAG, "air_off ir-data read OK.");
             }
-            xEventGroupSetBits( sensor_monitor_event_grp, IR_LEARNING_STATE );
+            xEventGroupSetBits(sensor_monitor_event_grp, IR_LEARNING_STATE);
             ir_learn_stop(&ir_learn_handle);
             ir_learn_enable = false;
         } else {
-            xEventGroupClearBits( sensor_monitor_event_grp, IR_LEARNING_STATE );
+            xEventGroupClearBits(sensor_monitor_event_grp, IR_LEARNING_STATE);
             ESP_LOGI(TAG, "IR Learn ready");
 
             user_info_send(0, "Learning failed, retry!", 1500);
@@ -471,7 +516,7 @@ static void ir_learn_learn_send_callback(ir_learn_state_t state, uint8_t sub_ste
     return;
 }
 
-static esp_err_t ir_learn_test(ir_learn_result_cb cb)
+static esp_err_t ir_learn_start(ir_learn_result_cb cb)
 {
     esp_err_t ret = ESP_OK;
 
@@ -500,7 +545,7 @@ static void ui_sensor_monitor_page_return_click_cb(lv_event_t *e)
     ir_learn_clean_sub_data(&ir_leran_data_off);
     ir_learn_clean_sub_data(&ir_leran_read_on);
     ir_learn_clean_sub_data(&ir_leran_read_off);
-    xEventGroupClearBits( sensor_monitor_event_grp, SENSOR_MONITOR_ALIVE_STATE );
+    xEventGroupClearBits(sensor_monitor_event_grp, SENSOR_MONITOR_ALIVE_STATE);
 
     if (timer_handle) {
         lv_timer_del(timer_handle);
@@ -515,7 +560,7 @@ static void ui_sensor_monitor_page_return_click_cb(lv_event_t *e)
         free(user_tips_info[i].tips_info);
     }
 
-    if ( 0 == (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp) )) {
+    if (0 == (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp))) {
         ir_learn_stop(&ir_learn_handle);
         ir_learn_enable = false;
     }
@@ -553,7 +598,7 @@ static void ui_next_btn_event(lv_event_t *e)
     lv_obj_add_flag(btn_next, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(btn_return, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(temp_sensor_panel, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(rader_panel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(radar_panel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(air_ctrl_panel, LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -561,7 +606,7 @@ static void ui_sensor_monitor_btn_ir_setting_event(lv_event_t *e)
 {
     lv_obj_add_flag(btn_return, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(temp_sensor_panel, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(rader_panel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(radar_panel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(air_ctrl_panel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(reversal_lab, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(relearning_lab, LV_OBJ_FLAG_HIDDEN);
@@ -572,9 +617,8 @@ static void ui_sensor_monitor_btn_ir_setting_event(lv_event_t *e)
 
 static void ui_sensor_monitor_btn_ir_learning_event(lv_event_t *e)
 {
-    if ( SENSOR_BASE_CONNECT_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
-        printf("IR Learn TEST\n");
-        ir_learn_test(ir_learn_learn_send_callback);
+    if (SENSOR_BASE_CONNECT_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
+        ir_learn_start(ir_learn_learn_send_callback);
     }
 }
 
@@ -582,31 +626,9 @@ static void ui_sensor_monitor_btn_ac_switch_event(lv_event_t *e)
 {
     if (SENSOR_BASE_CONNECT_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
         if (AIR_POWER_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
-            if (!SLIST_EMPTY(&ir_leran_read_off)) {
-                if (rmt_out_queue) {
-                    xQueueSendFromISR(rmt_out_queue, &ir_leran_read_off, 0);
-                }
-                if ( AIR_SWITCH_REVERSE_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
-                    lv_label_set_text(ac_switch_btn_lab, "Turn off the air");
-                } else {
-                    lv_label_set_text(ac_switch_btn_lab, "Turn on the air");
-                }
-                printf("Turn off the air\n");
-                xEventGroupClearBits( sensor_monitor_event_grp, AIR_POWER_STATE );
-            }
+            ui_sensor_set_ac_poweroff();
         } else {
-            if (!SLIST_EMPTY(&ir_leran_read_on)) {
-                if (rmt_out_queue) {
-                    xQueueSendFromISR(rmt_out_queue, &ir_leran_read_on, 0);
-                }
-                if ( AIR_SWITCH_REVERSE_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
-                    lv_label_set_text(ac_switch_btn_lab, "Turn on the air");
-                } else {
-                    lv_label_set_text(ac_switch_btn_lab, "Turn off the air");
-                }
-                printf("Turn on the air\n");
-                xEventGroupSetBits( sensor_monitor_event_grp, AIR_POWER_STATE );
-            }
+            ui_sensor_set_ac_poweron();
         }
     }
 }
@@ -646,12 +668,12 @@ static void update_timer_cb(lv_timer_t *timer)
         char value_str[2] = {0};
         sprintf(value_str, "%d", Temp);
         lv_label_set_text(temp_value_label, value_str);
+
         Hum = (uint8_t)humidity;
         fractionalPart = humidity - Hum;
         if (fractionalPart > 0.5) {
             Hum++;
         }
-        Hum += 10;
         if (Hum >= 100) {
             Hum = 99;
         }
@@ -662,69 +684,66 @@ static void update_timer_cb(lv_timer_t *timer)
     /**
      * @brief update radar status
      */
-    if ( (RADER_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) ) {
+    if ((RADAR_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp))) {
         if (true == bsp_board_get_sensor_handle()->get_radar_status()) {
-            xEventGroupSetBits( sensor_monitor_event_grp, RADER_STATE );
-            if ( SENSOR_MONITOR_ALIVE_STATE & sensor_task_state_event_get_bits() ) {
-                lv_img_set_src(rader_image, air_ctrl_btn_src_list[0].img_on);
+            xEventGroupSetBits(sensor_monitor_event_grp, RADAR_STATE);
+            if (SENSOR_MONITOR_ALIVE_STATE & sensor_task_state_event_get_bits()) {
+                lv_img_set_src(radar_image, air_ctrl_btn_src_list[0].img_on);
             }
         } else {
-            xEventGroupClearBits( sensor_monitor_event_grp, RADER_STATE );
-            // printf("no people!\n");
-            if ( SENSOR_MONITOR_ALIVE_STATE & sensor_task_state_event_get_bits() ) {
-                lv_img_set_src(rader_image, air_ctrl_btn_src_list[0].img_off);
+            xEventGroupClearBits(sensor_monitor_event_grp, RADAR_STATE);
+            if (SENSOR_MONITOR_ALIVE_STATE & sensor_task_state_event_get_bits()) {
+                lv_img_set_src(radar_image, air_ctrl_btn_src_list[0].img_off);
             }
         }
     }
 }
 
-static void ui_rader_btn_event(lv_event_t *e)
+static void ui_radar_btn_event(lv_event_t *e)
 {
     sys_param_t *param = settings_get_parameter();
 
     if (SENSOR_BASE_CONNECT_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
-        if (RADER_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
-            xEventGroupClearBits( sensor_monitor_event_grp, RADER_SWITCH_STATE );
+        if (RADAR_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
+            xEventGroupClearBits(sensor_monitor_event_grp, RADAR_SWITCH_STATE);
             param->radar_en = false;
         } else {
-            xEventGroupSetBits( sensor_monitor_event_grp, RADER_SWITCH_STATE );
+            xEventGroupSetBits(sensor_monitor_event_grp, RADAR_SWITCH_STATE);
             param->radar_en = true;
         }
         bsp_board_get_sensor_handle()->set_radar_enable(param->radar_en);
         settings_write_parameter_to_nvs();
 
-        if ( !(RADER_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) ) {
-            printf("rader close.\n");
-            lv_obj_set_style_border_color(rader_btn, lv_color_hex(0x9E9E9E), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_label_set_text(rader_btn_lab, "OFF");
-            lv_obj_set_style_bg_color(rader_btn_lab, lv_color_hex(0x9E9E9E), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_x(rader_btn_lab, -8);
-            lv_img_set_src(rader_image, air_ctrl_btn_src_list[0].img_off);
+        if (!(RADAR_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp))) {
+            lv_obj_set_style_border_color(radar_btn, lv_color_hex(0x9E9E9E), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_text(radar_btn_lab, "OFF");
+            lv_obj_set_style_bg_color(radar_btn_lab, lv_color_hex(0x9E9E9E), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_x(radar_btn_lab, -8);
+            lv_img_set_src(radar_image, air_ctrl_btn_src_list[0].img_off);
         } else {
-            // printf("rader start\n");
-            lv_obj_set_style_border_color(rader_btn, lv_color_hex(0xEB4839), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_label_set_text(rader_btn_lab, "ON");
-            lv_obj_set_style_bg_color(rader_btn_lab, lv_color_hex(0xEB4839), LV_PART_MAIN | LV_STATE_DEFAULT);
-            lv_obj_set_x(rader_btn_lab, 8);
+            lv_obj_set_style_border_color(radar_btn, lv_color_hex(0xEB4839), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_label_set_text(radar_btn_lab, "ON");
+            lv_obj_set_style_bg_color(radar_btn_lab, lv_color_hex(0xEB4839), LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_x(radar_btn_lab, 8);
         }
     }
 }
 
 static void ui_sensor_monitor_air_switch_reversal_btn_event(lv_event_t *e)
 {
-    if ( AIR_SWITCH_REVERSE_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
-        xEventGroupClearBits( sensor_monitor_event_grp, AIR_SWITCH_REVERSE_STATE );
+    if (AIR_SWITCH_REVERSE_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
+        xEventGroupClearBits(sensor_monitor_event_grp, AIR_SWITCH_REVERSE_STATE);
         if (AIR_POWER_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
-            xEventGroupClearBits( sensor_monitor_event_grp, AIR_POWER_STATE );
+            xEventGroupClearBits(sensor_monitor_event_grp, AIR_POWER_STATE);
         } else {
-            xEventGroupSetBits( sensor_monitor_event_grp, AIR_POWER_STATE );
+            xEventGroupSetBits(sensor_monitor_event_grp, AIR_POWER_STATE);
         }
     } else {
-        xEventGroupSetBits( sensor_monitor_event_grp, AIR_SWITCH_REVERSE_STATE );
+        xEventGroupSetBits(sensor_monitor_event_grp, AIR_SWITCH_REVERSE_STATE);
         if (AIR_POWER_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
-            xEventGroupClearBits( sensor_monitor_event_grp, AIR_POWER_STATE );
+            xEventGroupClearBits(sensor_monitor_event_grp, AIR_POWER_STATE);
         } else {
-            xEventGroupSetBits( sensor_monitor_event_grp, AIR_POWER_STATE );
+            xEventGroupSetBits(sensor_monitor_event_grp, AIR_POWER_STATE);
         }
     }
     lv_obj_add_flag(reversal_lab, LV_OBJ_FLAG_HIDDEN);
@@ -734,13 +753,13 @@ static void ui_sensor_monitor_air_switch_reversal_btn_event(lv_event_t *e)
     lv_obj_add_flag(air_switch_reversal_btn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(btn_return, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(temp_sensor_panel, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(rader_panel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(radar_panel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(air_ctrl_panel, LV_OBJ_FLAG_HIDDEN);
 }
 
 static void ui_sensor_monitor_relearn_btn_event(lv_event_t *e)
 {
-    printf("relearn.\n");
+    ESP_LOGD(TAG, "relearn.");
     lv_obj_add_flag(reversal_lab, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(relearning_lab, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(relearning_btn, LV_OBJ_FLAG_HIDDEN);
@@ -749,7 +768,7 @@ static void ui_sensor_monitor_relearn_btn_event(lv_event_t *e)
     lv_obj_add_flag(ac_switch_btn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(btn_return, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(temp_sensor_panel, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(rader_panel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(radar_panel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(air_ctrl_panel, LV_OBJ_FLAG_HIDDEN);
 
     ir_learn_clean_data(&learn_on_head);
@@ -760,20 +779,18 @@ static void ui_sensor_monitor_relearn_btn_event(lv_event_t *e)
     ir_learn_clean_sub_data(&ir_leran_read_off);
 
     if (remove(POWER_ON_PATH) == 0 && remove(POWER_OFF_PATH) == 0) {
-        printf("remove file succes.\n");
+        ESP_LOGD(TAG, "remove file succes.\n");
     } else {
-        printf("remove file failed.\n");
+        ESP_LOGE(TAG, "remove file failed.\n");
     }
-
-    if ( 0 == (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp) )) {
-        printf("ir_learn_stop.\n");
+    if (0 == (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp))) {
+        ESP_LOGD(TAG, "ir_learn_stop.\n");
         ir_learn_stop(&ir_learn_handle);
         ir_learn_enable = false;
     }
     vTaskDelay(pdMS_TO_TICKS(1000));
-    ir_learn_test(ir_learn_learn_send_callback);
+    ir_learn_start(ir_learn_learn_send_callback);
 }
-
 
 static void ir_learning_settings_close_event(lv_event_t *e)
 {
@@ -784,7 +801,7 @@ static void ir_learning_settings_close_event(lv_event_t *e)
     lv_obj_add_flag(air_switch_reversal_btn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(btn_return, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(temp_sensor_panel, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(rader_panel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(radar_panel, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(air_ctrl_panel, LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -792,12 +809,12 @@ void ui_sensor_monitor_start(void (*fn)(void))
 {
     ESP_LOGI(TAG, "sensor monitor initialize");
     g_sensor_monitor_end_cb = fn;
-
+    const sys_param_t *param = settings_get_parameter();
     struct stat file_stat;
-    if ( stat(POWER_ON_PATH, &file_stat) == 0 && stat(POWER_OFF_PATH, &file_stat) == 0) {
-        xEventGroupSetBits( sensor_monitor_event_grp, IR_LEARNING_STATE );
+    if (stat(POWER_ON_PATH, &file_stat) == 0 && stat(POWER_OFF_PATH, &file_stat) == 0) {
+        xEventGroupSetBits(sensor_monitor_event_grp, IR_LEARNING_STATE);
     } else {
-        xEventGroupClearBits( sensor_monitor_event_grp, IR_LEARNING_STATE );
+        xEventGroupClearBits(sensor_monitor_event_grp, IR_LEARNING_STATE);
     }
 
     xTaskCreatePinnedToCore(ir_learn_test_tx_task, "ir_learn_test_tx_task", 1024 * 4, NULL, 10, NULL, 1);
@@ -808,16 +825,16 @@ void ui_sensor_monitor_start(void (*fn)(void))
     }
 
     for (int i = 0; i < sizeof(user_tips_info) / sizeof(user_tips_info[0]); i++) {
-        user_tips_info[i].tips_info =  (char *)heap_caps_malloc(30, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
+        user_tips_info[i].tips_info = (char *)heap_caps_malloc(30, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);
         if (NULL == user_tips_info[i].tips_info) {
             ESP_LOGW(TAG, "user_info[%d] malloc failed", i);
         }
     }
 
-    xEventGroupSetBits( sensor_monitor_event_grp, SENSOR_MONITOR_ALIVE_STATE );
-    xEventGroupClearBits( sensor_monitor_event_grp, AIR_SWITCH_REVERSE_STATE );
-    xEventGroupClearBits( sensor_monitor_event_grp, AIR_POWER_STATE );
-    xEventGroupSetBits( sensor_monitor_event_grp, SENSOR_BASE_CONNECT_STATE );
+    xEventGroupSetBits(sensor_monitor_event_grp, SENSOR_MONITOR_ALIVE_STATE);
+    xEventGroupClearBits(sensor_monitor_event_grp, AIR_SWITCH_REVERSE_STATE);
+    xEventGroupClearBits(sensor_monitor_event_grp, AIR_POWER_STATE);
+    xEventGroupSetBits(sensor_monitor_event_grp, SENSOR_BASE_CONNECT_STATE);
     lv_obj_t *page = lv_obj_create(lv_scr_act());
     lv_obj_set_size(page, lv_obj_get_width(lv_obj_get_parent(page)), lv_obj_get_height(lv_obj_get_parent(page)) - lv_obj_get_height(ui_main_get_status_bar()));
     lv_obj_set_style_border_width(page, 0, LV_PART_MAIN);
@@ -842,10 +859,10 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_set_width(reversal_lab, 260);
     lv_obj_set_align(reversal_lab, LV_ALIGN_CENTER);
     lv_obj_set_style_text_align(reversal_lab, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_label_set_text(reversal_lab, "If the AC power button works opposite to its intended function, click the \"Reversal\" button below to fix it.");
+    lv_label_set_text(reversal_lab, "If the power button is reversed, click \"Reversal\" button below to fix it.");
     lv_obj_set_style_text_color(reversal_lab, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(reversal_lab, &font_en_16, LV_STATE_DEFAULT);
-    lv_obj_align(reversal_lab, LV_ALIGN_CENTER, 20, -65);
+    lv_obj_set_style_text_font(reversal_lab, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_align(reversal_lab, LV_ALIGN_CENTER, 20, -75);
     lv_obj_add_flag(reversal_lab, LV_OBJ_FLAG_HIDDEN);
 
     air_switch_reversal_btn = lv_btn_create(page);
@@ -854,10 +871,11 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_add_style(air_switch_reversal_btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
     lv_obj_add_style(air_switch_reversal_btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
     lv_obj_set_size(air_switch_reversal_btn, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-    lv_obj_align(air_switch_reversal_btn, LV_ALIGN_CENTER, 0, -15);
+    lv_obj_align(air_switch_reversal_btn, LV_ALIGN_CENTER, 0, -30);
     lv_obj_add_flag(air_switch_reversal_btn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_event_cb(air_switch_reversal_btn, ui_sensor_monitor_air_switch_reversal_btn_event, LV_EVENT_CLICKED, page);
     lv_obj_t *air_switch_reversal_btn_lab = lv_label_create(air_switch_reversal_btn);
+    lv_obj_set_style_text_font(air_switch_reversal_btn_lab, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_label_set_text(air_switch_reversal_btn_lab, "Reversal");
     lv_obj_set_style_text_color(air_switch_reversal_btn_lab, lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN);
     lv_obj_center(air_switch_reversal_btn_lab);
@@ -866,10 +884,10 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_set_width(relearning_lab, 260);
     lv_obj_set_align(relearning_lab, LV_ALIGN_CENTER);
     lv_obj_set_style_text_align(relearning_lab, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_label_set_text(relearning_lab, "To clear the learning history and start IR learning again, just click\nthe \"Relearn\" button.");
+    lv_label_set_text(relearning_lab, "Click the \"Relearn\" button to clear learning history and start IR learning again.");
     lv_obj_set_style_text_color(relearning_lab, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(relearning_lab, &font_en_16, LV_STATE_DEFAULT);
-    lv_obj_align(relearning_lab, LV_ALIGN_CENTER, 20, 30);
+    lv_obj_set_style_text_font(relearning_lab, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_align(relearning_lab, LV_ALIGN_CENTER, 20, 20);
     lv_obj_add_flag(relearning_lab, LV_OBJ_FLAG_HIDDEN);
 
     relearning_btn = lv_btn_create(page);
@@ -878,10 +896,11 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_add_style(relearning_btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
     lv_obj_add_style(relearning_btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
     lv_obj_set_size(relearning_btn, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-    lv_obj_align(relearning_btn, LV_ALIGN_CENTER, 0, 80);
+    lv_obj_align(relearning_btn, LV_ALIGN_CENTER, 0, 75);
     lv_obj_add_flag(relearning_btn, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_event_cb(relearning_btn, ui_sensor_monitor_relearn_btn_event, LV_EVENT_CLICKED, page);
     lv_obj_t *relearning_btn_lab = lv_label_create(relearning_btn);
+    lv_obj_set_style_text_font(relearning_btn_lab, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_label_set_text(relearning_btn_lab, "Relearn");
     lv_obj_set_style_text_color(relearning_btn_lab, lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN);
     lv_obj_center(relearning_btn_lab);
@@ -932,63 +951,63 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_align(percent_image, LV_ALIGN_CENTER, 59, 0);
     lv_img_set_src(percent_image, sensor_monitor_img_src_list[4].img);
 
-    rader_panel = lv_obj_create(page);
-    lv_obj_set_size(rader_panel, 95, 50);
-    lv_obj_clear_flag(rader_panel, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_align(rader_panel, LV_ALIGN_TOP_LEFT, 195, -8);
-    lv_obj_set_style_radius(rader_panel, 10, LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(rader_panel, 0, LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(rader_panel, LV_OPA_30, LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_width(rader_panel, 10, LV_STATE_DEFAULT);
-    rader_btn = lv_btn_create(rader_panel);
-    lv_obj_set_size(rader_btn, 46, 18);
-    lv_obj_set_style_radius(rader_btn, 9, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(rader_btn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(rader_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    if ( (RADER_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) ) {
-        lv_obj_set_style_border_color(rader_btn, lv_color_hex(0xCE244F), LV_PART_MAIN | LV_STATE_DEFAULT);
+    radar_panel = lv_obj_create(page);
+    lv_obj_set_size(radar_panel, 95, 50);
+    lv_obj_clear_flag(radar_panel, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_align(radar_panel, LV_ALIGN_TOP_LEFT, 195, -8);
+    lv_obj_set_style_radius(radar_panel, 10, LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(radar_panel, 0, LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(radar_panel, LV_OPA_30, LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(radar_panel, 10, LV_STATE_DEFAULT);
+    radar_btn = lv_btn_create(radar_panel);
+    lv_obj_set_size(radar_btn, 46, 18);
+    lv_obj_set_style_radius(radar_btn, 9, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(radar_btn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(radar_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    if ((RADAR_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp))) {
+        lv_obj_set_style_border_color(radar_btn, lv_color_hex(0xCE244F), LV_PART_MAIN | LV_STATE_DEFAULT);
     } else {
-        lv_obj_set_style_border_color(rader_btn, lv_color_hex(0x9E9E9E), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_border_color(radar_btn, lv_color_hex(0x9E9E9E), LV_PART_MAIN | LV_STATE_DEFAULT);
     }
-    lv_obj_set_style_border_opa(rader_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(rader_btn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_color(rader_btn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_shadow_opa(rader_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_align(rader_btn, LV_ALIGN_CENTER, 19, -8);
-    lv_obj_add_event_cb(rader_btn, ui_rader_btn_event, LV_EVENT_CLICKED, rader_panel);
-    rader_btn_lab = lv_label_create(rader_btn);
-    lv_obj_set_width(rader_btn_lab, 24);
-    lv_obj_set_height(rader_btn_lab, 12);
-    if ( (RADER_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) ) {
-        lv_obj_set_x(rader_btn_lab, 8);
-        lv_label_set_text(rader_btn_lab, "ON");
-        lv_obj_set_style_bg_color(rader_btn_lab, lv_color_hex(0xCE244F), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(radar_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(radar_btn, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_color(radar_btn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_opa(radar_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_align(radar_btn, LV_ALIGN_CENTER, 19, -8);
+    lv_obj_add_event_cb(radar_btn, ui_radar_btn_event, LV_EVENT_CLICKED, radar_panel);
+    radar_btn_lab = lv_label_create(radar_btn);
+    lv_obj_set_width(radar_btn_lab, 24);
+    lv_obj_set_height(radar_btn_lab, 12);
+    if ((RADAR_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp))) {
+        lv_obj_set_x(radar_btn_lab, 8);
+        lv_label_set_text(radar_btn_lab, "ON");
+        lv_obj_set_style_bg_color(radar_btn_lab, lv_color_hex(0xCE244F), LV_PART_MAIN | LV_STATE_DEFAULT);
     } else {
-        lv_obj_set_x(rader_btn_lab, -8);
-        lv_label_set_text(rader_btn_lab, "OFF");
-        lv_obj_set_style_bg_color(rader_btn_lab, lv_color_hex(0x9E9E9E), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_x(radar_btn_lab, -8);
+        lv_label_set_text(radar_btn_lab, "OFF");
+        lv_obj_set_style_bg_color(radar_btn_lab, lv_color_hex(0x9E9E9E), LV_PART_MAIN | LV_STATE_DEFAULT);
     }
-    lv_obj_set_y(rader_btn_lab, 0);
-    lv_obj_set_align(rader_btn_lab, LV_ALIGN_CENTER);
-    lv_obj_set_style_text_color(rader_btn_lab, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(rader_btn_lab, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(rader_btn_lab, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(rader_btn_lab, &font_en_bold_10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(rader_btn_lab, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_y(radar_btn_lab, 0);
+    lv_obj_set_align(radar_btn_lab, LV_ALIGN_CENTER);
+    lv_obj_set_style_text_color(radar_btn_lab, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(radar_btn_lab, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(radar_btn_lab, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(radar_btn_lab, &font_en_bold_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(radar_btn_lab, 7, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_set_style_bg_opa(rader_btn_lab, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    rader_image = lv_img_create(rader_panel);
-    lv_obj_align(rader_image, LV_ALIGN_CENTER, -26, 0);
-    if ( (RADER_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) && (RADER_STATE & xEventGroupGetBits(sensor_monitor_event_grp))) {
-        lv_img_set_src(rader_image, air_ctrl_btn_src_list[0].img_on);
+    lv_obj_set_style_bg_opa(radar_btn_lab, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    radar_image = lv_img_create(radar_panel);
+    lv_obj_align(radar_image, LV_ALIGN_CENTER, -26, 0);
+    if ((RADAR_SWITCH_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) && (RADAR_STATE & xEventGroupGetBits(sensor_monitor_event_grp))) {
+        lv_img_set_src(radar_image, air_ctrl_btn_src_list[0].img_on);
     } else {
-        lv_img_set_src(rader_image, air_ctrl_btn_src_list[0].img_off);
+        lv_img_set_src(radar_image, air_ctrl_btn_src_list[0].img_off);
     }
-    lv_obj_t *rader_label = lv_label_create(rader_panel);
-    lv_label_set_text_static(rader_label, air_ctrl_btn_src_list[0].name);
-    lv_obj_set_style_text_color(rader_label, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(rader_label, &font_en_16, LV_STATE_DEFAULT);
-    lv_obj_align(rader_label, LV_ALIGN_CENTER, 19, 9);
+    lv_obj_t *radar_label = lv_label_create(radar_panel);
+    lv_label_set_text_static(radar_label, air_ctrl_btn_src_list[0].name);
+    lv_obj_set_style_text_color(radar_label, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
+    lv_obj_align(radar_label, LV_ALIGN_CENTER, 19, 9);
+    lv_obj_set_style_text_font(radar_label, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     air_ctrl_panel = lv_obj_create(page);
     lv_obj_set_size(air_ctrl_panel, 255, 120);
@@ -1016,20 +1035,27 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_set_width(ir_learning_tips_lab, 240);
     lv_obj_set_height(ir_learning_tips_lab, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ir_learning_tips_lab, 0);
-    lv_obj_set_y(ir_learning_tips_lab, -20);
+    lv_obj_set_y(ir_learning_tips_lab, -23);
     lv_obj_set_align(ir_learning_tips_lab, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ir_learning_tips_lab, LV_OBJ_FLAG_HIDDEN);
     lv_obj_set_style_text_color(ir_learning_tips_lab, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
     lv_obj_set_style_text_align(ir_learning_tips_lab, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ir_learning_tips_lab, &font_en_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-    if ( IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
+    lv_obj_set_style_text_font(ir_learning_tips_lab, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+
+    if (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
         lv_obj_clear_flag(btn_ir_setting, LV_OBJ_FLAG_HIDDEN);
-        lv_label_set_text(ir_learning_tips_lab,
-                          "Click the button below to control your air conditioner!");
+        if (SR_LANG_EN == param->sr_lang) {
+            lv_label_set_text(ir_learning_tips_lab,
+                              "Click the buton or say\n 'Turn on/off the Air'\n to control your air.");
+        } else {
+            lv_label_set_text(ir_learning_tips_lab,
+                              "Click the buton or say\n '打开/关闭空调'\n to control your air.");
+        }
     } else {
         lv_obj_add_flag(btn_ir_setting, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(ir_learning_tips_lab,
-                          "To control your AC, IR learning is required. Click the button below to begin the learning process.");
+                          "To control your AC, IR learning is required. Click the button below to begin the learning.");
     }
 
     ir_learning_btn = lv_btn_create(air_ctrl_panel);
@@ -1038,13 +1064,13 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_add_style(ir_learning_btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
     lv_obj_add_style(ir_learning_btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
     lv_obj_set_size(ir_learning_btn, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-    lv_obj_align(ir_learning_btn, LV_ALIGN_CENTER, 0, 30);
+    lv_obj_align(ir_learning_btn, LV_ALIGN_CENTER, 0, 37);
     lv_obj_add_event_cb(ir_learning_btn, ui_sensor_monitor_btn_ir_learning_event, LV_EVENT_CLICKED, page);
     lv_obj_t *ir_learning_btn_lab = lv_label_create(ir_learning_btn);
     lv_label_set_text(ir_learning_btn_lab, "OK Let's Go");
     lv_obj_set_style_text_color(ir_learning_btn_lab, lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN);
     lv_obj_center(ir_learning_btn_lab);
-    if ( IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
+    if (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
         lv_obj_add_flag(ir_learning_btn, LV_OBJ_FLAG_HIDDEN);
     } else {
         lv_obj_clear_flag(ir_learning_btn, LV_OBJ_FLAG_HIDDEN);
@@ -1059,9 +1085,9 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_add_flag(ir_learning_prompt_words, LV_OBJ_FLAG_HIDDEN);
     lv_obj_set_style_text_color(ir_learning_prompt_words, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
     lv_label_set_text(ir_learning_prompt_words,
-                      "1. Point your controller towards        the IR module.\n2. Press the power button of the      controller.");
+                      "1. Point your controller towards the IR module.\n2. Press the power button of the controller.");
     lv_obj_set_style_text_align(ir_learning_prompt_words, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ir_learning_prompt_words, &font_en_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ir_learning_prompt_words, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ir_learning_state_lab = lv_label_create(air_ctrl_panel);
     lv_obj_set_width(ir_learning_state_lab, LV_SIZE_CONTENT);   /// 1
@@ -1071,7 +1097,7 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_set_align(ir_learning_state_lab, LV_ALIGN_CENTER);
     lv_obj_add_flag(ir_learning_state_lab, LV_OBJ_FLAG_HIDDEN);
     lv_label_set_text(ir_learning_state_lab, "Press the button");
-    lv_obj_set_style_text_font(ir_learning_state_lab, &font_en_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ir_learning_state_lab, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ir_learning_state_lab, lv_color_make(206, 36, 79), LV_STATE_DEFAULT);
 
     ac_switch_btn = lv_btn_create(air_ctrl_panel);
@@ -1080,15 +1106,15 @@ void ui_sensor_monitor_start(void (*fn)(void))
     lv_obj_add_style(ac_switch_btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUS_KEY);
     lv_obj_add_style(ac_switch_btn, &ui_button_styles()->style_focus_no_outline, LV_STATE_FOCUSED);
     lv_obj_set_size(ac_switch_btn, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-    lv_obj_align(ac_switch_btn, LV_ALIGN_CENTER, 0, 30);
+    lv_obj_align(ac_switch_btn, LV_ALIGN_CENTER, 0, 32);
     lv_obj_add_event_cb(ac_switch_btn, ui_sensor_monitor_btn_ac_switch_event, LV_EVENT_CLICKED, page);
-    if ( IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
+    if (IR_LEARNING_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
         lv_obj_clear_flag(ac_switch_btn, LV_OBJ_FLAG_HIDDEN);
     } else {
         lv_obj_add_flag(ac_switch_btn, LV_OBJ_FLAG_HIDDEN);
     }
     ac_switch_btn_lab = lv_label_create(ac_switch_btn);
-    if ( AIR_POWER_STATE & xEventGroupGetBits(sensor_monitor_event_grp) ) {
+    if (AIR_POWER_STATE & xEventGroupGetBits(sensor_monitor_event_grp)) {
         lv_label_set_text(ac_switch_btn_lab, "Turn off the air");
     } else {
         lv_label_set_text(ac_switch_btn_lab, "Turn on the air");
@@ -1102,11 +1128,11 @@ void ui_sensor_monitor_start(void (*fn)(void))
 
     esp_err_t ret = bsp_board_get_sensor_handle()->get_humiture(&temperature, &humidity);
     if (ret != ESP_OK) {
-        ESP_LOGI(TAG, "Failed to read AHT21: %d", ret);
-        xEventGroupClearBits( sensor_monitor_event_grp, SENSOR_BASE_CONNECT_STATE );
+        ESP_LOGW(TAG, "Failed to read AHT21: %d", ret);
+        xEventGroupClearBits(sensor_monitor_event_grp, SENSOR_BASE_CONNECT_STATE);
         lv_obj_add_flag(btn_return, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(temp_sensor_panel, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(rader_panel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(radar_panel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(air_ctrl_panel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(relearning_lab, LV_OBJ_FLAG_HIDDEN);
         lv_label_set_text(temp_value_label, "0");
@@ -1118,7 +1144,7 @@ void ui_sensor_monitor_start(void (*fn)(void))
         tips_lab = lv_label_create(page);
         lv_label_set_text(tips_lab, "Please mount the esp-box to\nthe sensor accessory");
         lv_obj_set_style_text_color(tips_lab, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
-        lv_obj_set_style_text_font(tips_lab, &font_en_16, LV_STATE_DEFAULT);
+        lv_obj_set_style_text_font(tips_lab, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_align(tips_lab, LV_ALIGN_CENTER, 0, 25);
         lv_obj_set_style_text_align(tips_lab, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -1142,7 +1168,7 @@ void ui_sensor_monitor_start(void (*fn)(void))
     if (ui_get_btn_op_group()) {
         lv_group_add_obj(ui_get_btn_op_group(), btn_return);
         lv_group_add_obj(ui_get_btn_op_group(), btn_ir_setting);
-        lv_group_add_obj(ui_get_btn_op_group(), rader_btn);
+        lv_group_add_obj(ui_get_btn_op_group(), radar_btn);
         lv_group_add_obj(ui_get_btn_op_group(), ir_learning_btn_lab);
         lv_group_add_obj(ui_get_btn_op_group(), ac_switch_btn);
         lv_group_add_obj(ui_get_btn_op_group(), air_switch_reversal_btn);

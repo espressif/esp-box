@@ -84,6 +84,7 @@ void boot_animate_start(void (*fn)(void))
     };
     for (size_t i = 0; i < sizeof(arc) / sizeof(arc[0]); i++) {
         arc[i] = lv_arc_create(page);
+        lv_obj_clear_flag(arc[i], LV_OBJ_FLAG_CLICKABLE);
         lv_obj_set_size(arc[i], 220 - 30 * i, 220 - 30 * i);
         lv_arc_set_bg_angles(arc[i], 120 * i, 0 + 120 * i);
         lv_arc_set_value(arc[i], 0);

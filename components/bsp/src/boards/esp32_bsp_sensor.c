@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -21,8 +21,8 @@
 static bool sys_sleep_entered = false;
 static bottom_id_t sys_bottom_id;
 
-static float sys_temperature_value;
-static uint8_t sys_humidity_value;
+static float sys_temp_result;
+static float sys_RH_result;
 static uint16_t power_off_delay;
 
 static aht20_dev_handle_t aht20 = NULL;
@@ -66,11 +66,11 @@ static void bsp_sensor_set_radar_onoff(bool enable)
     }
 }
 
-static esp_err_t bsp_sensor_get_humiture(float *temperature, uint8_t *humidity)
+static esp_err_t bsp_sensor_get_humiture(float *temperature, float *humidity)
 {
     if (BOTTOM_ID_SENSOR == sys_bottom_id) {
-        *temperature = sys_temperature_value;
-        *humidity = sys_humidity_value;
+        *temperature = sys_temp_result;
+        *humidity = sys_RH_result;
         return ESP_OK;
     } else {
         return ESP_FAIL;
@@ -80,7 +80,7 @@ static esp_err_t bsp_sensor_get_humiture(float *temperature, uint8_t *humidity)
 static void low_power_monitor_task(void *arg)
 {
     static uint8_t gpio_level_prev = 1;
-    uint32_t temperature_raw, humidity_raw;
+    uint32_t temp_raw, RH_raw;
     uint8_t gpio_level;
 
     gpio_config_t io_conf = {};
@@ -95,21 +95,15 @@ static void low_power_monitor_task(void *arg)
         vTaskDelay(pdMS_TO_TICKS(1000));
 
         if (sys_bottom_id != BOTTOM_ID_UNKNOW) {
-            if (bsp_i2c_device_probe(BSP_I2C_EXPAND_NUM, AT581X_ADDRRES_0)) {
-                if (sys_bottom_id == BOTTOM_ID_LOST) {
-                    ESP_LOGE(TAG, "Sensor bottom connected");
-                    sys_bottom_id = BOTTOM_ID_SENSOR;
-                }
-            } else {
-                if (sys_bottom_id == BOTTOM_ID_SENSOR) {
-                    ESP_LOGE(TAG, "Sensor bottom lost");
-                    sys_bottom_id = BOTTOM_ID_LOST;
-                }
-            }
+            sys_bottom_id = (bsp_i2c_device_probe(BSP_I2C_EXPAND_NUM, AT581X_ADDRRES_0)) ? BOTTOM_ID_SENSOR : BOTTOM_ID_LOST;
         }
 
         if (BOTTOM_ID_SENSOR == sys_bottom_id) {
             gpio_level = gpio_get_level(BSP_RADAR_OUT_IO);
+            if ((RADAE_FUNC_STOP != power_off_delay) && power_off_delay) {
+                power_off_delay--;
+            }
+            aht20_read_temperature_humidity(aht20, &temp_raw, &sys_temp_result, &RH_raw, &sys_RH_result);
         } else {
             gpio_level = 1;
         }
@@ -118,14 +112,14 @@ static void low_power_monitor_task(void *arg)
             gpio_level_prev = gpio_level;
             if (gpio_level && (RADAE_FUNC_STOP != power_off_delay)) {
                 power_off_delay = RADAE_POWER_DELAY;
-                ESP_LOGI(TAG, "Radar: %s", "active");
+                ESP_LOGD(TAG, "Radar: %s", "active");
             }
         }
 
         if ((gpio_level) && (true == sys_sleep_entered)) {
             bsp_pm_exit_sleep();
 
-            ESP_LOGI(TAG, "power on");
+            ESP_LOGD(TAG, "power on");
             bsp_display_exit_sleep();
 
             lvgl_port_resume();
@@ -133,7 +127,7 @@ static void low_power_monitor_task(void *arg)
             bsp_codec_dev_resume();
             sys_sleep_entered = false;
         } else if ((1 == power_off_delay) && (BOTTOM_ID_SENSOR == sys_bottom_id)) {
-            ESP_LOGI(TAG, "power off");
+            ESP_LOGD(TAG, "power off");
             sys_sleep_entered = true;
             bsp_display_enter_sleep();
 
@@ -141,17 +135,6 @@ static void low_power_monitor_task(void *arg)
             iot_button_stop();
             bsp_codec_dev_stop();
             bsp_pm_enter_sleep();
-        }
-
-        if ((RADAE_FUNC_STOP != power_off_delay) && power_off_delay \
-                && (BOTTOM_ID_SENSOR == sys_bottom_id)) {
-            power_off_delay--;
-        }
-
-        if (BOTTOM_ID_SENSOR == sys_bottom_id) {
-            aht20_read_temperature_humidity(aht20, \
-                                            &temperature_raw, &sys_temperature_value, \
-                                            &humidity_raw, &sys_humidity_value);
         }
     }
 }
@@ -166,7 +149,6 @@ static esp_err_t bsp_init_temp_humudity()
     };
 
     ret |= aht20_new_sensor(&i2c_conf, &aht20);
-    ret |= aht20_init_sensor(aht20);
     if (ret == ESP_OK) {
         ESP_LOGI(TAG, "Temp & humidity init ok");
     }
@@ -176,17 +158,19 @@ static esp_err_t bsp_init_temp_humudity()
 static esp_err_t bsp_init_radar()
 {
     esp_err_t ret = ESP_OK;
-    at581x_dev_handle_t at581x;
+    at581x_dev_handle_t at581x = NULL;
+
+    at581x_default_cfg_t def_cfg = ATH581X_INITIALIZATION_CONFIG();
 
     at581x_i2c_config_t i2c_conf = {
         .i2c_port = BSP_I2C_EXPAND_NUM,
         .i2c_addr = AT581X_ADDRRES_0,
+        .def_conf = &def_cfg,
     };
 
     ret |= at581x_new_sensor(&i2c_conf, &at581x);
-    ret |= at581x_init_sensor(at581x);
     if (ret == ESP_OK) {
-        ESP_LOGI(TAG, "Rader init ok");
+        ESP_LOGI(TAG, "Radar init ok");
     }
     return ret;
 }
@@ -222,7 +206,7 @@ static esp_err_t bsp_pm_init()
         .light_sleep_enable = true
 #endif
     };
-    ESP_ERROR_CHECK( esp_pm_configure(&pm_config));
+    ESP_ERROR_CHECK(esp_pm_configure(&pm_config));
 #endif
 
     if (g_pm_apb_lock == NULL) {

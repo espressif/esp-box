@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 typedef enum {
-    UI_RADER,
+    UI_RADAR,
     UI_AIR_SWITCH,
 } ui_sensor_monitor_img_type_t;
 
@@ -44,8 +44,8 @@ typedef enum {
     SENSOR_MONITOR_ALIVE_STATE = BIT(0),
     AIR_SWITCH_REVERSE_STATE = BIT(1),
     AIR_POWER_STATE = BIT(2),
-    RADER_SWITCH_STATE = BIT(3),
-    RADER_STATE = BIT(4),
+    RADAR_SWITCH_STATE = BIT(3),
+    RADAR_STATE = BIT(4),
     IR_LEARNING_STATE = BIT(5),
     SENSOR_BASE_CONNECT_STATE = BIT(6),
 
@@ -57,6 +57,24 @@ esp_err_t sensor_task_state_event_init(void);
 EventBits_t sensor_task_state_event_get_bits(void);
 void ui_sensor_monitor_start(void (*fn)(void));
 bool sensor_ir_learn_enable(void);
+
+/**
+ * @brief Send AC poweron cmd, must enter ui_sensor_monitor page
+ *
+ * @return
+ *      - ESP_OK                On success
+ *      - ESP_ERR_NOT_SUPPORTED This function is not supported.
+ */
+esp_err_t ui_sensor_set_ac_poweron(void);
+
+/**
+ * @brief Send AC poweroff cmd, must enter ui_sensor_monitor page
+ *
+ * @return
+ *      - ESP_OK                On success
+ *      - ESP_ERR_NOT_SUPPORTED This function is not supported.
+ */
+esp_err_t ui_sensor_set_ac_poweroff(void);
 
 #ifdef __cplusplus
 }

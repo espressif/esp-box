@@ -1,7 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
  *
- * SPDX-License-Identifier: CC0-1.0
+ * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
 
 #include "bsp/esp-bsp.h"
@@ -25,7 +25,7 @@ void app_main(void)
      *
      */
     bsp_display_lock(0);
-    
+
 #if LV_USE_DEMO_WIDGETS
     lv_demo_widgets();      /* A widgets example. This is what you get out of the box */
 #endif

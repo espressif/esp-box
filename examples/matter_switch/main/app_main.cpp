@@ -1,10 +1,8 @@
 /*
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
+ * SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
+ *
+ * SPDX-License-Identifier: Unlicense OR CC0-1.0
+ */
 
 #include <esp_err.h>
 #include <esp_log.h>
@@ -44,7 +42,7 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
     case chip::DeviceLayer::DeviceEventType::kCommissioningComplete:
         ESP_LOGI(TAG, "Commissioning complete");
         isCommissioningComplete = true;
-	start_box();
+        start_box();
         break;
 
     case chip::DeviceLayer::DeviceEventType::kFailSafeTimerExpired:
@@ -65,9 +63,10 @@ static void app_event_cb(const ChipDeviceEvent *event, intptr_t arg)
 
     case chip::DeviceLayer::DeviceEventType::kCommissioningWindowClosed:
         ESP_LOGI(TAG, "Commissioning window closed");
-        if(isCommissioningComplete)
-		start_box();
-	break;
+        if (isCommissioningComplete) {
+            start_box();
+        }
+        break;
 
     default:
         break;
@@ -82,7 +81,7 @@ static esp_err_t app_identification_cb(identification::callback_type_t type, uin
 }
 
 static esp_err_t app_attribute_update_cb(attribute::callback_type_t type, uint16_t endpoint_id, uint32_t cluster_id,
-                                         uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
+        uint32_t attribute_id, esp_matter_attr_val_t *val, void *priv_data)
 {
     esp_err_t err = ESP_OK;
 
@@ -163,8 +162,8 @@ extern "C" void app_main()
 #endif
     box_sem = xSemaphoreCreateBinary();
 
-    if(chip::Server::GetInstance().GetFabricTable().FabricCount() <= 0) {
-printf("Fabric Count is zero\n");
+    if (chip::Server::GetInstance().GetFabricTable().FabricCount() <= 0) {
+        printf("Fabric Count is zero\n");
         xSemaphoreTake(box_sem, portMAX_DELAY);
         xSemaphoreTake(box_sem, portMAX_DELAY);
         vSemaphoreDelete(box_sem);

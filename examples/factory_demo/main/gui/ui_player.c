@@ -56,14 +56,17 @@ static void ui_player_page_vol_dec_click_cb(lv_event_t *e)
 static void play_present()
 {
     char filename[128];
-    file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
-    FILE *fp = fopen(filename, "rb");
-    if (!fp) {
-        ESP_LOGE(TAG, "unable to open '%s'", filename);
-        return;
+    if(AUDIO_PLAYER_STATE_PAUSE == audio_player_get_state()) {
+        audio_player_resume();
+    } else {
+        file_iterator_get_full_path_from_index(file_iterator, file_iterator_get_index(file_iterator), filename, sizeof(filename));
+        FILE *fp = fopen(filename, "rb");
+        if (!fp) {
+            ESP_LOGE(TAG, "unable to open '%s'", filename);
+            return;
+        }
+        audio_player_play(fp);
     }
-
-    audio_player_play(fp);
 }
 
 static void ui_player_page_pause_click_cb(lv_event_t *e)
@@ -98,6 +101,7 @@ static void ui_player_page_next_click_cb(lv_event_t *e)
 {
     lv_obj_t *obj = lv_event_get_user_data(e);
     file_iterator_next(file_iterator);
+    play_present();
     lv_label_set_text_static(g_lab_file, file_iterator_get_name_from_index(file_iterator, file_iterator_get_index(file_iterator)));
     lv_event_t event = {
         .user_data = obj,
