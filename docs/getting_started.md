@@ -19,7 +19,7 @@ This guide provides a comprehensive overview of the built-in firmware's capabili
 The target group for this product includes individuals and organizations engaged in making, prototyping, and development activities. It is designed to cater to a wide range of users, such as hobbyists, makers, engineers, educators, and professionals seeking versatile and expandable solutions for their projects.
 
 # Target Application
-* How to call these things, use one trem: Smart Home
+* Smart Home
 * Smart Agriculture
 * Smart City
 * Energy Management
@@ -38,7 +38,7 @@ The target group for this product includes individuals and organizations engaged
 <img src="./_static/_get_started_static/ESP32_S3_BOX_3_KitFigure.png" width="700px">
 </div>
 
-- ESP32-S3-BOX-3, a main unit that can work on its own 
+- ESP32-S3-BOX-3, a main unit that can work on its own
 - ESP32-S3-BOX-3-DOCK, a functional accessory serving as a stand for the main box
 - ESP32-S3-BOX-3-SENSOR, a functional accessory showcasing sensor applications
 - ESP32-S3-BOX-3-BRACKET, an adapter accessory for mounting the main box to other devices
@@ -53,7 +53,7 @@ The target group for this product includes individuals and organizations engaged
 <img src="./_static/_get_started_static/usb_power_box.png" width="800px">
 </div>
 
-2. Once the device is powered on, the screen will play the Espressif logo boot animation.   
+2. Once the device is powered on, the screen will play the Espressif logo boot animation.
 
 <div align="center">
 <img src="./_static/_get_started_static/boot_animation.png" width="500px">
@@ -154,7 +154,7 @@ Firstly, connect the RGB LED module to your device. Refer to the pin definitions
 <img src="./_static/_get_started_static/LED_pin_defination.png">
 </div>
 
-1. You may say `"Hi E. S. P." (pronounce in alphabet)` at any screen to wake up your device. When it wakes up, the screen will display the wake word you just used. If the wake word isn't displayed, give it another try. The screen below indicates your device is listening. 
+1. You may say `"Hi E. S. P." (pronounce in alphabet)` at any screen to wake up your device. When it wakes up, the screen will display the wake word you just used. If the wake word isn't displayed, give it another try. The screen below indicates your device is listening.
 
 <div align="center">
 <img src="./_static/_get_started_static/17.png">
@@ -167,9 +167,9 @@ Firstly, connect the RGB LED module to your device. Refer to the pin definitions
 </div>
 
 3. You can use voice commands to enjoy music. First, wake up the device, then say `"Sing a song"`. This will launch the music player and start playing built-in music. You can also use voice commands to pause or skip songs. There are two built-in songs.
-   
+
    >**Tips:**
-   
+
    >* If the LED light fails to turn on, check whether the module pins are inserted into the right ports.
    >* If the BOX doesn't recognize any command within the designated timeframe, a `Timeout` message will appear, and the screen will exit in approximately 1 second.
 
@@ -180,7 +180,7 @@ Firstly, connect the RGB LED module to your device. Refer to the pin definitions
 
 4. The default commands are: **turn on the light**, **turn off the light**, **turn red**, **turn green**, **turn blue**, **sing a song**, **next song**, **pause playing**.
 
-## Continuous Speech Recognition 
+## Continuous Speech Recognition
 
 More interestingly, the device supports continuous speech recognition after waking up. This feature adds a natural and seamless quality to voice interaction, enhancing the interactive experience with a human touch.
 
@@ -211,7 +211,7 @@ The ESP32-S3-BOX-3 is also equipped with Espressif proprietary AI Speech Recogni
    <div align="center">
    <img src="_static/_get_started_static/Picture1.png" width="100 px">
    </div>
-   
+
 1.2. If you are new to this app, please register an account first.
 
 1.3. Sign in with your ESP BOX account and turn on the Bluetooth on your phone. Tap `+` at the bottom of the screen, and scan the QR code on your device to set up the network.
@@ -237,11 +237,11 @@ The ESP32-S3-BOX-3 is also equipped with Espressif proprietary AI Speech Recogni
 </div>
 
 >**Tips:**
-   
+
    >* Please do not exit the QR code page during the network provisioning.
    >* Make sure you connect the device to 2.4 GHz Wi-Fi instead of 5 GHz, and enter the correct Wi-Fi password. If the Wi-Fi password is incorrect, the prompt "Wi-Fi Authentication failed" will pop up.
    >* Long press the `Boot` button (i.e. `Funtion` button) for 5 seconds to clear the network information and restore the device to factory settings. After the device is reset, if the QR code or Bluetooth is not working, please restart your device by pressing the `Reset` button.
-   
+
    <div align="center">
    <img src="_static/_get_started_static/7.jpeg"width="300" />
    </div>

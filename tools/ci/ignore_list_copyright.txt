@@ -1,1 +1,6 @@
 ./docs/
+./examples/chatgpt_demo/main/app/app_ui_events.c
+./examples/factory_demo/main/gui/lv_symbol_extra_def.h
+./examples/matter_switch/main/zap-generated/af-gen-event.h
+./examples/matter_switch/main/zap-generated/endpoint_config.h
+./examples/matter_switch/main/zap-generated/PluginApplicationCallbacks.h

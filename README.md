@@ -23,9 +23,9 @@
 
 **Important Note:**
 
-> Upon receiving the ESP32-S3-BOX-3, we advise updating the built-in factory firmware to ensure you have the latest bugfixes via Espressif's online firmware flashing tool ESP Launchpad. Up till now, the latest version is **ESP-BOX-3_Demo_V1.2.3**. To verify the software version, please go to the 'About Us' Page.
+> Upon receiving the ESP32-S3-BOX-3, we advise updating the built-in factory firmware to ensure you have the latest bugfixes via Espressif's online firmware flashing tool ESP Launchpad. Up till now, the latest version is **ESP-BOX-3_Demo_V1.2.4**. To verify the software version, please go to the 'About Us' Page.
 
-The ESP-BOX is an advanced AIoT, Edge AI, and IIoT applications development platform released by Espressif Systems. The ESP32-S3-BOX, ESP32-S3-BOX-Lite, and ESP32-S3-BOX-3 are a series of development boards designed for this platform, they are built on Espressif’s powerful ESP32-S3 Wi-Fi + Bluetooth 5 (LE) SoC and feature compact and beautiful enclosures. Leveraging the multi-functional accessories and reliable examples from the repo’s, these development boards cater to both prototyping new projects and building complex IoT systems, providing a perfect balance of form and function. 
+The ESP-BOX is an advanced AIoT, Edge AI, and IIoT applications development platform released by Espressif Systems. The ESP32-S3-BOX, ESP32-S3-BOX-Lite, and ESP32-S3-BOX-3 are a series of development boards designed for this platform, they are built on Espressif’s powerful ESP32-S3 Wi-Fi + Bluetooth 5 (LE) SoC and feature compact and beautiful enclosures. Leveraging the multi-functional accessories and reliable examples from the repo’s, these development boards cater to both prototyping new projects and building complex IoT systems, providing a perfect balance of form and function.
 
 ESP-BOX provides a platform for developing applications in various domains, including Offline Voice Assistants, Online AI Chatbots (developed using OpenAI and other large language model platforms), Matter Device/Controller, Robot Controller, USB Device/Host, Wireless Sensor Application and a wide range of Human Machine Interaction (HMI) applications. Experience the possibilities—add one to your toolkit and explore the limitless potential!
 
@@ -66,7 +66,7 @@ ESP-BOX provides a platform for developing applications in various domains, incl
 * [Built-in Firmware Source Code](./examples/factory_demo)
 * [Other Examples](./examples)
 
-> Based on [Apache 2.0](https://github.com/espressif/esp-box/blob/master/LICENSE) open source license, you can modify, develop, or distribute the contents freely. 
+> Based on [Apache 2.0](https://github.com/espressif/esp-box/blob/master/LICENSE) open source license, you can modify, develop, or distribute the contents freely.
 
 ## Built-in Firmware User Guide
 
@@ -83,7 +83,7 @@ ESP-BOX provides a platform for developing applications in various domains, incl
 
 ## Developer Guide
 
-ESP-BOX integrates ESP-IDF components commonly used in AIoT development from [ESP Registry](https://components.espressif.com/components?q=lcd) that you can leverage to build your own applications. 
+ESP-BOX integrates ESP-IDF components commonly used in AIoT development from [ESP Registry](https://components.espressif.com/components?q=lcd) that you can leverage to build your own applications.
 
 ### Quick Start
 
@@ -104,6 +104,9 @@ For developer, we offer [ESP RainMaker](https://rainmaker.espressif.com/) soluti
 ### NuttX
 The ESP32-S3-BOX-3 also supports integration with [NuttX](https://github.com/apache/nuttx/tree/master/boards/xtensa/esp32s3/esp32s3-box), offering further flexibility and functionality. Nuttx is a real-time operating system (RTOS) known for its compact size, efficiency, and real-time performance, making it an excellent choice for embedded systems.
 
+### Great Projects from Developers
+We actively collect [outstanding projects](./docs/great_projects.md) based on ESP-BOX to inspire more developers to innovate. We thank the enthusiasts promoting thriving community culture and welcome more developers to contribute to the vibrant ESP32 community.
+
 ## Contact Us
 
 * If you have any technical issues, please submit issue tickets at [GitHub Issues](https://github.com/espressif/esp-box/issues) or forum [esp32.com](https://esp32.com/) for help.
@@ -111,5 +114,5 @@ The ESP32-S3-BOX-3 also supports integration with [NuttX](https://github.com/apa
 
 ## Contributing Examples
 
-We welcome any open-source software or hardware contribution. If you have any examples you want to share with us, please click the [Contributions Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/contribute/index.html) and commit to the [Pull Requests](https://github.com/espressif/esp-box/pulls) to contribute your code. 
+We welcome any open-source software or hardware contribution. If you have any examples you want to share with us, please click the [Contributions Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/contribute/index.html) and commit to the [Pull Requests](https://github.com/espressif/esp-box/pulls) to contribute your code.
 

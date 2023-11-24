@@ -30,7 +30,7 @@ static void bsp_sensor_set_radar_enable(bool enable)
     return;
 }
 
-static esp_err_t bsp_sensor_get_humiture(float *temperature, uint8_t *humidity)
+static esp_err_t bsp_sensor_get_humiture(float *temperature, float *humidity)
 {
     return ESP_FAIL;
 }

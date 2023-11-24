@@ -4,7 +4,7 @@ dependencies:
   espressif/esp-box:
     version: "3.*"
     require: "no"
-    
+
   espressif/esp-box-lite:
     version: "2.*"
     require: "no"

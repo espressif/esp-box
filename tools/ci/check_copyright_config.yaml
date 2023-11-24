@@ -41,12 +41,6 @@ ignore:  # You can also select ignoring files here
   include:
     - docs/
     - hardware/
-    - examples/matter_switch/main/gui/image/
-    - examples/matter_switch/main/gui/font/
-    - examples/matter_switch/main/gui/lv_symbol_extra_def.h
-    - examples/factory_demo/main/gui/font/
-    - examples/factory_demo/main/gui/image/
-    - examples/factory_demo/components/espressif__button/
     - examples/chatgpt_demo/main/ui/images/
     - examples/chatgpt_demo/main/ui/fonts/
     - examples/chatgpt_demo/main/ui/
@@ -54,6 +48,11 @@ ignore:  # You can also select ignoring files here
     - examples/chatgpt_demo/squareline/
     - examples/chatgpt_demo/factory_nvs/squareline/assets/
     - examples/chatgpt_demo/factory_nvs/main/ui/
+    - examples/factory_demo/main/gui/font/
+    - examples/factory_demo/main/gui/image/
+    - examples/matter_switch/main/gui/image/
+    - examples/matter_switch/main/gui/font/
+    - examples/matter_switch/main/gui/lv_symbol_extra_def.h
     - examples/usb_camera_lcd_display/components/esp_jpeg/
     - examples/watering_demo/main/gui/font/
     - examples/watering_demo/main/gui/image/

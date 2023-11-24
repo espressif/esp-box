@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -85,36 +85,10 @@ static const sr_cmd_t g_default_cmd_info[] = {
     {SR_CMD_NEXT, SR_LANG_EN, 0, "Next Song", "NfKST Sel", {NULL}},
     {SR_CMD_PAUSE, SR_LANG_EN, 0, "Pause Playing", "PeZ PLdgl", {NULL}},
 
+    {SR_CMD_AC_ON, SR_LANG_EN, 0, "Turn on the Air", "TkN nN jc fR", {NULL}},
+    {SR_CMD_AC_OFF, SR_LANG_EN, 0, "Turn off the Air", "TkN eF jc fR", {NULL}},
+
     // Chinese
-#if SR_RUN_TEST
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_cha ba ji kai ji", "cha ba ji kai ji", {NULL}},
-    {SR_CMD_LIGHT_OFF, SR_LANG_CN, 0, "T_cha ba ji guan ji", "cha ba ji guan ji", {NULL}},
-    {SR_CMD_CUSTOMIZE_COLOR, SR_LANG_CN, 0, "T_you bian jia shui", "you bian jia shui", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_you bian qu shui", "you bian qu shui", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_ting zhi qu shui", "ting zhi qu shui", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_shui hu jia re", "shui hu jia re", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_ting zhi jia re", "ting zhi jia re", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_zuo bian jia shui", "zuo bian jia shui", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_zuo bian qu shui", "zuo bian qu shui", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_kai shi bao wen", "kai shi bao wen", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_bao wen mo shi", "bao wen mo shi", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_kai shi zhi leng", "kai shi zhi leng", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_zhi leng mo shi", "zhi leng mo shi", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_kai si zi leng", "kai si zi leng", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_zi leng mo shi", "zi leng mo shi", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_ting zhi bao wen", "ting zhi bao wen", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_guan bi bao wen", "guan bi bao wen", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_ting zhi zhi leng",  "ting zhi zhi leng", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_guan bi zhi leng",  "guan bi zhi leng", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_zui da yin liang",  "zui da yin liang", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_zui xiao yin liang",  "zui xiao yin liang", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_hua cha mo shi",  "hua cha mo shi", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_guo cha mo shi",  "guo cha mo shi", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_hong cha mo shi",  "hong cha mo shi", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_lv cha mo shi",  "lv cha mo shi", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_tui chu zhu cha mo shi",  "tui chu zhu cha mo shi", {NULL}},
-    {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "T_ting zhi zhu cha",  "ting zhi zhu cha", {NULL}},
-#else
     {SR_CMD_LIGHT_ON, SR_LANG_CN, 0, "打开电灯", "da kai dian deng", {NULL}},
     {SR_CMD_LIGHT_OFF, SR_LANG_CN, 0, "关闭电灯", "guan bi dian deng", {NULL}},
     {SR_CMD_SET_RED, SR_LANG_CN, 0, "调成红色", "tiao cheng hong se", {NULL}},
@@ -123,13 +97,13 @@ static const sr_cmd_t g_default_cmd_info[] = {
     {SR_CMD_CUSTOMIZE_COLOR, SR_LANG_CN, 0, "自定义颜色", "zi ding yi yan se", {NULL}},
     {SR_CMD_PLAY, SR_LANG_CN, 0, "播放音乐", "bo fang yin yue", {NULL}},
     {SR_CMD_NEXT, SR_LANG_CN, 0, "切歌", "qie ge", {NULL}},
-    {SR_CMD_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qv", {NULL}},
+    {SR_CMD_NEXT, SR_LANG_CN, 0, "下一曲", "xia yi qu", {NULL}},
     {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停", "zan ting", {NULL}},
     {SR_CMD_PAUSE, SR_LANG_CN, 0, "暂停播放", "zan ting bo fang", {NULL}},
     {SR_CMD_PAUSE, SR_LANG_CN, 0, "停止播放", "ting zhi bo fang", {NULL}},
 
-    {SR_CMD_MAX, SR_LANG_CN, 0, "打开空调", "da kai kong tiao", {NULL}},
-    {SR_CMD_MAX, SR_LANG_CN, 0, "关闭空调", "guan bi kong tiao", {NULL}},
+    {SR_CMD_AC_ON, SR_LANG_CN, 0, "打开空调", "da kai kong tiao", {NULL}},
+    {SR_CMD_AC_OFF, SR_LANG_CN, 0, "关闭空调", "guan bi kong tiao", {NULL}},
     {SR_CMD_MAX, SR_LANG_CN, 0, "舒适模式", "shu shi mo shi", {NULL}},
     {SR_CMD_MAX, SR_LANG_CN, 0, "制冷模式", "zhi leng mo shi", {NULL}},
     {SR_CMD_MAX, SR_LANG_CN, 0, "制热模式", "zhi re mo shi", {NULL}},
@@ -138,7 +112,6 @@ static const sr_cmd_t g_default_cmd_info[] = {
     {SR_CMD_MAX, SR_LANG_CN, 0, "送风模式", "song feng mo shi", {NULL}},
     {SR_CMD_MAX, SR_LANG_CN, 0, "升高温度", "sheng gao wen du", {NULL}},
     {SR_CMD_MAX, SR_LANG_CN, 0, "降低温度", "jiang di wen du", {NULL}},
-#endif
 };
 
 static void audio_feed_task(void *arg)

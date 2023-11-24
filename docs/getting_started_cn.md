@@ -98,7 +98,7 @@ ESP32-S3-BOX-3 出厂固件支持中文和英文离线语音唤醒和命令词�
    </div>
 
 5. 轻触屏幕下方的红色圆圈以返回上一页。红圈是一块可自定义的触摸区域，允许用户根据自己的喜好配置额外的触摸功能。
-   
+
    <div align="center">
    <img src="./_static/_get_started_static/hardware_home.png" width="250px">
    </div>
@@ -130,7 +130,7 @@ ESP32-S3-BOX-3 出厂固件支持中文和英文离线语音唤醒和命令词�
 </tr>
 <tr>
 <td><img src="./_static/_get_started_static/29.png"></td>
-<td><img src="./_static/_get_started_static/30.png"></td>
+<td><img src="./_static/_get_started_static/26.png"></td>
 </tr>
 </table>
 
@@ -164,12 +164,12 @@ ESP32-S3-BOX-3 出厂固件支持中文和英文离线语音唤醒和命令词�
 </div>
 
 3. 您还可以使用语音命令词欣赏音乐。请先唤醒设备，然后说出命令词`“播放音乐”`，设备将打开音乐播放器并开始播放内置音乐。您也可以用语音命令词切换歌曲或者暂停播放。出厂固件默认自带两首歌曲。
-   
+
 >**注意：**
    >
    >* 如果模块上的 LED 灯没有亮起，请检查模块管脚是否插错。
    >* 若在规定时间内未识别到命令词，则会显示 `超时`，约 1 秒后界面关闭。
-   
+
 <div align="center">
 <img src="_static/_get_started_static/18.png">
 </div>
@@ -195,18 +195,18 @@ ESP32-S3-BOX-3 出厂固件支持中文和英文离线语音唤醒和命令词�
 
 **中文模型额外支持的命令词**
 
-| command ID |    命令词    | 
-| :--------: | :----------:| 
-|     0      |   打开空调   |     
-|     1      |   关闭空调   |   
-|     2      |   舒适模式   |   
-|     3      |   制冷模式   |     
-|     4      |   制热模式   |     
-|     5      |   加热模式   |   
-|     6      |   除湿模式   |   
-|     7      |   送风模式   |   
-|     8      |   升高温度   |    
-|     9      |   降低温度   |    
+| command ID |    命令词    |
+| :--------: | :----------:|
+|     0      |   打开空调   |
+|     1      |   关闭空调   |
+|     2      |   舒适模式   |
+|     3      |   制冷模式   |
+|     4      |   制热模式   |
+|     5      |   加热模式   |
+|     6      |   除湿模式   |
+|     7      |   送风模式   |
+|     8      |   升高温度   |
+|     9      |   降低温度   |
 
 >**注意：**
    >
@@ -220,14 +220,14 @@ ESP32-S3-BOX-3 还配备了乐鑫专有的 AI 语音识别系统，通过我们�
 
 1.1. 进入 `Network` 界面，点按右上角 `To install APP`。扫描二维码下载并安装 ESP BOX 应用程序，或者直接在 App Store 或 Google Play 中搜索 "ESP BOX" 下载应用程序。
 
-   
+
    <div align="center">
    <img src="_static/_get_started_static/8.png">
    </div>
    <div align="center">
    <img src="_static/_get_started_static/Picture1.png" width="100 px">
    </div>
-   
+
 1.2. 如您第一次使用此应用程序，请先注册账号。
 
 1.3. 登录您的 ESP BOX 账号并打开手机蓝牙。点按界面下方 `+`，扫描设备上的二维码配置网络。

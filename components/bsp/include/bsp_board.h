@@ -133,7 +133,7 @@ typedef bottom_id_t (*bsp_sys_get_bottom_id)();
  *    - ESP_OK: read successfully
  *    - ESP_FAIL: read failed
  */
-typedef esp_err_t (*bsp_bottom_get_humiture)(float *temperature, uint8_t *humidity);
+typedef esp_err_t (*bsp_bottom_get_humiture)(float *temperature, float *humidity);
 
 /**
  * @brief Player set mute.
