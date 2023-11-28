@@ -15,5 +15,10 @@ menu "Example Configuration"
         default "sk-xxxxxxxx"
         help
             OpenAI api key for the example to use.
+    config OPENAI_URL
+        string "Base URL"
+        default "https://api.openai.com/v1/"
+        help
+            Base URL for OpenAI API
 
 endmenu

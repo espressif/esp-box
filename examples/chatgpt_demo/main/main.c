@@ -35,6 +35,7 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
 
     if (openai == NULL) {
         openai = OpenAICreate(sys_param->key);
+        OpenAIChangeBaseURL(openai, sys_param->url);
         audioTranscription = openai->audioTranscriptionCreate(openai);
         chatCompletion = openai->chatCreate(openai);
 
@@ -103,7 +104,7 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
         vTaskDelay(pdMS_TO_TICKS(SCROLL_START_DELAY_S * 1000));
         ui_ctrl_reply_set_audio_start_flag(true);
     }
-    // Clearing resources 
+    // Clearing resources
     result->delete(result);
     free(text);
     return ESP_OK;

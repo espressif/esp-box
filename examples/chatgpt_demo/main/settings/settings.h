@@ -11,11 +11,13 @@
 #define SSID_SIZE 32
 #define PASSWORD_SIZE 64
 #define KEY_SIZE 64
+#define URL_SIZE 64
 
 typedef struct {
-    char ssid[SSID_SIZE];         /* SSID of target AP. */
+    char ssid[SSID_SIZE];             /* SSID of target AP. */
     char password[PASSWORD_SIZE];     /* Password of target AP. */
-    char key[KEY_SIZE];         /* OpenAI key. */
+    char key[KEY_SIZE];               /* OpenAI key. */
+    char url[URL_SIZE];               /* OpenAI Base url. */
 } sys_param_t;
 
 esp_err_t settings_factory_reset(void);
