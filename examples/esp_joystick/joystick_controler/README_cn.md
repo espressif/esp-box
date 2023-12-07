@@ -24,7 +24,7 @@
 ESP-JoyStick 硬件系统由 ESP32-S3-BOX-3 开发板、 JoyStick 手柄和 ESP32-S3-USB-Bridge 接收机三部分组成。ESP32-S3-BOX-3 作为主控制器，通过 PCIe 接口与 JoyStick 手柄进行连接。系统在“游戏模式”和“遥控模式”下运行。在游戏模式下，它支持 USB-HID 和 BLE-HID 协议，用于控制计算机游戏，以及 NES 模拟器模式。在 RC 遥控模式下，它利用 ESP-NOW 无线通信协议与 [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/zh_CN/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html)（购买链接：[淘宝](https://item.taobao.com/item.htm?ft=t&id=753321694177)或[速卖通](https://www.aliexpress.us/item/3256806114330511.html?gatewayAdapt=glo2usa4itemAdapt)）或其他 Expressif 开发板（这里的 ESP32-S3-USB-Bridge 或其他 Expressif 开发板作为航模接收机）进行配对，实现 [RC 遥控车](examples/esp_joystick/joystick_rc_receiver)和 [ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) 四轴飞行器的无线控制。
 
 <div align="center">
-<img src="pictures/ESP-JoyStick-overall.png" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/ESP32-S3-BOX-3-JoyStick-overall.png/ESP32-S3-BOX-3-JoyStick-overall.png" width="60%">
 <p>ESP-JoyStick 整体实物图</p>
 </div>
 
@@ -34,19 +34,19 @@ ESP-JoyStick 硬件系统由 ESP32-S3-BOX-3 开发板、 JoyStick 手柄和 ESP3
   - NES 模拟器模式：该模式下，可在 ESP32-S3-BOX-3 屏幕上显示 NES 模拟器中的游戏。
 
 <div align="center">
-<img src="https://dl.espressif.com/ae/esp-box/gamePad.gif/gamePad.gif" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/control_pc_games.gif/control_pc_games.gif" width="60%">
 <p>ESP-JoyStick 控制电脑游戏</p>
 </div>
 
 - RC 遥控模式：ESP-JoyStick 通过 ESP-NOW 无线通信协议与 [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/zh_CN/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html) 等其他乐鑫官方开发板（接收机）进行配对连接，可实现对 [RC 遥控车](examples/esp_joystick/joystick_rc_receiver)、[ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) 四旋翼小飞机等航模的无线遥控。
 
 <div align="center">
-<img src="https://dl.espressif.com/ae/esp-box/esp_drone.gif/esp_drone.gif" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/control_esp_drone.gif/control_esp_drone.gif" width="60%">
 <p>ESP-JoyStick 遥控ESP-Droneo小飞机</p>
 </div>
 
 <div align="center">
-<img src="https://dl.espressif.com/ae/esp-box/RC_Car.gif/RC_Car.gif" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/control_rc_car.gif/control_rc_car.gif" width="60%">
 <p>ESP-JoyStick 控制RC遥控车</p>
 </div>
 
@@ -57,12 +57,12 @@ ESP-JoyStick 硬件系统由 ESP32-S3-BOX-3 开发板、 JoyStick 手柄和 ESP3
 以下是 ESP-JoyStick 的主要部件分布图。
 
 <div align="center">
-<img src="pictures/ESP-JoyStick-front_cn.png" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/ESP32-S3-BOX-3-JoyStick-front_cn.png/ESP32-S3-BOX-3-JoyStick-front_cn.png" width="60%">
 <p>ESP-JoyStick 正面</p>
 </div>
 
 <div align="center">
-<img src="pictures/ESP-JoyStick-back_cn.png" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/ESP32-S3-BOX-3-JoyStick-back_cn.png/ESP32-S3-BOX-3-JoyStick-back_cn.png" width="60%">
 <p>ESP-JoyStick 背面</p>
 </div>
 
@@ -88,6 +88,5 @@ ESP-JoyStick 共有 16 个物理按键，每个按键“未按下时电平为高
   * [ButtonBoard_PCB](https://dl.espressif.com/ae/esp-box/PCB_ButtonBoard_PCB_2023-11-22.pdf/PCB_ButtonBoard_PCB_2023-11-22.pdf)
 
 * [外壳 3D 打印文件](https://dl.espressif.com/ae/esp-box/Box_3_JoyStick_Case_231116.STL/Box_3_JoyStick_Case_231116.STL)
-* [ESP-JoyStick 图片](./pictures/)
 
 

@@ -26,7 +26,7 @@ This guide includes the following sections:
 The ESP-JoyStick hardware system comprises the ESP32-S3-BOX-3 development board, JoyStick controller, and ESP32-S3-USB-Bridge receiver. The ESP32-S3-BOX-3 serves as the main controller, connecting to the JoyStick controller and ESP32-S3-USB-Bridge receiver through a PCIe interface. The system operates in "Game Mode" and "RC Remote Control Mode." In Game Mode, it supports USB-HID and BLE-HID protocols for computer gaming control, as well as an NES emulator mode. In RC Remote Control Mode, it utilizes the ESP-NOW wireless communication protocol to pair with [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/en/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html)(Purchase link: [TaoBao](https://item.taobao.com/item.htm?ft=t&id=753321694177) or [Aliexpress](https://www.aliexpress.us/item/3256806114330511.html?gatewayAdapt=glo2usa4itemAdapt)) and other Espressif development boards(where the ESP32-S3-USB-Bridge or other Espressif development boards act as the model aircraft receiver), enabling wireless control of [RC cars](examples/esp_joystick/joystick_rc_receiver) and [ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) quadcopters.
 
 <div align="center">
-<img src="pictures/ESP-JoyStick-overall.png" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/ESP32-S3-BOX-3-JoyStick-overall.png/ESP32-S3-BOX-3-JoyStick-overall.png" width="60%">
 <p>ESP-JoyStick Overall Physical Diagram</p>
 </div>
 
@@ -36,19 +36,19 @@ The ESP-JoyStick hardware system comprises the ESP32-S3-BOX-3 development board,
   - NES Emulator Mode: In this mode, games from the NES emulator can be displayed on the screen of ESP32-S3-BOX-3.
 
 <div align="center">
-<img src="https://dl.espressif.com/ae/esp-box/gamePad.gif/gamePad.gif" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/control_pc_games.gif/control_pc_games.gif" width="60%">
 <p>ESP-JoyStick control computer games</p>
 </div>
 
 - RC Remote Control Mode: ESP-JoyStick establishes a paired connection through the ESP-NOW wireless communication protocol with other Espressif official development boards (receivers) such as [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/zh_CN/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html). This enables wireless remote control for [RC cars](examples/esp_joystick/joystick_rc_receiver), [ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) quadcopters, and other model aircraft.
 
 <div align="center">
-<img src="https://dl.espressif.com/ae/esp-box/esp_drone.gif/esp_drone.gif" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/control_esp_drone.gif/control_esp_drone.gif" width="60%">
 <p>ESP-JoyStick remote control the ESP-Drone</p>
 </div>
 
 <div align="center">
-<img src="https://dl.espressif.com/ae/esp-box/RC_Car.gif/RC_Car.gif" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/control_rc_car.gif/control_rc_car.gif" width="60%">
 <p>ESP-JoyStick control the RC car</p>
 </div>
 
@@ -59,12 +59,12 @@ To ensure that ESP-JoyStick has a comfortable grip, this project has optimized t
   The following is a map of the main components of the ESP-JoyStick.
 
 <div align="center">
-<img src="pictures/ESP-JoyStick-front_en.png" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/ESP32-S3-BOX-3-JoyStick-front_en.png/ESP32-S3-BOX-3-JoyStick-front_en.png" width="60%">
 <p>ESP-JoyStick Front</p>
 </div>
 
 <div align="center">
-<img src="pictures/ESP-JoyStick-back_en.png" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/ESP32-S3-BOX-3-JoyStick-back_en.png/ESP32-S3-BOX-3-JoyStick-back_en.png" width="60%">
 <p>ESP-JoyStick Back</p>
 </div>
 
@@ -89,6 +89,5 @@ For specific pin assignments, please refer to the schematic diagram of ESP-JoySt
   * [PCIE_Board_PCB](https://dl.espressif.com/ae/esp-box/PCB_PCIE_Board_PCB_2023-11-22.pdf/PCB_PCIE_Board_PCB_2023-11-22.pdf)
   * [ButtonBoard_PCB](https://dl.espressif.com/ae/esp-box/PCB_ButtonBoard_PCB_2023-11-22.pdf/PCB_ButtonBoard_PCB_2023-11-22.pdf)
 * [Shell 3D Print Source File](https://dl.espressif.com/ae/esp-box/Box_3_JoyStick_Case_231116.STL/Box_3_JoyStick_Case_231116.STL)
-* [ESP-JoyStick pictures](./pictures/)
 
 

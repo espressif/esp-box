@@ -12,7 +12,7 @@ This example represents the model aircraft receiver functionality module for the
 * Pressing LB/RB flashes the left/right turn signal lights. Pressing LB/RB again or pushing the right joystick left/right turns off the left/right turn signal lights.
 
 <div align="center">
-<img src="https://dl.espressif.com/ae/esp-box/RC_Car.gif/RC_Car.gif" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/control_rc_car.gif/control_rc_car.gif" width="60%">
 <p>ESP-JoyStick control the RC car</p>
 </div>
 

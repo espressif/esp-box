@@ -12,7 +12,7 @@
 * 按下按键 LB/RB, 左/右转向灯闪烁，再次按下 LB/RB 或右侧摇杆向左/向右推关闭左/右转向灯。
 
 <div align="center">
-<img src="https://dl.espressif.com/ae/esp-box/RC_Car.gif/RC_Car.gif" width="60%">
+<img src="https://dl.espressif.com/ae/esp-box/control_rc_car.gif/control_rc_car.gif" width="60%">
 <p>ESP-JoyStick 控制RC遥控车</p>
 </div>
 
