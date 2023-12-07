@@ -31,6 +31,9 @@
 .patterns-example_usb_camera_lcd_display: &patterns-example_usb_camera_lcd_display
   - "examples/usb_camera_lcd_display/**/*"
 
+.patterns-example_esp_joystick: &patterns-example_esp_joystick
+  - "examples/esp_joystick/**/*"
+
 .patterns-example_usb_headset: &patterns-example_usb_headset
   - "examples/usb_headset/**/*"
 
@@ -130,6 +133,15 @@
       changes: *patterns-components_bsp
     - <<: *if-dev-push
       changes: *patterns-example_usb_camera_lcd_display
+
+.rules:build:example_esp_joystick:
+  rules:
+    - <<: *if-protected
+    - <<: *if-label-build
+    - <<: *if-dev-push
+      changes: *patterns-components_bsp
+    - <<: *if-dev-push
+      changes: *patterns-example_esp_joystick
 
 .rules:build:example_usb_headset:
   rules:
