@@ -31,7 +31,7 @@
     expire_in: 1 week
   variables:
     IDF_CI_BUILD: "1"
-      # By configuring this macro, you can append the compiled configuration file. 
+      # By configuring this macro, you can append the compiled configuration file.
     # For example, using "sdkconf.etc=default" specifies the default sdkconfig file.
     EXAMPLE_CONFIG: "="
   script:
@@ -133,6 +133,16 @@ build_example_usb_camera_lcd_display:
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/usb_camera_lcd_display
+
+build_example_esp_joystick:
+  extends:
+    - .build_examples_template
+    - .rules:build:example_esp_joystick
+  parallel:
+    matrix:
+      - IMAGE: espressif/idf:release-v5.1
+  variables:
+    EXAMPLE_DIR: examples/esp_joystick
 
 build_example_usb_headset:
   extends:

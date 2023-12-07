@@ -1,0 +1,7 @@
+targets:
+    - esp32s3
+dependencies:
+  espressif/esp-now: "^2.4.0"
+  espressif/led_strip: "^2.5.2"
+## Required IDF version
+  idf: ">=5.1"

@@ -1,0 +1,8 @@
+targets:
+    - esp32s3
+dependencies:
+  espressif/esp-now: "^2.4.0"
+  espressif/esp-box-3: "^1.1.2"
+  espressif/button: "^3.1.3"
+  espressif/esp_tinyusb: "^1.1"
+  idf: ">=5.1"
