@@ -56,7 +56,7 @@ ignore:  # You can also select ignoring files here
     - examples/usb_camera_lcd_display/components/esp_jpeg/
     - examples/watering_demo/main/gui/font/
     - examples/watering_demo/main/gui/image/
-    - examples/esp_joystick/joystick_controler/main/ui/fonts
-    - examples/esp_joystick/joystick_controler/main/ui/images
-    - examples/esp_joystick/joystick_controler/main/ui
-    - examples/esp_joystick/joystick_controler/pictures
+    - examples/esp_joystick/joystick_controller/main/ui/fonts
+    - examples/esp_joystick/joystick_controller/main/ui/images
+    - examples/esp_joystick/joystick_controller/main/ui
+    - examples/esp_joystick/joystick_controller/pictures
