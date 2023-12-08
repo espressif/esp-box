@@ -1,5 +1,5 @@
 
-# JoyStick-Controler Example
+# JoyStick-Controller Example
 
 [[中文]](README_cn.md)
 

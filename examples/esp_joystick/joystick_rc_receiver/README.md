@@ -2,7 +2,7 @@
 
 [[中文]](README_cn.md)
 
-This example represents the model aircraft receiver functionality module for the [ESP-JoyStick](examples/esp_joystick/joystick_controler) project. Using this sample program, you can control an RC remote control car with the following effects:
+This example represents the model aircraft receiver functionality module for the [ESP-JoyStick](examples/esp_joystick/joystick_controller) project. Using this sample program, you can control an RC remote control car with the following effects:
 
 * Upon successful pairing and connection with ESP-JoyStick through ESP-NOW, the RGB indicator light turns green for 1 second and then turns off. When not paired, the RGB indicator light remains solid red.
 * Pushing the left joystick up/down makes the car move forward/backward.

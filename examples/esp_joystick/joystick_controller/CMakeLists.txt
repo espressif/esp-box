@@ -8,4 +8,4 @@ include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 add_compile_options("-Wno-format"
                     "-Wno-deprecated-declarations"
                     "-Wno-unused-variable")
-project(joystick_controler)
+project(joystick_controller)
