@@ -24,7 +24,6 @@
 #include "audio_player.h"
 #include "file_iterator.h"
 #include "app_ui_ctrl.h"
-#include "tts_api.h"
 #include "app_wifi.h"
 
 static const char *TAG = "app_audio";

@@ -13,7 +13,7 @@
 #include "nvs_flash.h"
 #include "app_ui_ctrl.h"
 #include "OpenAI.h"
-#include "tts_api.h"
+#include "audio_player.h"
 #include "app_sr.h"
 #include "bsp/esp-bsp.h"
 #include "bsp_board.h"
@@ -21,26 +21,34 @@
 #include "app_wifi.h"
 #include "settings.h"
 
+#define SERVER_ERROR "server_error"
 #define SCROLL_START_DELAY_S      (1.5)
+#define LISTEN_SPEAK_PANEL_DELAY_MS 2000
+#define INVALID_REQUEST_ERROR "invalid_request_error"
+#define SORRY_CANNOT_UNDERSTAND "Sorry, I can't understand."
+#define API_KEY_NOT_VALID "API Key is not valid"
+
 static char *TAG = "app_main";
 static sys_param_t *sys_param = NULL;
 
 /* program flow. This function is called in app_audio.c */
-
 esp_err_t start_openai(uint8_t *audio, int audio_len)
 {
     static OpenAI_t *openai = NULL;
     static OpenAI_AudioTranscription_t *audioTranscription = NULL;
     static OpenAI_ChatCompletion_t *chatCompletion = NULL;
+    static OpenAI_AudioSpeech_t *audioSpeech = NULL;
 
     if (openai == NULL) {
         openai = OpenAICreate(sys_param->key);
         OpenAIChangeBaseURL(openai, sys_param->url);
+
         audioTranscription = openai->audioTranscriptionCreate(openai);
         chatCompletion = openai->chatCreate(openai);
+        audioSpeech = openai->audioSpeechCreate(openai);
 
         audioTranscription->setResponseFormat(audioTranscription, OPENAI_AUDIO_RESPONSE_FORMAT_JSON);
-        audioTranscription->setLanguage(audioTranscription,"en");
+        audioTranscription->setLanguage(audioTranscription, "en");
         audioTranscription->setTemperature(audioTranscription, 0.2);
 
         chatCompletion->setModel(chatCompletion, "gpt-3.5-turbo");
@@ -51,19 +59,26 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
         chatCompletion->setPresencePenalty(chatCompletion, 0);
         chatCompletion->setFrequencyPenalty(chatCompletion, 0);
         chatCompletion->setUser(chatCompletion, "OpenAI-ESP32");
+
+        audioSpeech->setModel(audioSpeech, "tts-1");
+        audioSpeech->setVoice(audioSpeech, "nova");
+        audioSpeech->setResponseFormat(audioSpeech, OPENAI_AUDIO_OUTPUT_FORMAT_MP3);
+        audioSpeech->setSpeed(audioSpeech, 1.0);
     }
 
     ui_ctrl_show_panel(UI_CTRL_PANEL_GET, 0);
-    char *text = audioTranscription->file(audioTranscription, (uint8_t *)audio, audio_len, OPENAI_AUDIO_INPUT_FORMAT_WAV); // Calling transcript api
 
-    if (text == NULL){
-        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "API Key is not valid");
+    // OpenAI Audio Transcription
+    char *text = audioTranscription->file(audioTranscription, (uint8_t *)audio, audio_len, OPENAI_AUDIO_INPUT_FORMAT_WAV);
+
+    if (text == NULL) {
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, API_KEY_NOT_VALID);
         return ESP_FAIL;
     }
 
-    if (strcmp(text, "invalid_request_error") == 0 || strcmp(text, "server_error") == 0) {
-        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
-        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
+    if (strcmp(text, INVALID_REQUEST_ERROR) == 0 || strcmp(text, SERVER_ERROR) == 0) {
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, SORRY_CANNOT_UNDERSTAND);
+        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, LISTEN_SPEAK_PANEL_DELAY_MS);
         return ESP_FAIL;
     }
 
@@ -71,13 +86,14 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
     ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_QUESTION, text);
     ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, text);
 
-    OpenAI_StringResponse_t *result = chatCompletion->message(chatCompletion, text, false); //Calling Chat completion api
+    // OpenAI Chat Completion
+    OpenAI_StringResponse_t *result = chatCompletion->message(chatCompletion, text, false);
     char *response = result->getData(result, 0);
 
-    if (response != NULL && (strcmp(response, "invalid_request_error") == 0 || strcmp(response, "server_error") == 0)) {
+    if (response != NULL && (strcmp(response, INVALID_REQUEST_ERROR) == 0 || strcmp(response, SERVER_ERROR) == 0)) {
         // UI listen fail
-        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
-        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, SORRY_CANNOT_UNDERSTAND);
+        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, LISTEN_SPEAK_PANEL_DELAY_MS);
         return ESP_FAIL;
     }
 
@@ -85,15 +101,20 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
     ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_QUESTION, text);
     ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, response);
 
-    if (strcmp(response, "invalid_request_error") == 0) {
-        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, "Sorry, I can't understand.");
-        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 2000);
+    if (strcmp(response, INVALID_REQUEST_ERROR) == 0) {
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, SORRY_CANNOT_UNDERSTAND);
+        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, LISTEN_SPEAK_PANEL_DELAY_MS);
         return ESP_FAIL;
     }
 
     ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_CONTENT, response);
     ui_ctrl_show_panel(UI_CTRL_PANEL_REPLY, 0);
-    esp_err_t status = text_to_speech_request(response, AUDIO_CODECS_MP3);
+
+    // OpenAI Speech Response
+    OpenAI_SpeechResponse_t *speechresult = audioSpeech->speech(audioSpeech, response);
+    uint32_t dataLength = speechresult->getLen(speechresult);
+    char *speechptr = speechresult->getData(speechresult);
+    esp_err_t status = audio_player_play((uint8_t *)speechptr, dataLength);
 
     if (status != ESP_OK) {
         ESP_LOGE(TAG, "Error creating ChatGPT request: %s\n", esp_err_to_name(status));
@@ -104,8 +125,10 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
         vTaskDelay(pdMS_TO_TICKS(SCROLL_START_DELAY_S * 1000));
         ui_ctrl_reply_set_audio_start_flag(true);
     }
+
     // Clearing resources
-    result->delete(result);
+    speechresult->delete (speechresult);
+    result->delete (result);
     free(text);
     return ESP_OK;
 }
@@ -147,6 +170,7 @@ void app_main()
     audio_register_play_finish_cb(audio_play_finish_cb);
 
     while (true) {
+
         ESP_LOGD(TAG, "\tDescription\tInternal\tSPIRAM");
         ESP_LOGD(TAG, "Current Free Memory\t%d\t\t%d",
                  heap_caps_get_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL),
