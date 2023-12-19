@@ -64,12 +64,48 @@ static esp_err_t audio_mute_function(AUDIO_PLAYER_MUTE_SETTING setting)
     // restore the voice volume upon unmuting
     if (setting == AUDIO_PLAYER_UNMUTE) {
         bsp_codec_volume_set(CONFIG_VOLUME_LEVEL, NULL);
-    } else {
+    }
+    return ESP_OK;
+}
+
+static esp_err_t audio_codec_set_fs(uint32_t rate, uint32_t bits_cfg, i2s_slot_mode_t ch)
+{
+    esp_err_t ret = ESP_OK;
+    ret = bsp_codec_set_fs(rate, bits_cfg, ch);
+
+    bsp_codec_mute_set(true);
+    bsp_codec_mute_set(false);
+    bsp_codec_volume_set(CONFIG_VOLUME_LEVEL, NULL);
+    vTaskDelay(pdMS_TO_TICKS(50));
+
+    return ret;
+}
+
+static void audio_player_cb(audio_player_cb_ctx_t *ctx)
+{
+    switch (ctx->audio_event) {
+    case AUDIO_PLAYER_CALLBACK_EVENT_IDLE:
+        ESP_LOGI(TAG, "Player IDLE");
+        bsp_codec_set_fs(16000, 16, 2);
         if (audio_play_finish_cb) {
             audio_play_finish_cb();
         }
+        break;
+    case AUDIO_PLAYER_CALLBACK_EVENT_COMPLETED_PLAYING_NEXT:
+        ESP_LOGI(TAG, "Player NEXT");
+        break;
+    case AUDIO_PLAYER_CALLBACK_EVENT_PLAYING:
+        ESP_LOGI(TAG, "Player PLAYING");
+        break;
+    case AUDIO_PLAYER_CALLBACK_EVENT_PAUSE:
+        ESP_LOGI(TAG, "Player PAUSE");
+        break;
+    case AUDIO_PLAYER_CALLBACK_EVENT_SHUTDOWN:
+        ESP_LOGI(TAG, "Player SHUTDOWN");
+        break;
+    default:
+        break;
     }
-    return ESP_OK;
 }
 
 void audio_record_init()
@@ -94,10 +130,11 @@ void audio_record_init()
 
     audio_player_config_t config = { .mute_fn = audio_mute_function,
                                      .write_fn = bsp_i2s_write,
-                                     .clk_set_fn = bsp_codec_set_fs,
+                                     .clk_set_fn = audio_codec_set_fs,
                                      .priority = 5
                                    };
     ESP_ERROR_CHECK(audio_player_new(config));
+    audio_player_callback_register(audio_player_cb, NULL);
 }
 
 void audio_record_save(int16_t *audio_buffer, int audio_chunksize)
@@ -177,7 +214,6 @@ static esp_err_t audio_record_stop()
     wav_head.Subchunk2Size = record_total_len;
     memcpy((void *)record_audio_buffer, &wav_head, sizeof(wav_header_t));
     Cache_WriteBack_Addr((uint32_t)record_audio_buffer, record_total_len);
-    // audio_player_play(record_audio_buffer, file_total_len);
 
 #endif
 err:
@@ -233,7 +269,6 @@ esp_err_t audio_play_task(void *filepath)
             total_cnt += cnt;
         }
     } while (1);
-    printf("audio play end, %d, %d K\r\n", total_cnt, total_cnt / 1024);
 
 EXIT:
     if (fp) {
@@ -242,46 +277,6 @@ EXIT:
     if (buffer) {
         free(buffer);
     }
-    return ret;
-}
-
-esp_err_t audio_mp3_load(void *filepath, size_t *file_len)
-{
-    FILE *fp = NULL;
-    struct stat file_stat;
-    esp_err_t ret = ESP_OK;
-
-    size_t len, total_cnt = 0;
-
-    const size_t chunk_size = 4096;
-    uint8_t *buffer = malloc(chunk_size);
-    ESP_GOTO_ON_FALSE(NULL != buffer, ESP_FAIL, EXIT, TAG, "buffer malloc failed");
-
-    ESP_GOTO_ON_FALSE(-1 != stat(filepath, &file_stat), ESP_FAIL, EXIT, TAG, "Failed to stat file");
-
-    fp = fopen(filepath, "r");
-    ESP_GOTO_ON_FALSE(NULL != fp, ESP_FAIL, EXIT, TAG, "Failed create record file");
-
-    do {
-        /* Read file in chunks into the scratch buffer */
-        len = fread(buffer, 1, chunk_size, fp);
-        if (len <= 0) {
-            break;
-        } else if (len > 0) {
-            memcpy((void *)(audio_rx_buffer + total_cnt), buffer, len);
-            total_cnt += len;
-        }
-    } while (1);
-    printf("audio load end, %d, %d K\r\n", total_cnt, total_cnt / 1024);
-
-EXIT:
-    if (fp) {
-        fclose(fp);
-    }
-    if (buffer) {
-        free(buffer);
-    }
-    *file_len = total_cnt;
     return ret;
 }
 
@@ -317,18 +312,13 @@ void sr_handler_task(void *pvParam)
         if (ESP_MN_STATE_TIMEOUT == result.state) {
             ESP_LOGI(TAG, "ESP_MN_STATE_TIMEOUT");
             audio_record_stop();
-            // audio_play_task("/spiffs/echo_en_wake.wav");
-            size_t len;
-            audio_mp3_load("/spiffs/waitPlease.mp3", &len);
-            if (len) {
-                audio_player_play(audio_rx_buffer, len);
+            FILE *fp = fopen("/spiffs/waitPlease.mp3", "r");
+            if (fp) {
+                audio_player_play(fp);
             }
-            uint32_t starttime = esp_log_timestamp();
-            ESP_LOGE(TAG, "[Start] start_openai, timestamp: %" PRIu32, starttime);
             if (WIFI_STATUS_CONNECTED_OK == wifi_connected_already()) {
                 start_openai((uint8_t *)record_audio_buffer, record_total_len);
             }
-            ESP_LOGE(TAG, "[End] start_openai, +offset:%" PRIu32, esp_log_timestamp() - starttime);
             continue;
         }
 

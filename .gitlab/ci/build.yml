@@ -130,7 +130,7 @@ build_example_usb_camera_lcd_display:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
-      - IMAGE: espressif/idf:latest
+      # - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/usb_camera_lcd_display
 

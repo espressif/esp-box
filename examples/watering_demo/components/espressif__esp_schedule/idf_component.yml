@@ -1,0 +1,8 @@
+dependencies:
+  espressif/rmaker_common:
+    version: ~1.4.2
+description: ESP Schedules, used in RainMaker
+issues: https://github.com/espressif/esp-rainmaker/issues
+repository: https://github.com/espressif/esp-rainmaker.git
+url: https://github.com/espressif/esp-rainmaker/tree/master/components/esp_schedule
+version: 1.1.0
