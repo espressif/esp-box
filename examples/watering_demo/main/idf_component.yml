@@ -2,16 +2,6 @@
 dependencies:
   idf: ">=5.0"
 
-  espressif/esp_rainmaker:
-    path: components/esp_rainmaker
-    git: https://github.com/espressif/esp-rainmaker.git
-    version: "cc861bffc818c607e799f66c79923fd4e2d00447"
-  espressif/esp_schedule:
-    path: components/esp_schedule
-    git: https://github.com/espressif/esp-rainmaker.git
-    version: "cc861bffc818c607e799f66c79923fd4e2d00447"
-  espressif/rmaker_common: "1.4.2"
+  espressif/esp_rainmaker: "1.0.0"
   espressif/esp-sr: "1.3.3"
-  espressif/json_generator: ^1
-  espressif/json_parser: =1.0.0
   espressif/qrcode: ^0.1.0

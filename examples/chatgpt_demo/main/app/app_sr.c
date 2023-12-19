@@ -130,16 +130,12 @@ static void audio_detect_task(void *arg)
 
             if (local_state != res->vad_state) {
                 local_state = res->vad_state;
-                if (AFE_VAD_SILENCE != local_state) {
-                    ESP_LOGW(TAG, "%s, frame:%d", "silence", frame_keep);
-                }
                 frame_keep = 0;
             } else {
                 frame_keep++;
             }
 
             if ((100 == frame_keep) && (AFE_VAD_SILENCE == res->vad_state)) {
-                ESP_LOGW(TAG, "vad Time out");
                 sr_result_t result = {
                     .wakenet_mode = WAKENET_NO_DETECT,
                     .state = ESP_MN_STATE_TIMEOUT,

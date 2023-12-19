@@ -114,7 +114,11 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
     OpenAI_SpeechResponse_t *speechresult = audioSpeech->speech(audioSpeech, response);
     uint32_t dataLength = speechresult->getLen(speechresult);
     char *speechptr = speechresult->getData(speechresult);
-    esp_err_t status = audio_player_play((uint8_t *)speechptr, dataLength);
+    esp_err_t status = ESP_FAIL;
+    FILE *fp = fmemopen((void *)speechptr, dataLength, "rb");
+    if (fp) {
+        status = audio_player_play(fp);
+    }
 
     if (status != ESP_OK) {
         ESP_LOGE(TAG, "Error creating ChatGPT request: %s\n", esp_err_to_name(status));
