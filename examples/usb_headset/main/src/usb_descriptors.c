@@ -13,9 +13,11 @@
  * Auto ProductID layout's Bitmap:
  *   [MSB]     AUDIO | MIDI | HID | MSC | CDC          [LSB]
  */
+#ifndef USB_PID
 #define _PID_MAP(itf, n)  ( (CFG_TUD_##itf) << (n) )
 #define USB_PID           (0x4000 | _PID_MAP(CDC, 0) | _PID_MAP(MSC, 1) | _PID_MAP(HID, 2) | \
     _PID_MAP(MIDI, 3) | _PID_MAP(AUDIO, 4) | _PID_MAP(VENDOR, 5) )
+#endif
 
 //--------------------------------------------------------------------+
 // Device Descriptors
@@ -32,9 +34,9 @@ tusb_desc_device_t const desc_device = {
     .bDeviceProtocol    = MISC_PROTOCOL_IAD,
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
-    .idVendor           = 0x303A,
+    .idVendor           = USB_VID,
     .idProduct          = USB_PID,
-    .bcdDevice          = 0x0100,
+    .bcdDevice          = BCD_DEVICE,
 
     .iManufacturer      = 0x01,
     .iProduct           = 0x02,
@@ -54,35 +56,15 @@ uint8_t const *tud_descriptor_device_cb(void)
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 #define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * TUD_AUDIO_HEADSET_STEREO_DESC_LEN)
-
-#if CFG_TUSB_MCU == OPT_MCU_LPC175X_6X || CFG_TUSB_MCU == OPT_MCU_LPC177X_8X || CFG_TUSB_MCU == OPT_MCU_LPC40XX
-// LPC 17xx and 40xx endpoint type (bulk/interrupt/iso) are fixed by its number
-// 0 control, 1 In, 2 Bulk, 3 Iso, 4 In etc ...
-#define EPNUM_AUDIO_IN    0x03
-#define EPNUM_AUDIO_OUT   0x03
-
-#elif CFG_TUSB_MCU == OPT_MCU_NRF5X
-// ISO endpoints for NRF5x are fixed to 0x08 (0x88)
-#define EPNUM_AUDIO_IN    0x08
-#define EPNUM_AUDIO_OUT   0x08
-
-#elif CFG_TUSB_MCU == OPT_MCU_SAMG  || CFG_TUSB_MCU ==  OPT_MCU_SAMX7X
-// SAMG & SAME70 don't support a same endpoint number with different direction IN and OUT
-//    e.g EP1 OUT & EP1 IN cannot exist together
-#define EPNUM_AUDIO_IN    0x01
-#define EPNUM_AUDIO_OUT   0x02
-
-#else
-#define EPNUM_AUDIO_IN    0x01
+#define EPNUM_AUDIO_IN    0x81
 #define EPNUM_AUDIO_OUT   0x01
-#endif
 
 uint8_t const desc_configuration[] = {
     // Interface count, string index, total length, attribute, power in mA
-    TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
+    TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 500),
 
-    // Interface number, string index, EP Out & EP In address, EP size
-    TUD_AUDIO_HEADSET_STEREO_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN | 0x80)
+    // String index, EP Out & EP In address
+    TUD_AUDIO_HEADSET_STEREO_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN)
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR

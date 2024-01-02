@@ -9,7 +9,7 @@
 /** Major version number (X.x.x) */
 #define USB_HEADSET_VERSION_MAJOR 0
 /** Minor version number (x.X.x) */
-#define USB_HEADSET_VERSION_MINOR 0
+#define USB_HEADSET_VERSION_MINOR 1
 /** Patch version number (x.x.X) */
 #define USB_HEADSET_VERSION_PATCH 1
 

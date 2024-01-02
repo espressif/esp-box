@@ -47,12 +47,12 @@ esp_err_t fft_init(void)
     return ESP_OK;
 }
 
-IRAM_ATTR void rb_write(int16_t *buf, size_t size)
+void rb_write(int16_t *buf, size_t size)
 {
     if (buf == NULL) {
         return;
     }
-    xRingbufferSendFromISR(rb_handle, (void *)buf, size, (TickType_t)0);
+    xRingbufferSend(rb_handle, (void *)buf, size, 0);
 }
 
 static void rb_init(void)
@@ -103,6 +103,6 @@ esp_err_t fft_convert_init(void)
 {
     rb_init();
     fft_init();
-    xTaskCreate(fft_convert_task, "fft_convert_task", 1024 * 8, NULL, 10, NULL);
+    xTaskCreate(fft_convert_task, "fft_convert_task", 1024 * 8, NULL, 1, NULL);
     return ESP_OK;
 }
