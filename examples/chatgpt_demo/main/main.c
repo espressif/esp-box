@@ -10,6 +10,7 @@
 #include "freertos/event_groups.h"
 #include "esp_system.h"
 #include "esp_log.h"
+#include "esp_check.h"
 #include "nvs_flash.h"
 #include "app_ui_ctrl.h"
 #include "OpenAI.h"
@@ -21,12 +22,12 @@
 #include "app_wifi.h"
 #include "settings.h"
 
-#define SERVER_ERROR "server_error"
-#define SCROLL_START_DELAY_S      (1.5)
-#define LISTEN_SPEAK_PANEL_DELAY_MS 2000
-#define INVALID_REQUEST_ERROR "invalid_request_error"
-#define SORRY_CANNOT_UNDERSTAND "Sorry, I can't understand."
-#define API_KEY_NOT_VALID "API Key is not valid"
+#define SCROLL_START_DELAY_S            (1.5)
+#define LISTEN_SPEAK_PANEL_DELAY_MS     2000
+#define SERVER_ERROR                    "server_error"
+#define INVALID_REQUEST_ERROR           "invalid_request_error"
+#define SORRY_CANNOT_UNDERSTAND         "Sorry, I can't understand."
+#define API_KEY_NOT_VALID               "API Key is not valid"
 
 static char *TAG = "app_main";
 static sys_param_t *sys_param = NULL;
@@ -34,13 +35,20 @@ static sys_param_t *sys_param = NULL;
 /* program flow. This function is called in app_audio.c */
 esp_err_t start_openai(uint8_t *audio, int audio_len)
 {
+    esp_err_t ret = ESP_OK;
     static OpenAI_t *openai = NULL;
     static OpenAI_AudioTranscription_t *audioTranscription = NULL;
     static OpenAI_ChatCompletion_t *chatCompletion = NULL;
     static OpenAI_AudioSpeech_t *audioSpeech = NULL;
 
+    OpenAI_SpeechResponse_t *speechresult = NULL;
+    OpenAI_StringResponse_t *result = NULL;
+    FILE *fp = NULL;
+
     if (openai == NULL) {
         openai = OpenAICreate(sys_param->key);
+        ESP_RETURN_ON_FALSE(NULL != openai, ESP_ERR_INVALID_ARG, TAG, "OpenAICreate faield");
+
         OpenAIChangeBaseURL(openai, sys_param->url);
 
         audioTranscription = openai->audioTranscriptionCreate(openai);
@@ -71,15 +79,23 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
     // OpenAI Audio Transcription
     char *text = audioTranscription->file(audioTranscription, (uint8_t *)audio, audio_len, OPENAI_AUDIO_INPUT_FORMAT_WAV);
 
-    if (text == NULL) {
-        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, API_KEY_NOT_VALID);
-        return ESP_FAIL;
+    if (NULL == text) {
+        ret = ESP_ERR_INVALID_RESPONSE;
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, INVALID_REQUEST_ERROR);
+        ESP_GOTO_ON_ERROR(ret, err, TAG, "[audioTranscription]: invalid url");
+    }
+
+    if (strstr(text, "\"code\": ")) {
+        ret = ESP_ERR_INVALID_RESPONSE;
+        ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, text);
+        ESP_GOTO_ON_ERROR(ret, err, TAG, "[audioTranscription]: invalid response");
     }
 
     if (strcmp(text, INVALID_REQUEST_ERROR) == 0 || strcmp(text, SERVER_ERROR) == 0) {
+        ret = ESP_ERR_INVALID_RESPONSE;
         ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, SORRY_CANNOT_UNDERSTAND);
         ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, LISTEN_SPEAK_PANEL_DELAY_MS);
-        return ESP_FAIL;
+        ESP_GOTO_ON_ERROR(ret, err, TAG, "[audioTranscription]: invalid response");
     }
 
     // UI listen success
@@ -87,14 +103,20 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
     ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, text);
 
     // OpenAI Chat Completion
-    OpenAI_StringResponse_t *result = chatCompletion->message(chatCompletion, text, false);
+    result = chatCompletion->message(chatCompletion, text, false);
+    if (NULL == result) {
+        ret = ESP_ERR_INVALID_RESPONSE;
+        ESP_GOTO_ON_ERROR(ret, err, TAG, "[chatCompletion]: invalid response");
+    }
+
     char *response = result->getData(result, 0);
 
     if (response != NULL && (strcmp(response, INVALID_REQUEST_ERROR) == 0 || strcmp(response, SERVER_ERROR) == 0)) {
         // UI listen fail
+        ret = ESP_ERR_INVALID_RESPONSE;
         ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, SORRY_CANNOT_UNDERSTAND);
         ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, LISTEN_SPEAK_PANEL_DELAY_MS);
-        return ESP_FAIL;
+        ESP_GOTO_ON_ERROR(ret, err, TAG, "[chatCompletion]: invalid response");
     }
 
     // UI listen success
@@ -102,20 +124,31 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
     ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, response);
 
     if (strcmp(response, INVALID_REQUEST_ERROR) == 0) {
+        ret = ESP_ERR_INVALID_RESPONSE;
         ui_ctrl_label_show_text(UI_CTRL_LABEL_LISTEN_SPEAK, SORRY_CANNOT_UNDERSTAND);
         ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, LISTEN_SPEAK_PANEL_DELAY_MS);
-        return ESP_FAIL;
+        ESP_GOTO_ON_ERROR(ret, err, TAG, "[chatCompletion]: invalid response");
     }
 
     ui_ctrl_label_show_text(UI_CTRL_LABEL_REPLY_CONTENT, response);
     ui_ctrl_show_panel(UI_CTRL_PANEL_REPLY, 0);
 
     // OpenAI Speech Response
-    OpenAI_SpeechResponse_t *speechresult = audioSpeech->speech(audioSpeech, response);
+    speechresult = audioSpeech->speech(audioSpeech, response);
+    if (NULL == speechresult) {
+        ret = ESP_ERR_INVALID_RESPONSE;
+        ui_ctrl_show_panel(UI_CTRL_PANEL_SLEEP, 5 * LISTEN_SPEAK_PANEL_DELAY_MS);
+        fp = fopen("/spiffs/tts_failed.mp3", "r");
+        if (fp) {
+            audio_player_play(fp);
+        }
+        ESP_GOTO_ON_ERROR(ret, err, TAG, "[audioSpeech]: invalid response");
+    }
+
     uint32_t dataLength = speechresult->getLen(speechresult);
     char *speechptr = speechresult->getData(speechresult);
     esp_err_t status = ESP_FAIL;
-    FILE *fp = fmemopen((void *)speechptr, dataLength, "rb");
+    fp = fmemopen((void *)speechptr, dataLength, "rb");
     if (fp) {
         status = audio_player_play(fp);
     }
@@ -130,11 +163,20 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
         ui_ctrl_reply_set_audio_start_flag(true);
     }
 
+err:
     // Clearing resources
-    speechresult->delete (speechresult);
-    result->delete (result);
-    free(text);
-    return ESP_OK;
+    if (speechresult) {
+        speechresult->delete (speechresult);
+    }
+
+    if (result) {
+        result->delete (result);
+    }
+
+    if (text) {
+        free(text);
+    }
+    return ret;
 }
 
 /* play audio function */
