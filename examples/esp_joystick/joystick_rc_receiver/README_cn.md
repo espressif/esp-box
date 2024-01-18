@@ -2,7 +2,7 @@
 
 [[English]](README.md)
 
-该示例为 [ESP-JoyStick](examples/esp_joystick/joystick_controller) 项目的航模接收机功能模块，使用该示例程序可实现对 RC 遥控车的控制，控制效果如下：
+该示例为 [ESP-JoyStick](../joystick_controller) 项目的航模接收机功能模块，使用该示例程序可实现对 RC 遥控车的控制，控制效果如下：
 
 * 通过 ESP-NOW 与 ESP-JoyStick 配对连接成功后，RGB 指示灯亮绿灯；未配对连接时，RGB指示灯红灯常亮。
 * 左侧摇杆向上/向下推，小车前进/后退。

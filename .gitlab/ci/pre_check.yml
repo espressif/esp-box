@@ -4,7 +4,7 @@ check_readme_links:
   stage: pre_check
   image: python:3.9
   tags: ["build", "amd64", "internet"]
-  allow_failure: true
+  allow_failure: false
   script:
     - python ${CI_PROJECT_DIR}/tools/ci/check_readme_links.py
 
@@ -12,7 +12,7 @@ check_copyright:
   stage: pre_check
   image: python:3.9
   tags: ["build", "amd64", "internet"]
-  allow_failure: true
+  allow_failure: false
   before_script:
     - pip install git+https://github.com/espressif/check-copyright.git@master
   script:

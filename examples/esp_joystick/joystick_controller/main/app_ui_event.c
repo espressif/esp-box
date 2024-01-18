@@ -1,8 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2023-2024 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2024 Espressif Systems (Shanghai) CO LTD
  *
- * SPDX-License-Identifier: Unlicense OR CC0-1.0
+ * SPDX-License-Identifier: CC0-1.0
  */
+
 #include "app_ui_event.h"
 #include "tinyusb.h"
 #include "class/hid/hid_device.h"

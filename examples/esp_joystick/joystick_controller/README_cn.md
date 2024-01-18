@@ -21,7 +21,7 @@
 
 ## 项目概述
 
-ESP-JoyStick 硬件系统由 ESP32-S3-BOX-3 开发板、 JoyStick 手柄和 ESP32-S3-USB-Bridge 接收机三部分组成。ESP32-S3-BOX-3 作为主控制器，通过 PCIe 接口与 JoyStick 手柄进行连接。系统在“游戏模式”和“遥控模式”下运行。在游戏模式下，它支持 USB-HID 和 BLE-HID 协议，用于控制计算机游戏，以及 NES 模拟器模式。在 RC 遥控模式下，它利用 ESP-NOW 无线通信协议与 [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/zh_CN/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html)（购买链接：[淘宝](https://item.taobao.com/item.htm?ft=t&id=753321694177)或[速卖通](https://www.aliexpress.us/item/3256806114330511.html?gatewayAdapt=glo2usa4itemAdapt)）或其他 Espressif 开发板（这里的 ESP32-S3-USB-Bridge 或其他 Espressif 开发板作为航模接收机）进行配对，实现 [RC 遥控车](examples/esp_joystick/joystick_rc_receiver)和 [ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) 四轴飞行器的无线控制。
+ESP-JoyStick 硬件系统由 ESP32-S3-BOX-3 开发板、 JoyStick 手柄和 ESP32-S3-USB-Bridge 接收机三部分组成。ESP32-S3-BOX-3 作为主控制器，通过 PCIe 接口与 JoyStick 手柄进行连接。系统在“游戏模式”和“遥控模式”下运行。在游戏模式下，它支持 USB-HID 和 BLE-HID 协议，用于控制计算机游戏，以及 NES 模拟器模式。在 RC 遥控模式下，它利用 ESP-NOW 无线通信协议与 [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/zh_CN/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html)（购买链接：[淘宝](https://item.taobao.com/item.htm?ft=t&id=753321694177)或[速卖通](https://www.aliexpress.us/item/3256806114330511.html?gatewayAdapt=glo2usa4itemAdapt)）或其他 Espressif 开发板（这里的 ESP32-S3-USB-Bridge 或其他 Espressif 开发板作为航模接收机）进行配对，实现 [RC 遥控车](../joystick_rc_receiver)和 [ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) 四轴飞行器的无线控制。
 
 <div align="center">
 <img src="https://dl.espressif.com/ae/esp-box/ESP32-S3-BOX-3-JoyStick-overall.png/ESP32-S3-BOX-3-JoyStick-overall.png" width="60%">
@@ -38,7 +38,7 @@ ESP-JoyStick 硬件系统由 ESP32-S3-BOX-3 开发板、 JoyStick 手柄和 ESP3
 <p>ESP-JoyStick 控制电脑游戏</p>
 </div>
 
-- RC 遥控模式：ESP-JoyStick 通过 ESP-NOW 无线通信协议与 [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/zh_CN/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html) 等其他乐鑫官方开发板（接收机）进行配对连接，可实现对 [RC 遥控车](examples/esp_joystick/joystick_rc_receiver)、[ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) 四旋翼小飞机等航模的无线遥控。
+- RC 遥控模式：ESP-JoyStick 通过 ESP-NOW 无线通信协议与 [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/zh_CN/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html) 等其他乐鑫官方开发板（接收机）进行配对连接，可实现对 [RC 遥控车](../joystick_rc_receiver)、[ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) 四旋翼小飞机等航模的无线遥控。
 
 <div align="center">
 <img src="https://dl.espressif.com/ae/esp-box/control_esp_drone.gif/control_esp_drone.gif" width="60%">

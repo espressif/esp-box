@@ -10,16 +10,16 @@
 <p align="left">
     <a href="https://github.com/espressif/esp-box/blob/master/LICENSE" alt="Build examples">
         <img alt="GitHub" src="https://img.shields.io/github/license/espressif/esp-box"></a>
-    <a href="https://github.com/espressif/esp-box/actions/workflows/build_IDF5.1.yml" alt="Build examples">
-        <img src="https://github.com/espressif/esp-box/actions/workflows/build_IDF5.1.yml/badge.svg" /></a>
+    <a href="https://github.com/espressif/esp-box/actions/workflows/build-examples-gh-pages-on-push.yml" alt="Build examples">
+        <img src="https://github.com/espressif/esp-box/actions/workflows/build-examples-gh-pages-on-push.yml/badge.svg" /></a>
     <a href="https://github.com/espressif/esp-box/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/espressif/esp-box" /></a>
     <a href="https://github.com/espressif/esp-box/releases" alt="GitHub all releases">
         <img src="https://img.shields.io/github/downloads/espressif/esp-box/total" /></a>
 </p>
 
-<a href="https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml">
-    <img alt="Try it with ESP Launchpad" src="https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png" width="200" height="56">
+<a href="https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-box/launchpad.toml">
+    <img alt="Try it with ESP Launchpad" src="https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png" width="250" height="70">
 </a>
 
 **重要提醒：**
