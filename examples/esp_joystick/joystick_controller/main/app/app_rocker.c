@@ -1,8 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2023-2024 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2024 Espressif Systems (Shanghai) CO LTD
  *
- * SPDX-License-Identifier: Unlicense OR CC0-1.0
+ * SPDX-License-Identifier: CC0-1.0
  */
+
 #include "app_rocker.h"
 
 adc_oneshot_unit_handle_t game_mode_adc_handle = NULL;

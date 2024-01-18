@@ -70,11 +70,11 @@ void ble_hid_send_joystick_value(uint16_t joystick_buttons, uint8_t joystick_x, 
     uint8_t buffer[HID_CC_IN_RPT_GP_LEN];
 
     buffer[0] = joystick_buttons & 0xff;
-    buffer[1] = ( joystick_buttons >> 8);
-    buffer[2] = ( joystick_x );         /* LX */
-    buffer[3] = ( joystick_y ) - 1;     /* LY */
-    buffer[4] = ( joystick_z );         /* RX */
-    buffer[5] = ( joystick_rx ) - 1;    /* RY */
+    buffer[1] = (joystick_buttons >> 8);
+    buffer[2] = (joystick_x);           /* LX */
+    buffer[3] = (joystick_y) - 1;       /* LY */
+    buffer[4] = (joystick_z);           /* RX */
+    buffer[5] = (joystick_rx) - 1;      /* RY */
     esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, HID_RPT_ID_CC_GP_IN, buffer, HID_CC_IN_RPT_GP_LEN);
     return;
 }
@@ -139,15 +139,15 @@ esp_err_t ble_hid_init(void)
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-    ESP_ERROR_CHECK( ret );
+    ESP_ERROR_CHECK(ret);
 
     ESP_LOGI(BLE_HID_TAG, "setting hid gap, mode:%d", HID_DEV_MODE);
     ret = esp_hid_gap_init(HID_DEV_MODE);
-    ESP_ERROR_CHECK( ret );
+    ESP_ERROR_CHECK(ret);
 
 #if CONFIG_BT_BLE_ENABLED
     ret = esp_hid_ble_gap_adv_init(ESP_HID_APPEARANCE_GAMEPAD, ble_hid_config.device_name);
-    ESP_ERROR_CHECK( ret );
+    ESP_ERROR_CHECK(ret);
 
     if ((ret = esp_ble_gatts_register_callback(esp_hidd_gatts_event_handler)) != ESP_OK) {
         ESP_LOGE(BLE_HID_TAG, "GATTS register callback failed: %d", ret);

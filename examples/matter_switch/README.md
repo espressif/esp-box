@@ -220,7 +220,7 @@ Then we can use the ***SetupQRCode: [MT:MH5B4BFN00KCTW7I200]*** or ***Manual pai
 Long press *Boot* button for more than 5 seconds, then release, the matter switch will trigger factory reset, all the matter related information will be factory reset.
 
 ## Build & Flash Using LaunchPad
-The LaunchPad can be utilized to directly build and flash both the [ESP-Box Matter Switch](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml) and [ESP-Matter Light](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-matter/launchpad.toml). However, even with the LaunchPad, still require to employ the chip-tool for commissioning and subsequent post-commissioning procedures.
+The LaunchPad can be utilized to directly build and flash both the [ESP-Box Matter Switch](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-box/launchpad.toml) and [ESP-Matter Light](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-matter/launchpad.toml). However, even with the LaunchPad, still require to employ the chip-tool for commissioning and subsequent post-commissioning procedures.
 
 > On the LaunchPad, you can find the ESP-Matter Light example available under the name "Light Switch."
 

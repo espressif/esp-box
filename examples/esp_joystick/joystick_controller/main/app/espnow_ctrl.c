@@ -174,7 +174,7 @@ static esp_err_t espnow_ctrl_responder_forward(uint8_t type, uint8_t *src_addr, 
 #endif
 
 static esp_err_t espnow_ctrl_responder_bind_process(uint8_t *src_addr, void *data,
-    size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
+        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
     ESP_PARAM_CHECK(src_addr);
     ESP_PARAM_CHECK(data);
@@ -264,7 +264,7 @@ esp_err_t espnow_ctrl_responder_bind(uint32_t wait_ms, int8_t rssi, espnow_ctrl_
 }
 
 static esp_err_t espnow_ctrl_responder_data_process(uint8_t *src_addr, void *data,
-    size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
+        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
     ESP_PARAM_CHECK(src_addr);
     ESP_PARAM_CHECK(data);
@@ -314,7 +314,7 @@ esp_err_t espnow_ctrl_responder_data(espnow_ctrl_data_cb_t cb)
 
 #ifdef CONFIG_ESPNOW_CONTROL_AUTO_CHANNEL_SENDING
 static esp_err_t espnow_ctrl_initiator_ack(uint8_t *src_addr, void *data,
-    size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
+        size_t size, wifi_pkt_rx_ctrl_t *rx_ctrl)
 {
     espnow_frame_head_t *frame_head = (espnow_frame_head_t *)data;
 

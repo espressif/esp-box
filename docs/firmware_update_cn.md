@@ -2,7 +2,7 @@
 
 # 更新固件
 **警告:**
-> 当前 Tag 分支 （最新 [Tag v0.5.0](https://github.com/espressif/esp-box/releases)）发布的固件仅适用于 ESP32-S3-BOX 和 ESP32-S3-BOX-Lite，对于购买了 ESP32-S3-BOX-3 用户，在项目进展期间我们会发布可更新的固件。我们推荐用户通过乐鑫在线固件烧录工具 **[ESP Launchpad](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml)** 来更新固件。
+> 当前 Tag 分支 （最新 [Tag v0.5.0](https://github.com/espressif/esp-box/releases)）发布的固件仅适用于 ESP32-S3-BOX 和 ESP32-S3-BOX-Lite，对于购买了 ESP32-S3-BOX-3 用户，在项目进展期间我们会发布可更新的固件。我们推荐用户通过乐鑫在线固件烧录工具 **[ESP Launchpad](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-box/launchpad.toml)** 来更新固件。
 
 BOX 系列开发板支持使用 USB 接口更新固件，您仅需要准备：
 1. 一根 USB Type-C 数据线
@@ -33,7 +33,7 @@ BOX 系列开发板支持使用 USB 接口更新固件，您仅需要准备：
 
 ### ESP-Launchpad 更新固件说明
 
-ESP Launchpad 是一个基于 web 的 ESP32 固件下载工具，用户可以通过 USB 接口直接在[网页](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://raw.githubusercontent.com/espressif/esp-box/master/launch.toml)上操作。
+ESP Launchpad 是一个基于 web 的 ESP32 固件下载工具，用户可以通过 USB 接口直接在[网页](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-box/launchpad.toml)上操作。
 
 1. 使用 USB Type-C 数据线将开发板接入电脑。
 2. 如下图所示，点击 `Connect` 选择并连接设备。

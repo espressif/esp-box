@@ -23,6 +23,10 @@ IGNORE_WARNINGS = [
     r'default on the choice symbol SEC_CERT_DAC_PROVIDER',
     r'the choice symbol SEC_CERT_DAC_PROVIDER',
     r'The legacy RMT driver is deprecated, please use driver/rmt_tx.h and/or driver/rmt_rx.h',
+    r'warning: unknown kconfig symbol \'ESPTOOLPY_FLASHSIZE_DETECT\' assigned to*',
+    r'warning: unknown kconfig symbol \'BTDM_CTRL_MODE_BLE_ONLY\' assigned to*',
+    r'warning: unknown kconfig symbol \'IO_GLITCH_FILTER_TIME_MS\' assigned to*',
+    r'warning: unknown kconfig symbol \'BSP_TOUCH_BUTTON\' assigned to*',
 ]
 
 def _get_idf_version():

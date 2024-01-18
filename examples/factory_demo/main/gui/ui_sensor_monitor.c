@@ -1138,14 +1138,14 @@ void ui_sensor_monitor_start(void (*fn)(void))
         lv_label_set_text(temp_value_label, "0");
         lv_label_set_text(hum_value_label, "0");
         esp_sensor_base_img = lv_img_create(page);
-        lv_obj_align(esp_sensor_base_img, LV_ALIGN_CENTER, 0, -45);
+        lv_obj_align(esp_sensor_base_img, LV_ALIGN_CENTER, 0, -60);
         lv_img_set_src(esp_sensor_base_img, sensor_monitor_img_src_list[2].img);
 
         tips_lab = lv_label_create(page);
-        lv_label_set_text(tips_lab, "Please mount the esp-box to\nthe sensor accessory");
+        lv_label_set_text(tips_lab, "This function needs the\n sensor accessory. \nPlease mount the esp-box onto it.");
         lv_obj_set_style_text_color(tips_lab, lv_color_make(40, 40, 40), LV_STATE_DEFAULT);
         lv_obj_set_style_text_font(tips_lab, &font_cn_gb2_16, LV_PART_MAIN | LV_STATE_DEFAULT);
-        lv_obj_align(tips_lab, LV_ALIGN_CENTER, 0, 25);
+        lv_obj_align(tips_lab, LV_ALIGN_CENTER, 0, 15);
         lv_obj_set_style_text_align(tips_lab, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
 
         btn_next = lv_btn_create(page);
