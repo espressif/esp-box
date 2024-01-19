@@ -59,10 +59,11 @@ jobs:
         run: |
           . $IDF_PATH/export.sh
           cd $GITHUB_WORKSPACE/examples/${{matrix.build-dir}}
-
-          rm -rf sdkconfig build sdkconfig.defaults
-          cp ${{matrix.boards}} sdkconfig.defaults
-          # idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;${{matrix.boards}}" reconfigure
+          if [ -e "${{matrix.boards}}" ]; then
+            rm -rf sdkconfig build sdkconfig.defaults
+            cp ${{matrix.boards}} sdkconfig.defaults
+            # idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;${{matrix.boards}}" reconfigure
+          fi
 
           if [[ ${{matrix.build-dir}} == usb_camera_lcd_display ]]; then
             if [[ ${{matrix.boards}} == sdkconfig.ci.box-3 ]]; then
