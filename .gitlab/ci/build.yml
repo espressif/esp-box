@@ -150,8 +150,7 @@ build_example_usb_headset:
     - .rules:build:example_usb_headset
   parallel:
     matrix:
-      - IMAGE: espressif/idf:release-v5.0
-      - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/usb_headset

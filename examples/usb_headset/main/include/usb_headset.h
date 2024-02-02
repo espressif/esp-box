@@ -12,11 +12,15 @@ extern "C" {
 
 #include "esp_err.h"
 
-#define SAMPLE_RATE     (48000)
-#define DEFAULT_VOLUME  (80)
-#define CHANNEL         (2)
-#define WIDTH           (16)
-
+#define DEFAULT_SAMPLE_RATE         (48000)
+#define DEFAULT_VOLUME              (99)
+// Currently the player and recorder should use the same channel and width
+#define DEFAULT_RECORDER_CHANNEL    (1)
+#define DEFAULT_RECORDER_WIDTH      (16)
+#define DEFAULT_PLAYER_CHANNEL      (1)
+#define DEFAULT_PLAYER_WIDTH        (16)
+#define DEBUG_USB_HEADSET           (0)
+#define DEBUG_SYSTEM_VIEW           (0)
 /**
  * @brief Initialize the usb headset function
  *
