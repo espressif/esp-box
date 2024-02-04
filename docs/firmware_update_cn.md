@@ -27,7 +27,7 @@ BOX 系列开发板支持使用 USB 接口更新固件，您仅需要准备：
 
 不同操作系统的固件更新方法，请参考以下链接：
 
-| [<center> ESP Launchpad </center>](#ESP-Launchpad-更新固件说明) | [<center> Windows </center>](#windows-系统更新固件说明) | [<center> Linux </center>](#linux-系统更新固件说明) | [<center> macOS </center>](#macos-系统更新固件说明) |
+| [<center> ESP Launchpad </center>](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-box/launchpad.toml) | [<center> Windows </center>](#windows-系统更新固件说明) | [<center> Linux </center>](#linux-系统更新固件说明) | [<center> macOS </center>](#macos-系统更新固件说明) |
 |:----:|:----:|:----:|:----:|
 |[<img alt="Try it with ESP Launchpad" src="https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png" width="200" height="56">](#ESP-Launchpad-更新固件说明) | [<img src="_static/windows-logo.png" width="40" align="center" />](#windows-系统更新固件说明) | [<img src="_static/linux-logo.png" width="40"  align="center" />](#linux-系统更新固件说明) | [<img src="_static/macos-logo.jpg" width="40" align="center" />](#macos-系统更新固件说明) |
 
@@ -64,7 +64,7 @@ ESP Launchpad 是一个基于 web 的 ESP32 固件下载工具，用户可以通
 
 6. 请按照下图指示配置下载工具：
    1. 首先选择 `xxxx.bin` 路径，将地址设置为 `0x0`。
-   2. 选择下载端口 COMX，此电脑为 `COM2`。 
+   2. 选择下载端口 COMX，此电脑为 `COM2`。
    3. 点击 `START` 开始固件下载。
 
    <div align="center">

@@ -2,7 +2,7 @@
 
 ## Hardware Overview
 
-![esp_box_hardware](../../_static/esp32_s3_box_hardware.svg)
+![esp_box_hardware](../../_static/esp32_s3_box_hardware.png)
 
 ### Hardware Source Files
 

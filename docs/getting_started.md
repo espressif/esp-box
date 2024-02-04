@@ -34,6 +34,7 @@ The target group for this product includes individuals and organizations engaged
 # Getting Started
 
 ## Contents of the Kit
+### ESP32-S3-BOX-3 Kit
 <div align="center">
 <img src="./_static/_get_started_static/ESP32_S3_BOX_3_KitFigure.png" width="700px">
 </div>
@@ -46,6 +47,21 @@ The target group for this product includes individuals and organizations engaged
 - A USB-C Power Cable
 - An RGB LED module and Dupont wires for testing
 
+### ESP32-S3-BOX-3B Kit
+<div align="center">
+<img src="./_static/_get_started_static/ESP32_S3_BOX_3B_KitFigure.png" width="700px">
+</div>
+
+- ESP32-S3-BOX-3, a main unit that can work on its own
+- ESP32-S3-BOX-3-DOCK, a functional accessory serving as a stand for the main box
+- A USB-C Power Cable
+- An RGB LED module and Dupont wires for testing
+
+## Variant Description
+The ESP32-S3-BOX-3 offers two different versions: ESP32-S3-BOX-3 and ESP32-S3-BOX-3B. The ESP32-S3-BOX-3 represents the standard edition with four blue accessories, the ESP32-S3-BOX-3B provides fewer accessories to meet starters who don’t need much unnecessary hardware. Here are the distinctions between the two versions:
+<div align="center">
+<img src="./_static/_get_started_static/ESP32_S3_BOX_3_Compare.jpg" width="700px">
+</div>
 
 ## Power on Your Device
 1. Power on your device using the USB-C cable.

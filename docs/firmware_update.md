@@ -29,7 +29,7 @@ For the latest firmware, please go to https://github.com/espressif/esp-box/relea
 
 Please follow the link below corresponding to your OS to update the firmware.
 
-| [<center> ESP Launchpad </center>](#Updating-Firmware-with-ESP-Launchpad) | [<center> Windows </center>](#Updating-Firmware-for-Windows) | [<center> Linux </center>](#Updating-Firmware-for-Linux) | [<center> macOS </center>](#Updating-Firmware-for-macOS) |
+| [<center> ESP Launchpad </center>](https://espressif.github.io/esp-launchpad/?flashConfigURL=https://espressif.github.io/esp-box/launchpad.toml) | [<center> Windows </center>](#Updating-Firmware-for-Windows) | [<center> Linux </center>](#Updating-Firmware-for-Linux) | [<center> macOS </center>](#Updating-Firmware-for-macOS) |
 |:----:|:----:|:----:|:----:|
 |<img alt="Try it with ESP Launchpad" src="https://espressif.github.io/esp-launchpad/assets/try_with_launchpad.png" width="200" height="56"> | [<img src="_static/windows-logo.png" width="40" align="center" />](#Updating-Firmware-for-Windows) | [<img src="_static/linux-logo.png" width="40"  align="center" />](#Updating-Firmware-for-Linux) | [<img src="_static/macos-logo.jpg" width="40" align="center" />](#Updating-Firmware-for-macOS) |
 
@@ -45,7 +45,7 @@ ESP Launchpad is a web based tool, available for flashing firmware application t
    <img src="_static/launchpad_en.png" width="580">
    </div>
 
-### Updating Firmware for Windows 
+### Updating Firmware for Windows
 
 We recommend using `Windows 10` and above. Under `Windows 10` system, the driver of `USB-Serial-Jtag` will be downloaded automatically. If you use `Windows 7`, please download and install [USB-Serial-JTAG drive](https://dl.espressif.com/dl/idf-driver/idf-driver-esp32-usb-jtag-2021-07-15.zip) manually.
 
@@ -79,7 +79,7 @@ We recommend using `Windows 10` and above. Under `Windows 10` system, the driver
    <img src="_static/dl_tool_windows_3.png" width="300">
    </div>
 
-### Updating Firmware for Linux 
+### Updating Firmware for Linux
 
 1. [Download the latest firmware](#latest-firmware-download).
 2. Connect your development board to the computer through a USB Type-C cable. There is no need to install the driver of `USB-Serial-Jtag` under Linux system.
@@ -99,7 +99,7 @@ We recommend using `Windows 10` and above. Under `Windows 10` system, the driver
     python -m esptool --chip esp32s3 write_flash 0x0 download_path/test_bin.bin
     ```
 
-   1. `0x0` is the fixed flash address. 
+   1. `0x0` is the fixed flash address.
    2. `download_path/test_bin.bin` should be replaced with your firmware path and name.
 
 5. After the firmware is updated, the download tool will prompt `Hash of data verified`. Next, **please press the `Reset` button to run the new firmware!**

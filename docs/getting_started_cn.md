@@ -32,6 +32,7 @@ ESP32-S3-BOX-3 出厂固件支持中文和英文离线语音唤醒和命令词�
 
 # 开始使用
 ## 套件内容
+###  ESP32-S3-BOX-3 套件
 <div align="center">
 <img src="./_static/_get_started_static/ESP32_S3_BOX_3_KitFigure.png" width="700px">
 </div>
@@ -44,6 +45,21 @@ ESP32-S3-BOX-3 出厂固件支持中文和英文离线语音唤醒和命令词�
 - 一根 USB-C 数据线
 - 一个 RGB LED 模块和杜邦线，用于测试
 
+###  ESP32-S3-BOX-3B 套件
+<div align="center">
+<img src="./_static/_get_started_static/ESP32_S3_BOX_3B_KitFigure.png" width="700px">
+</div>
+
+- ESP32-S3-BOX-3，独立工作的主模块
+- ESP32-S3-BOX-3-DOCK，功能配件，可作为主机的座子
+- 一根 USB-C 数据线
+- 一个 RGB LED 模块和杜邦线，用于测试
+
+## 变体说明
+ESP32-S3-BOX-3 提供两款不同配置的套件：分别命名为 ESP32-S3-BOX-3 和 ESP32-S3-BOX-3B。ESP32-S3-BOX-3 代表标准版本，配备四款蓝色配件，而 ESP32-S3-BOX-3B 代表基础版，仅提供了一款配件，适用于不需要太多不必要硬件的初学者。以下是两个版本之间的区别
+<div align="center">
+<img src="./_static/_get_started_static/ESP32_S3_BOX_3_Compare.jpg" width="700px">
+</div>
 
 ## 给设备供电
 1. 使用 USB-C 数据线给设备供电。
