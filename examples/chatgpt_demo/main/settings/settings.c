@@ -24,8 +24,8 @@ static sys_param_t g_sys_param = {0};
 
 esp_err_t settings_factory_reset(void)
 {
-    const esp_partition_t *update_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
-    ESP_LOGI(TAG, "Switch to partition factory");
+    const esp_partition_t *update_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
+    ESP_LOGI(TAG, "Switch to partition UF2");
     esp_ota_set_boot_partition(update_partition);
     esp_restart();
     return ESP_OK;

@@ -36,8 +36,8 @@ static void uf2_nvs_modified_cb()
 
 void app_main(void)
 {
-    const esp_partition_t *update_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_OTA_0, NULL);
-    ESP_LOGI(TAG, "Switch to partition OTA_0");
+    const esp_partition_t *update_partition = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
+    ESP_LOGI(TAG, "Switch to partition factory");
     esp_ota_set_boot_partition(update_partition);
     esp_err_t err = ESP_OK;
 

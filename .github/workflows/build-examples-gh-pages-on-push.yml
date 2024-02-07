@@ -49,6 +49,11 @@ jobs:
           'usb_headset',
           'watering_demo']
         boards: ['sdkconfig.ci.box', 'sdkconfig.ci.box-lite', 'sdkconfig.ci.box-3']
+        exclude:
+          - boards: sdkconfig.ci.box-lite
+            build-dir: usb_camera_lcd_display
+          - boards: sdkconfig.ci.box
+            build-dir: usb_camera_lcd_display
     steps:
       - uses: actions/checkout@v3
         with:
@@ -58,46 +63,23 @@ jobs:
         shell: bash
         run: |
           . $IDF_PATH/export.sh
+          pip install --upgrade idf-component-manager
+          pip install "idf_build_apps<2.0"
+
           cd $GITHUB_WORKSPACE/examples/${{matrix.build-dir}}
-          if [ -e "${{matrix.boards}}" ]; then
-            rm -rf sdkconfig build sdkconfig.defaults
-            cp ${{matrix.boards}} sdkconfig.defaults
-            # idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;${{matrix.boards}}" reconfigure
-          fi
+          # diff sdkconfig.defaults ${{matrix.boards}} | grep '^>' | sed 's/^> *//' | grep -v '^#' | sed 's/.*/\n&/' >> sdkconfig.defaults
+          comm -23 <(grep -v '^#' ${{matrix.boards}} | sort) <(grep -v '^#' sdkconfig.defaults | sort) | sed 's/.*/\n&/' >> sdkconfig.defaults
 
-          if [[ ${{matrix.build-dir}} == usb_camera_lcd_display ]]; then
-            if [[ ${{matrix.boards}} == sdkconfig.ci.box-3 ]]; then
-              idf.py build
-              cd build
-              esptool.py --chip esp32s3 merge_bin -o "$GITHUB_WORKSPACE/images/${{matrix.build-dir}}_${{matrix.boards}}.bin" @flash_args
-            else
-              echo "Skipping build for ${{matrix.build-dir}} with ${{matrix.boards}}"
-            fi
-          elif [[ ${{matrix.build-dir}} == chatgpt_demo ]]; then
-            idf.py build
-
+          if [[ ${{matrix.build-dir}} == chatgpt_demo ]]; then
             cd factory_nvs
-            rm -rf sdkconfig build sdkconfig.defaults
-            cp ${{matrix.boards}} sdkconfig.defaults
-            # idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;${{matrix.boards}}" reconfigure
+            comm -23 <(grep -v '^#' ${{matrix.boards}} | sort) <(grep -v '^#' sdkconfig.defaults | sort) | sed 's/.*/\n&/' >> sdkconfig.defaults
             idf.py build
-
             cd ../
-            esptool.py --chip ESP32-S3 merge_bin \
-            -o "$GITHUB_WORKSPACE/images/${{matrix.build-dir}}_${{matrix.boards}}.bin" \
-            --flash_mode dio --flash_freq 80m --flash_size 16MB \
-            0x0 build/bootloader/bootloader.bin \
-            0x8000 build/partition_table/partition-table.bin \
-            0xd000 build/ota_data_initial.bin \
-            0x10000 build/chatgpt_demo.bin \
-            0x900000 build/storage.bin \
-            0xb00000 build/srmodels/srmodels.bin \
-            0x700000 factory_nvs/build/factory_nvs.bin
-          else
-            idf.py build
-            cd build
-            esptool.py --chip esp32s3 merge_bin -o "$GITHUB_WORKSPACE/images/${{matrix.build-dir}}_${{matrix.boards}}.bin" @flash_args
           fi
+
+          idf.py build
+          cd build
+          esptool.py --chip esp32s3 merge_bin -o "$GITHUB_WORKSPACE/images/${{matrix.build-dir}}_${{matrix.boards}}.bin" @flash_args
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
@@ -107,7 +89,7 @@ jobs:
 
   job2:
     runs-on: ubuntu-latest
-    container: espressif/esp-matter:latest
+    container: espressif/esp-matter:latest_idf_v5.1.1
     strategy:
       matrix:
         build-dir: ['matter_switch']
@@ -122,11 +104,12 @@ jobs:
         run: |
           . $IDF_PATH/export.sh
           . $ESP_MATTER_PATH/export.sh
-          cd $GITHUB_WORKSPACE/examples/${{matrix.build-dir}}
+          pip install --upgrade idf-component-manager
+          pip install "idf_build_apps<2.0"
 
-          rm -rf sdkconfig build sdkconfig.defaults
-          cp ${{matrix.boards}} sdkconfig.defaults
-          # idf.py -D SDKCONFIG_DEFAULTS="sdkconfig.defaults;${{matrix.boards}}" reconfigure
+          cd $GITHUB_WORKSPACE/examples/${{matrix.build-dir}}
+          comm -23 <(grep -v '^#' ${{matrix.boards}} | sort) <(grep -v '^#' sdkconfig.defaults | sort) | sed 's/.*/\n&/' >> sdkconfig.defaults
+
           idf.py set-target esp32s3 build
           cd build
           esptool.py --chip esp32s3 merge_bin -o "$GITHUB_WORKSPACE/images/${{matrix.build-dir}}_${{matrix.boards}}.bin" @flash_args
@@ -162,7 +145,7 @@ jobs:
           ls
           $GITHUB_WORKSPACE/tools/launchpad/rename.sh $GITHUB_WORKSPACE
           ls
-          $GITHUB_WORKSPACE/tools/launchpad/generate_launchpad_config.sh
+          $GITHUB_WORKSPACE/tools/launchpad/generate_launchpad_config.sh $GITHUB_REPOSITORY
 
       - name: Setup Pages
         uses: actions/configure-pages@v2

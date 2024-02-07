@@ -10,3 +10,4 @@ set(EXTRA_COMPONENT_DIRS
     )
 add_compile_options(-fdiagnostics-color=always -Wno-ignored-qualifiers)
 project(chatgpt_demo)
+
