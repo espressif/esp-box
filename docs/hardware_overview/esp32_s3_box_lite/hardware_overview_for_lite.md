@@ -2,7 +2,7 @@
 
 ## Hardware Overview
 
-![esp_box_hardware](../../_static/esp_box_lite_hardware.svg)
+![esp_box_hardware](../../_static/esp_box_lite_hardware.png)
 
 ### Hardware Source Files
 

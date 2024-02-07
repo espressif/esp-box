@@ -2,7 +2,7 @@
 
 ## 硬件总览
 
-![esp_box_hardware](../../_static/esp_box_lite_hardware.svg)
+![esp_box_hardware](../../_static/esp_box_lite_hardware.png)
 
 ### 硬件开源资料
 

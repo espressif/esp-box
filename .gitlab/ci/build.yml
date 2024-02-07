@@ -62,6 +62,11 @@ build_example_chatgpt_demo:
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/chatgpt_demo
+    NVS_DIR: examples/chatgpt_demo/factory_nvs
+  before_script:
+    - pwd
+    - mkdir ${NVS_DIR}/build
+    - touch ${NVS_DIR}/build/factory_nvs.bin
 
 build_example_chatgpt_demo_factory_nvs:
   extends:

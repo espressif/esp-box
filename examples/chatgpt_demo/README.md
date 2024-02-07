@@ -88,7 +88,7 @@ idf.py build
 **8. Flash**
 
 ```bash
-python -m esptool -p /dev/ttyACM0 --chip esp32s3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 16MB --flash_freq 80m 0x0 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0xd000 build/ota_data_initial.bin 0x10000 build/chatgpt_demo.bin 0x900000 build/storage.bin 0xb00000 build/srmodels/srmodels.bin 0x700000 factory_nvs/build/factory_nvs.bin
+idf.py -p PORT flash
 
 ```
 
