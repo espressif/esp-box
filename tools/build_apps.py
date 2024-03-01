@@ -27,6 +27,7 @@ IGNORE_WARNINGS = [
     r'warning: unknown kconfig symbol \'BTDM_CTRL_MODE_BLE_ONLY\' assigned to*',
     r'warning: unknown kconfig symbol \'IO_GLITCH_FILTER_TIME_MS\' assigned to*',
     r'warning: unknown kconfig symbol \'BSP_TOUCH_BUTTON\' assigned to*',
+    r'warning: default value 0 on ESPNOW_OTA_SEND_FORWARD_TTL',
 ]
 
 def _get_idf_version():
