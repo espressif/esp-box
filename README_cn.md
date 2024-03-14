@@ -33,13 +33,15 @@ ESP-BOX 为各个领域的应用提供了开发资源，包括离线语音助手
 | 产品名称 |        产品图      |   市场状态      |
 | :-----: | :---------------------: |:---------------------: |
 | [ESP32-S3-BOX<sup> **1** </sup>](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box_cn.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |寿命终止 <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md) |
-| [ESP32-S3-BOX-Lite<sup> **1** </sup>](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |寿命终止[（仅剩裸板在售）](https://item.taobao.com/item.htm?spm=a312a.7700824.w4002-8715811646.9.4048605fNqggSF&id=658634202331) <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md)|
-| [ESP32-S3-BOX-3](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3_cn.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?ft=t&id=732842971319) <br> [用户指南](./docs/getting_started_cn.md)|
+| [ESP32-S3-BOX-Lite<sup> **1** **2** </sup>](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite_cn.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |寿命终止 <br> [用户指南](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started_cn.md)|
+| [ESP32-S3-BOX-3<sup> **3** </sup>](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3_cn.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[在售](https://item.taobao.com/item.htm?ft=t&id=732842971319) <br> [用户指南](./docs/getting_started_cn.md)|
 
 **Note 1**: 对于 ESP32-S3-BOX 和 ESP32-S3-BOX-Lite，我们建议您更新内置的[出厂应用固件](./docs/firmware_update_cn.md)以确保拥有最新的 bug 修复。在 Master 分支，我们将逐步对这两款开发板提供有限的支持。有关更多信息，请阅读各例程的 README。
 
-## 版本信息
+**Note 2**: ESP32-S3-BOX-Lite 整个工程包括 PCB，外壳结构已开源到[立创开源硬件平台](https://oshwhub.com/esp-college/esp32-s3-box_lite)，有需要复刻该项目的开发者，请自行购买 LCD 后进行工程复刻，LCD 屏[购买链接](https://item.taobao.com/item.htm?id=658634202331&spm=a312a.7700824.w4002-8715811646.9.4048605fNqggSF&skuId=5283401261405)。
 
+**Note 3**: ESP32-S3-BOX-3 提供两款不同配置的套件：分别命名为 ESP32-S3-BOX-3 和 ESP32-S3-BOX-3B。ESP32-S3-BOX-3 代表标准版，配备四款蓝色配件，而 ESP32-S3-BOX-3B 代表基础版，仅提供了一款配件，适用于不需要太多不必要硬件的初学者。点击[此处](https://github.com/espressif/esp-box/blob/master/docs/getting_started_cn.md#%E5%8F%98%E4%BD%93%E8%AF%B4%E6%98%8E)了解两者区别。
+## 版本信息
 |  ESP-BOX  |                        依赖的 ESP-IDF                        |                           分支信息                           | 支持状态                                                |
 | :-------: | :----------------------------------------------------------: | :----------------------------------------------------------: | ------------------------------------------------------- |
 |  master   |     >= release/v5.1<br/>commit id: 22cfbf30c3           | Latest developing firmware <br/>esp-sr components version:  v1.4.1 | 部分支持 ESP32-S3-BOX，ESP32-S3-BOX-Lite 和 ESP32-S3-BOX-3<br/>**使用 menuconfig 选择开发板**<br/>详见 Examples **README** |

@@ -33,10 +33,12 @@ ESP-BOX provides a platform for developing applications in various domains, incl
 | Product Name |        Product Figure       |    Marketing Status       |
 | :-----: | :---------------------: |:---------------------: |
 | [ESP32-S3-BOX<sup> **1** </sup>](docs/hardware_overview/esp32_s3_box/hardware_overview_for_box.md) | <img src="docs/_static/esp32_s3_box.png" width="200px" /> |End of Life <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md) |
-| [ESP32-S3-BOX-Lite<sup> **1** </sup>](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005004441701974.html?spm=a2g0o.store_pc_groupList.8148356.15.378130cf2Qwt87&pdp_npi=3%40dis%21HKD%21HKD273.50%21HKD273.50%21%21%21%21%21%40210318cb16926755466344763e3593%2112000029194032303%21sh%21HK%213721963538) <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md)|
-| [ESP32-S3-BOX-3](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005005920207976.html) <br> [User Guide](./docs/getting_started.md)|
+| [ESP32-S3-BOX-Lite<sup> **1**</sup>](docs/hardware_overview/esp32_s3_box_lite/hardware_overview_for_lite.md) | <img src="docs/_static/esp32_s3_box_lite.png" width="200px" /> |End of Life <br> [User Guide](https://github.com/espressif/esp-box/blob/v0.5.0/docs/getting_started.md)|
+| [ESP32-S3-BOX-3<sup> **2**</sup>](docs/hardware_overview/esp32_s3_box_3/hardware_overview_for_box_3.md) | <img src="docs/_static/esp32_s3_box_3.png" width="200px" /> |[Active](https://www.aliexpress.com/item/1005005920207976.html) <br> [User Guide](./docs/getting_started.md)|
 
 **Note 1**: Upon receiving the ESP32-S3-BOX and ESP32-S3-BOX-Lite, we advise updating the [built-in factory firmware](./docs/firmware_update.md) to ensure you have the latest bug fixes. In the master branch, we will gradually offer limited support for these two development boards. For further information, kindly refer to the examples readme.
+
+**Note 2**: The ESP32-S3-BOX-3 offers two different versions: ESP32-S3-BOX-3 and ESP32-S3-BOX-3B. The ESP32-S3-BOX-3 represents the standard edition with four blue accessories, the ESP32-S3-BOX-3B provides fewer accessories to meet starters who don’t need much unnecessary hardware. For more details on the distinctions, please check [here](https://github.com/espressif/esp-box/blob/master/docs/getting_started.md#variant-description).
 ## Versions
 
 |      ESP-BOX     | Dependent ESP-IDF |  Branch Note                                           | Support State  |

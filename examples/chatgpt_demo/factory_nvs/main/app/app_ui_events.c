@@ -8,7 +8,7 @@
 #include "lvgl.h"
 
 #if (ESP_IDF_VERSION_MAJOR == 5) && (ESP_IDF_VERSION_MINOR == 3)
-#include "hal/usb_fsls_phy_ll.h"
+#include "hal/usb_wrap_ll.h"
 #else
 #include "hal/usb_phy_ll.h"
 #endif
@@ -21,7 +21,7 @@ void EventBtnSetupClick(lv_event_t *e)
     // Configure USB PHY, Change back to USB-Serial-Jtag
 
 #if (ESP_IDF_VERSION_MAJOR == 5) && (ESP_IDF_VERSION_MINOR == 3)
-    usb_fsls_phy_ll_int_jtag_enable(&USB_SERIAL_JTAG);
+    usb_wrap_ll_phy_enable_external(&USB_WRAP, true);
 #else
     usb_phy_ll_int_jtag_enable(&USB_SERIAL_JTAG);
 #endif
