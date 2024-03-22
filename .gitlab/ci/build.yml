@@ -59,6 +59,7 @@ build_example_chatgpt_demo:
   parallel:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:release-v5.1
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/chatgpt_demo
@@ -75,6 +76,7 @@ build_example_chatgpt_demo_factory_nvs:
   parallel:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
+      - IMAGE: espressif/idf:release-v5.1
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/chatgpt_demo/factory_nvs
@@ -135,7 +137,7 @@ build_example_usb_camera_lcd_display:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
-      # - IMAGE: espressif/idf:latest
+      - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/usb_camera_lcd_display
 
@@ -156,6 +158,7 @@ build_example_usb_headset:
   parallel:
     matrix:
       - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.1
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/usb_headset

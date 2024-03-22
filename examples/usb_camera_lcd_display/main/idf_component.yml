@@ -1,5 +1,4 @@
 dependencies:
-  espressif/esp-box-3: "^1.0.0"
   idf: ">=5.0"
   usb_stream:
     version: "~1.3.*"
