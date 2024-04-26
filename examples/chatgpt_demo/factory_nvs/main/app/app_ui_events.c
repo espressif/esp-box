@@ -6,14 +6,7 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "lvgl.h"
-
-#if (ESP_IDF_VERSION_MAJOR == 5) && (ESP_IDF_VERSION_MINOR == 3)
-#include "hal/usb_wrap_ll.h"
-#elif (ESP_IDF_VERSION_MAJOR == 5) && (ESP_IDF_VERSION_MINOR == 1)
-#include "hal/usb_fsls_phy_ll.h"
-#else
-#include "hal/usb_phy_ll.h"
-#endif
+#include "esp_tinyuf2.h"
 
 static char *TAG = "NVS: ui-events";
 
@@ -22,12 +15,6 @@ void EventBtnSetupClick(lv_event_t *e)
     ESP_LOGI(TAG, "btn click!");
     // Configure USB PHY, Change back to USB-Serial-Jtag
 
-#if (ESP_IDF_VERSION_MAJOR == 5) && (ESP_IDF_VERSION_MINOR == 3)
-    usb_wrap_ll_phy_enable_external(&USB_WRAP, true);
-#elif (ESP_IDF_VERSION_MAJOR == 5) && (ESP_IDF_VERSION_MINOR == 1)
-    usb_fsls_phy_ll_int_jtag_enable(&USB_SERIAL_JTAG);
-#else
-    usb_phy_ll_int_jtag_enable(&USB_SERIAL_JTAG);
-#endif
+    esp_tinyuf2_uninstall();
     esp_restart();
 }
