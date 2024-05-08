@@ -42,7 +42,7 @@ esp_err_t bsp_i2s_read_debug(void *buf, size_t size, size_t *bytes_read, TickTyp
 {
     static uint64_t last_time = 0;
     uint64_t current_time = esp_timer_get_time();
-    size_t data_read_size = (current_time - last_time) / 1000 * sample_rate * mic_resolution / 8;
+    size_t data_read_size = (current_time - last_time) / 1000 * DEFAULT_UAC_SAMPLE_RATE * DEFAULT_RECORDER_WIDTH / 8;
     if (data_read_size > size) {
         data_read_size = size;
     }
@@ -50,14 +50,14 @@ esp_err_t bsp_i2s_read_debug(void *buf, size_t size, size_t *bytes_read, TickTyp
 #if DEFAULT_RECORDER_CHANNEL == 1
     int16_t *data_buf = (int16_t *)buf;
     for (int i = 0; i < data_read_size / 2; i++) {
-        data_buf[i] = (int16_t)(32767 * sin(2 * M_PI * 1000 * i / sample_rate));
+        data_buf[i] = (int16_t)(32767 * sin(2 * M_PI * 1000 * i / DEFAULT_UAC_SAMPLE_RATE));
     }
     *bytes_read = data_read_size;
 #elif DEFAULT_RECORDER_CHANNEL == 2
     int16_t *data_buf = (int16_t *)buf;
     for (int i = 0; i < data_read_size / 4; i++) {
-        data_buf[2 * i] = (int16_t)(32767 * sin(2 * M_PI * 1000 * i / sample_rate));
-        data_buf[2 * i + 1] = (int16_t)(32767 * sin(2 * M_PI * 1000 * i / sample_rate));
+        data_buf[2 * i] = (int16_t)(32767 * sin(2 * M_PI * 1000 * i / DEFAULT_UAC_SAMPLE_RATE));
+        data_buf[2 * i + 1] = (int16_t)(32767 * sin(2 * M_PI * 1000 * i / DEFAULT_UAC_SAMPLE_RATE));
     }
     *bytes_read = data_read_size;
 #else

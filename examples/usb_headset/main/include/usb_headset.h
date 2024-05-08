@@ -12,12 +12,12 @@ extern "C" {
 
 #include "esp_err.h"
 
-#define DEFAULT_SAMPLE_RATE         (48000)
+#define DEFAULT_UAC_SAMPLE_RATE     (CONFIG_UAC_SAMPLE_RATE)
 #define DEFAULT_VOLUME              (99)
 // Currently the player and recorder should use the same channel and width
-#define DEFAULT_RECORDER_CHANNEL    (1)
+#define DEFAULT_RECORDER_CHANNEL    (CONFIG_UAC_MIC_CHANNEL_NUM)
 #define DEFAULT_RECORDER_WIDTH      (16)
-#define DEFAULT_PLAYER_CHANNEL      (1)
+#define DEFAULT_PLAYER_CHANNEL      (CONFIG_UAC_SPEAKER_CHANNEL_NUM)
 #define DEFAULT_PLAYER_WIDTH        (16)
 #define DEBUG_USB_HEADSET           (0)
 #define DEBUG_SYSTEM_VIEW           (0)

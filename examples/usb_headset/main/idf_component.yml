@@ -2,4 +2,5 @@
 dependencies:
   idf: ">=5.0"
   espressif/esp-dsp: "^1.2.1"
-  espressif/tinyusb: "^0.15.0"
+  espressif/usb_device_uac:
+    version: "^0.1.1"
