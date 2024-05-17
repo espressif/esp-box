@@ -1,7 +1,7 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2022-2024 Espressif Systems (Shanghai) CO LTD
  *
- * SPDX-License-Identifier: Unlicense OR CC0-1.0
+ * SPDX-License-Identifier: CC0-1.0
  */
 
 #pragma once
@@ -12,6 +12,23 @@
 #define MP3_DEMO_VERSION_MINOR 0
 /** Patch version number (x.x.X) */
 #define MP3_DEMO_VERSION_PATCH 1
+
+typedef enum {
+    AUDIO_PLAYER_I2S = 0,
+    AUDIO_PLAYER_USB,
+} audio_player_t;
+
+/**
+ * @brief get audio player type
+ *
+ */
+audio_player_t get_audio_player_type(void);
+
+/**
+ * @brief get audio player handle
+ *
+ */
+uac_host_device_handle_t get_audio_player_handle(void);
 
 /**
  * Macro to convert version number into an integer

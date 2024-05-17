@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2022-2024 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: CC0-1.0
  */
@@ -10,6 +10,8 @@
 #include "esp_err.h"
 #include "esp_log.h"
 #include "bsp_board.h"
+#include "usb/uac_host.h"
+#include "mp3_demo.h"
 
 static const char *TAG = "ui_audio";
 
@@ -30,6 +32,11 @@ static button_style_t g_btn_styles;
 uint8_t get_sys_volume()
 {
     return g_sys_volume;
+}
+
+uint8_t get_current_music_index()
+{
+    return file_iterator_get_index(file_iterator);
 }
 
 button_style_t *ui_button_styles(void)
@@ -132,7 +139,7 @@ void music_list_new_item_select(lv_obj_t *obj)
     int item_size = file_iterator_get_count(file_iterator);
     int item_index = file_iterator_get_index(file_iterator);
     item_index = music_list_get_num_offset(item_index, item_size, direct);
-    ESP_LOGI(TAG, "slected:[%d/%d], direct:%d", item_index, item_size, direct);
+    ESP_LOGI(TAG, "selected:[%d/%d], direct:%d", item_index, item_size, direct);
 
     if (1 == direct) {
         file_iterator_next(file_iterator);
@@ -203,15 +210,19 @@ static void music_play_pause_cb(lv_event_t *e)
 #else
 static void btn_play_pause_cb(lv_event_t *event)
 {
-    lv_obj_t *btn = (lv_obj_t *) event->target;
+    lv_obj_t *btn = lv_event_get_target(event);
     lv_obj_t *lab = (lv_obj_t *) btn->user_data;
 
     audio_player_state_t state = audio_player_get_state();
     if (state == AUDIO_PLAYER_STATE_PAUSE) {
+        bsp_display_lock(0);
         lv_label_set_text_static(lab, LV_SYMBOL_PAUSE);
+        bsp_display_unlock();
         audio_player_resume();
     } else if (state == AUDIO_PLAYER_STATE_PLAYING) {
+        bsp_display_lock(0);
         lv_label_set_text_static(lab, LV_SYMBOL_PLAY);
+        bsp_display_unlock();
         audio_player_pause();
     }
 }
@@ -243,9 +254,13 @@ static void btn_prev_next_cb(lv_event_t *event)
 
 static void volume_slider_cb(lv_event_t *event)
 {
-    lv_obj_t *slider = (lv_obj_t *) event->target;
+    lv_obj_t *slider = lv_event_get_target(event);
     int volume = lv_slider_get_value(slider);
-    bsp_codec_volume_set(volume, NULL);
+    if (get_audio_player_type() == AUDIO_PLAYER_I2S) {
+        bsp_codec_volume_set(volume, NULL);
+    } else {
+        uac_host_device_set_volume(get_audio_player_handle(), volume);
+    }
     g_sys_volume = volume;
     ESP_LOGI(TAG, "volume '%d'", volume);
 }
@@ -254,17 +269,23 @@ static void build_file_list(lv_obj_t *music_list)
 {
     lv_obj_t *label_title = (lv_obj_t *) music_list->user_data;
 
+    bsp_display_lock(0);
     lv_dropdown_clear_options(music_list);
+    bsp_display_unlock();
 
     size_t i = 0;
     while (true) {
         const char *file_name = file_iterator_get_name_from_index(file_iterator, i);
         if (NULL != file_name) {
+            bsp_display_lock(0);
             lv_dropdown_add_option(music_list, file_name, i);
+            bsp_display_unlock();
         } else {
+            bsp_display_lock(0);
             lv_dropdown_set_selected(music_list, 0);
             lv_label_set_text_static(label_title,
                                      file_iterator_get_name_from_index(file_iterator, 0));
+            bsp_display_unlock();
             break;
         }
         i++;
@@ -288,6 +309,7 @@ static void audio_callback(audio_player_cb_ctx_t *ctx)
 
     lv_dropdown_set_selected(music_list, index);
 
+    bsp_display_lock(0);
     lv_label_set_text_static(label_title,
                              file_iterator_get_name_from_index(file_iterator, index));
 
@@ -301,11 +323,12 @@ static void audio_callback(audio_player_cb_ctx_t *ctx)
     }
 
     lv_obj_invalidate(btn_play_pause);
+    bsp_display_unlock();
 }
 
 static void music_list_cb(lv_event_t *event)
 {
-    lv_obj_t *music_list = (lv_obj_t *) event->target;
+    lv_obj_t *music_list = lv_event_get_target(event);
     if (audio_player_get_state() == AUDIO_PLAYER_STATE_PLAYING) {
         uint16_t selected = lv_dropdown_get_selected(music_list);
         ESP_LOGI(TAG, "switching index to '%d'", selected);
@@ -317,7 +340,7 @@ static void music_list_cb(lv_event_t *event)
 void ui_audio_start(file_iterator_instance_t *i)
 {
     file_iterator = i;
-    g_sys_volume = 80;
+    g_sys_volume = 60;
 
     ui_button_style_init();
 
@@ -435,13 +458,13 @@ void ui_audio_start(file_iterator_instance_t *i)
 
     lv_obj_t *lab_title = lv_label_create(lv_scr_act());
     lv_obj_set_user_data(lab_title, (void *) btn_play_pause);
-    lv_label_set_text_static(lab_title, "Scaning Files...");
+    lv_label_set_text_static(lab_title, "Scanning Files...");
     lv_obj_set_style_text_font(lab_title, &lv_font_montserrat_32, LV_STATE_DEFAULT);
     lv_obj_align(lab_title, LV_ALIGN_TOP_MID, 0, 20);
 
     lv_obj_t *music_list = lv_dropdown_create(lv_scr_act());
     lv_dropdown_clear_options(music_list);
-    lv_dropdown_set_options_static(music_list, "Scaning...");
+    lv_dropdown_set_options_static(music_list, "Scanning...");
     lv_obj_set_width(music_list, 200);
     lv_obj_align_to(music_list, lab_title, LV_ALIGN_OUT_BOTTOM_MID, 0, 20);
     lv_obj_set_user_data(music_list, (void *) lab_title);

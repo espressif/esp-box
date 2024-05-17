@@ -2,5 +2,6 @@
 dependencies:
   idf: ">=5.0"
 
-  chmorgan/esp-audio-player: "1.0.5"
+  chmorgan/esp-audio-player: "1.0.*"
   chmorgan/esp-file-iterator: "1.0.0"
+  usb_host_uac: "1.0.*"
