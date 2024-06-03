@@ -166,11 +166,11 @@ esp_err_t start_openai(uint8_t *audio, int audio_len)
 err:
     // Clearing resources
     if (speechresult) {
-        speechresult->delete (speechresult);
+        speechresult->deleteResponse (speechresult);
     }
 
     if (result) {
-        result->delete (result);
+        result->deleteResponse (result);
     }
 
     if (text) {
