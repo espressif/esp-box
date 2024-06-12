@@ -21,9 +21,11 @@ extern "C" {
 #define RIGHT_HOTAS2_ADC_CHAN       ADC_CHANNEL_3
 
 #define EXAMPLE_ADC_ATTEN           3
+#define ADC_MEAS_WINDOW_SIZE        10
 
 esp_err_t rocker_adc_init(void);
-void get_rocker_adc_value(uint16_t rocker_value[4]);
+void get_rocker_adc_value_in_game_mode(uint16_t rocker_value[4]);
+void get_rocker_adc_value_in_rc_mode(uint16_t rocker_value[4], uint8_t meas_count, float filter_coef);
 
 #ifdef __cplusplus
 }

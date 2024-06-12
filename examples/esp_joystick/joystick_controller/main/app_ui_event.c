@@ -139,6 +139,16 @@ static void game_pad_app_task(void *pvParameters)
         }
     }
 
+    if (1 == read_rocker_value_from_flash("hid_mode")) {
+        g_hid_mode = 1;
+        lv_obj_set_x(ui_hidModeSelectBtnPart, 22);
+        lv_label_set_text(ui_hidModeSelectLab, "BLE");
+    } else {
+        g_hid_mode = 0;
+        lv_obj_set_x(ui_hidModeSelectBtnPart, -22);
+        lv_label_set_text(ui_hidModeSelectLab, "USB");
+    }
+
     box_rc_button_init();
 
     if ( !(ROCKER_ADC_INIT_STATE & xEventGroupGetBits(g_init_event_grp))) {
@@ -170,7 +180,7 @@ static void game_pad_app_task(void *pvParameters)
     while (1) {
         while (1 == g_rocker_calibration_state) {
             uint16_t rocker_adc_value[4] = {0};
-            get_rocker_adc_value(rocker_adc_value);
+            get_rocker_adc_value_in_game_mode(rocker_adc_value);
 
             bsp_display_lock(0);
             if (rocker_adc_value[0] >= left_rocker_x_adc_value[1]) {
@@ -281,10 +291,10 @@ static void rc_app_task(void *pvParameters)
         right_rocker_y_adc_value[2] = read_rocker_value_from_flash("right_y_max");
     }
 
+    uint16_t rocker_adc_value[4] = {0};
     while (1) {
         while (1 == g_rocker_calibration_state) {
-            uint16_t rocker_adc_value[4] = {0};
-            get_rocker_adc_value(rocker_adc_value);
+            get_rocker_adc_value_in_rc_mode(rocker_adc_value, 10, 0.6);
 
             if (rocker_adc_value[0] >= left_rocker_x_adc_value[1]) {
                 rocker_x1 = (int)(((rocker_adc_value[0] - left_rocker_x_adc_value[1] * 1.0) / ((left_rocker_x_adc_value[2] - left_rocker_x_adc_value[1]) * 1.0)) * RC_ROCKET_RANGE);
@@ -407,19 +417,18 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     right_rocker_x_adc_value[1] = 0;
     right_rocker_y_adc_value[1] = 0;
 
-    for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+    for (int i = 0; i < 10; i++) {
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         left_rocker_x_adc_value[1] += rocker_adc_value[0];
         left_rocker_y_adc_value[1] += rocker_adc_value[1];
         right_rocker_x_adc_value[1] += rocker_adc_value[2];
         right_rocker_y_adc_value[1] += rocker_adc_value[3];
         printf("%d, %d, %d, %d\n", rocker_adc_value[0], rocker_adc_value[1], rocker_adc_value[2], rocker_adc_value[3]);
-        vTaskDelay(pdMS_TO_TICKS(10));
     }
-    left_rocker_x_adc_value[1] = left_rocker_x_adc_value[1] / 5;
-    left_rocker_y_adc_value[1] = left_rocker_y_adc_value[1] / 5;
-    right_rocker_x_adc_value[1] = right_rocker_x_adc_value[1] / 5;
-    right_rocker_y_adc_value[1] = right_rocker_y_adc_value[1] / 5;
+    left_rocker_x_adc_value[1] = left_rocker_x_adc_value[1] / 10.0;
+    left_rocker_y_adc_value[1] = left_rocker_y_adc_value[1] / 10.0;
+    right_rocker_x_adc_value[1] = right_rocker_x_adc_value[1] / 10.0;
+    right_rocker_y_adc_value[1] = right_rocker_y_adc_value[1] / 10.0;
     printf("left x-mid: %d, left y-mid: %d, right x-mid: %d, right y-mid: %d\n", left_rocker_x_adc_value[1], left_rocker_y_adc_value[1],
            right_rocker_x_adc_value[1], right_rocker_y_adc_value[1]);
     sprintf(rocker_value_str, "%d", left_rocker_x_adc_value[1]);
@@ -440,7 +449,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     lv_refr_now(NULL);
     // Wait for the rocker to push into position
     while (rocker_adc_value[0] > left_rocker_x_adc_value[1] - 600) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         lv_obj_set_x(ui_leftRockerCalibrateBtn, -18);
         lv_refr_now(NULL);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -450,7 +459,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     left_rocker_x_adc_value[0] = 0;
     // Update the left rocker X axis minimum
     for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         left_rocker_x_adc_value[0] += rocker_adc_value[0];
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -470,7 +479,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     lv_refr_now(NULL);
     // Wait for the rocker to push into position
     while (rocker_adc_value[0] < left_rocker_x_adc_value[1] + 600) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         lv_obj_set_x(ui_leftRockerCalibrateBtn, 18);
         lv_refr_now(NULL);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -479,7 +488,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     left_rocker_x_adc_value[2] = 0;
     // Update the left rocker X axis maximum
     for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         left_rocker_x_adc_value[2] += rocker_adc_value[0];
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -500,7 +509,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     lv_refr_now(NULL);
     // Wait for the rocker to push into position
     while (rocker_adc_value[1] < left_rocker_y_adc_value[1] + 600) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         lv_obj_set_y(ui_leftRockerCalibrateBtn, -18);
         lv_refr_now(NULL);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -509,7 +518,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     left_rocker_y_adc_value[2] = 0;
     // Update the left rocker Y axis maximum
     for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         left_rocker_y_adc_value[2] += rocker_adc_value[1];
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -527,7 +536,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     lv_refr_now(NULL);
     // Wait for the rocker to push into position
     while (rocker_adc_value[1] > left_rocker_y_adc_value[1] - 600) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         lv_obj_set_y(ui_leftRockerCalibrateBtn, 18);
         lv_refr_now(NULL);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -536,7 +545,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     left_rocker_y_adc_value[0] = 0;
     // Update the left rocker Y axis minimum
     for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         left_rocker_y_adc_value[0] += rocker_adc_value[1];
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -554,7 +563,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     lv_refr_now(NULL);
     // Wait for the rocker to push into position
     while (rocker_adc_value[2] > right_rocker_x_adc_value[1] - 600) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         lv_obj_set_x(ui_rightRockerCalibrateBtn, -18);
         lv_refr_now(NULL);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -563,7 +572,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     right_rocker_x_adc_value[0] = 0;
     // Update the right rocker X axis minimum
     for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         right_rocker_x_adc_value[0] += rocker_adc_value[2];
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -582,7 +591,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     lv_refr_now(NULL);
     // Wait for the rocker to push into position
     while (rocker_adc_value[2] < right_rocker_x_adc_value[1] + 600) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         lv_obj_set_x(ui_rightRockerCalibrateBtn, 18);
         lv_refr_now(NULL);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -591,7 +600,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     right_rocker_x_adc_value[2] = 0;
     // Update the right rocker X axis maximum
     for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         right_rocker_x_adc_value[2] += rocker_adc_value[2];
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -611,7 +620,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     lv_refr_now(NULL);
     // Wait for the rocker to push into position
     while (rocker_adc_value[3] < right_rocker_y_adc_value[1] + 600) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         lv_obj_set_y(ui_rightRockerCalibrateBtn, -18);
         lv_refr_now(NULL);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -620,7 +629,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     right_rocker_y_adc_value[2] = 0;
     // Update the right rocker Y axis maximum
     for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         right_rocker_y_adc_value[2] += rocker_adc_value[3];
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -638,7 +647,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     lv_refr_now(NULL);
     // Wait for the rocker to push into position
     while (rocker_adc_value[3] > right_rocker_y_adc_value[1] - 600) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         lv_obj_set_y(ui_rightRockerCalibrateBtn, 18);
         lv_refr_now(NULL);
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -647,7 +656,7 @@ void app_ui_event_rocker_calibration(lv_event_t *e)
     right_rocker_y_adc_value[0] = 0;
     // Update the right rocker Y axis minimum
     for (int i = 0; i < 5; i++) {
-        get_rocker_adc_value(rocker_adc_value);
+        get_rocker_adc_value_in_game_mode(rocker_adc_value);
         right_rocker_y_adc_value[0] += rocker_adc_value[3];
         vTaskDelay(pdMS_TO_TICKS(10));
     }
@@ -682,10 +691,12 @@ void app_ui_event_hid_mode_select(lv_event_t *e)
         ESP_LOGI(GAME_PAD_APP_TAG, "BLE HID mode.");
         lv_obj_set_x(ui_hidModeSelectBtnPart, 22);
         lv_label_set_text(ui_hidModeSelectLab, "BLE");
+        flash_write_state("hid_mode", "1");
     } else {
         ESP_LOGI(GAME_PAD_APP_TAG, "USB HID mode.");
         lv_obj_set_x(ui_hidModeSelectBtnPart, -22);
         lv_label_set_text(ui_hidModeSelectLab, "USB");
+        flash_write_state("hid_mode", "0");
     }
 }
 

@@ -75,7 +75,10 @@ void ble_hid_send_joystick_value(uint16_t joystick_buttons, uint8_t joystick_x, 
     buffer[3] = (joystick_y) - 1;       /* LY */
     buffer[4] = (joystick_z);           /* RX */
     buffer[5] = (joystick_rx) - 1;      /* RY */
-    esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, HID_RPT_ID_CC_GP_IN, buffer, HID_CC_IN_RPT_GP_LEN);
+    esp_err_t ret = esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, HID_RPT_ID_CC_GP_IN, buffer, HID_CC_IN_RPT_GP_LEN);
+    if (ret != ESP_OK) {
+        ESP_LOGE(BLE_HID_TAG, "Failed to send key value via BLE-HID.");
+    }
     return;
 }
 

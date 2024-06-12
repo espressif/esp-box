@@ -1,6 +1,9 @@
 targets:
     - esp32s3
 dependencies:
+  lvgl/lvgl:
+    version: "^8"
+    public: true
   espressif/esp-now: "^2.4.0"
   espressif/esp-box-3: "^1.1.2"
   espressif/button: "^3.1.3"

@@ -98,16 +98,84 @@ esp_err_t rocker_adc_init(void)
     return ESP_OK;
 }
 
-void get_rocker_adc_value(uint16_t rocker_value[4])
+void get_rocker_adc_value_in_game_mode(uint16_t rocker_value[4])
 {
-    adc_oneshot_read(game_mode_adc_handle, LEFT_HOTAS1_ADC_CHAN, &g_left_hotas1_adc_raw[0][0]);
-    adc_oneshot_read(game_mode_adc_handle, LEFT_HOTAS2_ADC_CHAN, &g_left_hotas2_adc_raw[0][0]);
-    adc_oneshot_read(game_mode_adc_handle, RIGHT_HOTAS1_ADC_CHAN, &g_right_hotas1_adc_raw[0][0]);
-    adc_oneshot_read(game_mode_adc_handle, RIGHT_HOTAS2_ADC_CHAN, &g_right_hotas2_adc_raw[0][0]);
-    if (do_left_hotas1_adc_chan && do_left_hotas2_adc_chan && do_right_hotas1_adc_chan && do_right_hotas2_adc_chan) {
-        rocker_value[0] = g_left_hotas1_adc_raw[0][0];
-        rocker_value[1] = g_left_hotas2_adc_raw[0][0];
-        rocker_value[2] = g_right_hotas1_adc_raw[0][0];
-        rocker_value[3] = g_right_hotas2_adc_raw[0][0];
+    for (int i = 0; i < 4; i++) {
+        rocker_value[i] = 0;
     }
+    int left_hotas1_adc_value[ADC_MEAS_WINDOW_SIZE] = {0};
+    int left_hotas2_adc_value[ADC_MEAS_WINDOW_SIZE] = {0};
+    int right_hotas1_adc_value[ADC_MEAS_WINDOW_SIZE] = {0};
+    int right_hotas2_adc_value[ADC_MEAS_WINDOW_SIZE] = {0};
+    for (int i = 0; i < ADC_MEAS_WINDOW_SIZE; i++) {
+        int left_hotas1_value = 0;
+        int left_hotas2_value = 0;
+        int right_hotas1_value = 0;
+        int right_hotas2_value = 0;
+        for (int j = 0; j < 10; j++) {
+            adc_oneshot_read(game_mode_adc_handle, LEFT_HOTAS1_ADC_CHAN, &g_left_hotas1_adc_raw[0][0]);
+            adc_oneshot_read(game_mode_adc_handle, LEFT_HOTAS2_ADC_CHAN, &g_left_hotas2_adc_raw[0][0]);
+            adc_oneshot_read(game_mode_adc_handle, RIGHT_HOTAS1_ADC_CHAN, &g_right_hotas1_adc_raw[0][0]);
+            adc_oneshot_read(game_mode_adc_handle, RIGHT_HOTAS2_ADC_CHAN, &g_right_hotas2_adc_raw[0][0]);
+            if (do_left_hotas1_adc_chan && do_left_hotas2_adc_chan && do_right_hotas1_adc_chan && do_right_hotas2_adc_chan) {
+                left_hotas1_value += g_left_hotas1_adc_raw[0][0];
+                left_hotas2_value += g_left_hotas2_adc_raw[0][0];
+                right_hotas1_value += g_right_hotas1_adc_raw[0][0];
+                right_hotas2_value += g_right_hotas2_adc_raw[0][0];
+            }
+        }
+        left_hotas1_value = left_hotas1_value / 10;
+        left_hotas2_value = left_hotas2_value / 10;
+        right_hotas1_value = right_hotas1_value / 10;
+        right_hotas2_value = right_hotas2_value / 10;
+        left_hotas1_adc_value[i] = left_hotas1_value;
+        left_hotas2_adc_value[i] = left_hotas2_value;
+        right_hotas1_adc_value[i] = right_hotas1_value;
+        right_hotas2_adc_value[i] = right_hotas2_value;
+    }
+    for (int i = 0; i < ADC_MEAS_WINDOW_SIZE; i++) {
+        rocker_value[0] += left_hotas1_adc_value[i];
+        rocker_value[1] += left_hotas2_adc_value[i];
+        rocker_value[2] += right_hotas1_adc_value[i];
+        rocker_value[3] += right_hotas2_adc_value[i];
+    }
+    rocker_value[0] = rocker_value[0] / ADC_MEAS_WINDOW_SIZE;
+    rocker_value[1] = rocker_value[1] / ADC_MEAS_WINDOW_SIZE;
+    rocker_value[2] = rocker_value[2] / ADC_MEAS_WINDOW_SIZE;
+    rocker_value[3] = rocker_value[3] / ADC_MEAS_WINDOW_SIZE;
+}
+
+void get_rocker_adc_value_in_rc_mode(uint16_t rocker_value[4], uint8_t meas_count, float filter_coef)
+{
+    float left_hotas1_filtered_value = (float)rocker_value[0];
+    float left_hotas2_filtered_value = (float)rocker_value[1];
+    float right_hotas1_filtered_value = (float)rocker_value[2];
+    float right_hotas2_filtered_value = (float)rocker_value[3];
+
+    float left_hotas1_value = 0.0F;
+    float left_hotas2_value = 0.0F;
+    float right_hotas1_value = 0.0F;
+    float right_hotas2_value = 0.0F;
+    for (int i = 0; i < meas_count; i++) {
+        adc_oneshot_read(game_mode_adc_handle, LEFT_HOTAS1_ADC_CHAN, &g_left_hotas1_adc_raw[0][0]);
+        adc_oneshot_read(game_mode_adc_handle, LEFT_HOTAS2_ADC_CHAN, &g_left_hotas2_adc_raw[0][0]);
+        adc_oneshot_read(game_mode_adc_handle, RIGHT_HOTAS1_ADC_CHAN, &g_right_hotas1_adc_raw[0][0]);
+        adc_oneshot_read(game_mode_adc_handle, RIGHT_HOTAS2_ADC_CHAN, &g_right_hotas2_adc_raw[0][0]);
+        if (do_left_hotas1_adc_chan && do_left_hotas2_adc_chan && do_right_hotas1_adc_chan && do_right_hotas2_adc_chan) {
+            left_hotas1_value += g_left_hotas1_adc_raw[0][0] / (meas_count * 1.0);
+            left_hotas2_value += g_left_hotas2_adc_raw[0][0] / (meas_count * 1.0);
+            right_hotas1_value += g_right_hotas1_adc_raw[0][0] / (meas_count * 1.0);
+            right_hotas2_value += g_right_hotas2_adc_raw[0][0] / (meas_count * 1.0);
+        }
+    }
+
+    left_hotas1_filtered_value = left_hotas1_filtered_value * filter_coef + (1 - filter_coef) * left_hotas1_value;
+    left_hotas2_filtered_value = left_hotas2_filtered_value * filter_coef + (1 - filter_coef) * left_hotas2_value;
+    right_hotas1_filtered_value = right_hotas1_filtered_value * filter_coef + (1 - filter_coef) * right_hotas1_value;
+    right_hotas2_filtered_value = right_hotas2_filtered_value * filter_coef + (1 - filter_coef) * right_hotas2_value;
+
+    rocker_value[0] = (int)left_hotas1_filtered_value;
+    rocker_value[1] = (int)left_hotas2_filtered_value;
+    rocker_value[2] = (int)right_hotas1_filtered_value;
+    rocker_value[3] = (int)right_hotas2_filtered_value;
 }
