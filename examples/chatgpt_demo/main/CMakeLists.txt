@@ -29,13 +29,14 @@ if(NOT EXISTS ${nvs_src_file})
     message(FATAL_ERROR "Please ensure that the 'factory_nvs' is built first, and make sure to keep the 'HMI Board Config' consistent.")
 endif()
 
+add_custom_target(nvs_uf2_bin ALL)
 add_custom_command(
-        OUTPUT ${nvs_dst_file}
-        COMMENT "Generate factory_nvs..."
-        COMMAND python ${MV_UF2_BIN_EXE} -d1 ${nvs_src_file} -d2 ${nvs_dst_file}
+        TARGET nvs_uf2_bin
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${build_dir}/uf2
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${nvs_src_file} ${nvs_dst_file}
+        COMMAND ${CMAKE_COMMAND} -E echo "Copying factory_nvs.bin to destination if it is different..."
         VERBATIM)
 
-add_custom_target(nvs_uf2_bin ALL DEPENDS ${nvs_dst_file})
 add_dependencies(flash nvs_uf2_bin)
 
 partition_table_get_partition_info(size "--partition-name ota_0" "size")

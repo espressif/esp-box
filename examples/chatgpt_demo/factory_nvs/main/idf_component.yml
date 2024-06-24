@@ -1,7 +1,7 @@
 ## IDF Component Manager Manifest File
 dependencies:
   espressif/esp_tinyuf2:
-    version: "0.2.*"
+    version: ">=0.2.2"
   # espressif/esp-box: "~2.2.0"
   ## Required IDF version
   idf:
