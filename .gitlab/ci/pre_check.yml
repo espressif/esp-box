@@ -1,19 +1,45 @@
-check_readme_links:
-  extends:
-    - .rules:pre_check:readme
+.pre_check_template:
   stage: pre_check
   image: python:3.9
   tags: ["build", "amd64", "internet"]
+  dependencies: []
+
+check_readme_links:
+  extends:
+    - .pre_check_template
+    - .rules:pre_check:readme
   allow_failure: false
   script:
     - python ${CI_PROJECT_DIR}/tools/ci/check_readme_links.py
 
 check_copyright:
-  stage: pre_check
-  image: python:3.9
-  tags: ["build", "amd64", "internet"]
+  extends:
+    - .pre_check_template
   allow_failure: false
   before_script:
     - pip install git+https://github.com/espressif/check-copyright.git@master
   script:
     - python -m check_copyright --verbose --dry-run --ignore tools/ci/ignore_list_copyright.txt --config tools/ci/check_copyright_config.yaml .
+
+check_pre_commit:
+  extends:
+    - .pre_check_template
+  before_script:
+    - pip install pre-commit
+  script:
+    - |
+      # merged results pipelines, by default
+      if [[ -n $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA ]]; then
+        MODIFIED_FILES=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA)
+      # merge request pipelines, when the mr got conflicts
+      elif [[ -n $CI_MERGE_REQUEST_DIFF_BASE_SHA ]]; then
+        MODIFIED_FILES=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_COMMIT_SHA)
+      # other pipelines, like the protected branches pipelines
+      else
+        MODIFIED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA)
+      fi
+      # print the MODIFIED_FILES
+      echo "MODIFIED_FILES: $MODIFIED_FILES"
+    - pre-commit install --allow-missing-config -t pre-commit -t commit-msg
+    - export SKIP=check-copyright # copyrights has been checked in separate job
+    - pre-commit run --files $MODIFIED_FILES
