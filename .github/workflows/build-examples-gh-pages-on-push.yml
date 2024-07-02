@@ -142,9 +142,8 @@ jobs:
       - name: generate launchpad config
         run: |
           cd images/
-          ls
+          mv $GITHUB_WORKSPACE/bin/*.bin ./
           $GITHUB_WORKSPACE/tools/launchpad/rename.sh $GITHUB_WORKSPACE
-          ls
           $GITHUB_WORKSPACE/tools/launchpad/generate_launchpad_config.sh $GITHUB_REPOSITORY
 
       - name: Setup Pages
