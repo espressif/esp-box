@@ -36,6 +36,15 @@
 
 void app_main(void)
 {
+    gpio_config_t io_conf = {0};
+    io_conf.intr_type = GPIO_INTR_DISABLE;
+    io_conf.mode = GPIO_MODE_OUTPUT;
+    io_conf.pin_bit_mask = (1ULL << GPIO_NUM_12);
+    io_conf.pull_down_en = 0;
+    io_conf.pull_up_en = 0;
+    gpio_config(&io_conf);
+    gpio_set_level(GPIO_NUM_12, 0);
+
 #if !DEBUG_USB_HEADSET
     /* Initialize I2C (for touch and audio) */
     bsp_i2c_init();
@@ -47,7 +56,7 @@ void app_main(void)
     fft_convert_init();
 
     /* Initialize audio i2s */
-    i2s_std_config_t i2s_config = BSP_I2S_DUPLEX_MONO_CFG(DEFAULT_SAMPLE_RATE);
+    i2s_std_config_t i2s_config = BSP_I2S_DUPLEX_MONO_CFG(DEFAULT_UAC_SAMPLE_RATE);
     i2s_config.clk_cfg.mclk_multiple = I2S_MCLK_MULTIPLE_384;
     bsp_audio_init(&i2s_config);
 
@@ -55,7 +64,7 @@ void app_main(void)
     bsp_board_init();
 
     /* Initialize codec with defaults */
-    bsp_codec_set_fs(DEFAULT_SAMPLE_RATE, DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_CHANNEL);
+    bsp_codec_set_fs(DEFAULT_UAC_SAMPLE_RATE, DEFAULT_PLAYER_WIDTH, DEFAULT_PLAYER_CHANNEL);
     bsp_codec_volume_set(DEFAULT_VOLUME, NULL);
     bsp_codec_mute_set(false);
 #endif
