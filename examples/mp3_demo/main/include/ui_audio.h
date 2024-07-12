@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2022-2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2022-2024 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: CC0-1.0
  */
@@ -23,6 +23,12 @@ void ui_audio_start(file_iterator_instance_t *i);
  *
  */
 uint8_t get_sys_volume();
+
+/**
+ * @brief get current music index
+ *
+ */
+uint8_t get_current_music_index();
 
 #ifdef __cplusplus
 }
