@@ -36,7 +36,12 @@ check_pre_commit:
         MODIFIED_FILES=$(git diff --name-only $CI_MERGE_REQUEST_DIFF_BASE_SHA $CI_COMMIT_SHA)
       # other pipelines, like the protected branches pipelines
       else
-        MODIFIED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA)
+        if [[ -z $CI_COMMIT_BEFORE_SHA || $CI_COMMIT_BEFORE_SHA == "0000000000000000000000000000000000000000" ]]; then
+          echo "Warning: CI_COMMIT_BEFORE_SHA is empty or invalid. Cannot determine modified files based on this value."
+          exit 0
+        else
+          MODIFIED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA)
+        fi
       fi
       # print the MODIFIED_FILES
       echo "MODIFIED_FILES: $MODIFIED_FILES"
