@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-esp_err_t app_pwm_led_init(int gpio_r, int gpio_g, int gpio_b);
+esp_err_t app_pwm_led_init(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio_b);
 esp_err_t app_pwm_led_change_io(gpio_num_t gpio_r, gpio_num_t gpio_g, gpio_num_t gpio_b);
 esp_err_t app_pwm_led_deinit(void);
 esp_err_t app_pwm_led_set_all(uint8_t red, uint8_t green, uint8_t blue);

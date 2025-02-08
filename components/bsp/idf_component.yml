@@ -5,6 +5,9 @@ dependencies:
     public: true
     version: "1.1.0"
 
+  espressif/button:
+    version: "^3.5.0"
+
   espressif/esp-box:
     version: "3.0.*"
     require: "no"

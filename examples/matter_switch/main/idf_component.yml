@@ -19,3 +19,4 @@ dependencies:
   espressif/json_generator: ^1
   espressif/json_parser: =1.0.0
   espressif/qrcode: ^0.1.0
+  espressif/esp_diag_data_store: "1.0.1"
