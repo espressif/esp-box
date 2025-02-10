@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2025 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -268,7 +268,7 @@ static void audio_detect_task(void *arg)
         }
 
         if (res->wakeup_state == WAKENET_DETECTED) {
-            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "wakeword detected");
+            ESP_LOGI(TAG,  "wakeword detected");
             sr_result_t result = {
                 .wakenet_mode = WAKENET_DETECTED,
                 .state = ESP_MN_STATE_DETECTING,
@@ -278,7 +278,7 @@ static void audio_detect_task(void *arg)
         } else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
             detect_flag = true;
             g_sr_data->afe_handle->disable_wakenet(afe_data);
-            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "AFE_FETCH_CHANNEL_VERIFIED, channel index: %d\n", res->trigger_channel_id);
+            ESP_LOGI(TAG,  "AFE_FETCH_CHANNEL_VERIFIED, channel index: %d\n", res->trigger_channel_id);
         }
 
         if (true == detect_flag) {
@@ -319,7 +319,7 @@ static void audio_detect_task(void *arg)
                 }
 
                 int sr_command_id = mn_result->command_id[0];
-                ESP_LOGI(TAG, "Deteted command : %d", sr_command_id);
+                ESP_LOGI(TAG, "Detected command : %d", sr_command_id);
                 sr_result_t result = {
                     .wakenet_mode = WAKENET_NO_DETECT,
                     .state = mn_state,
@@ -461,7 +461,7 @@ esp_err_t app_sr_stop(void)
     ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
 
     /**
-     * Waiting for all task stoped
+     * Waiting for all task stopped
      * TODO: A task creation failure cannot be handled correctly now
      * */
     xEventGroupSetBits(g_sr_data->event_group, NEED_DELETE);
@@ -521,7 +521,7 @@ esp_err_t app_sr_get_result(sr_result_t *result, TickType_t xTicksToWait)
 esp_err_t app_sr_add_cmd(const sr_cmd_t *cmd)
 {
     ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
-    ESP_RETURN_ON_FALSE(NULL != cmd, ESP_ERR_INVALID_ARG, TAG, "pointer of cmd is invaild");
+    ESP_RETURN_ON_FALSE(NULL != cmd, ESP_ERR_INVALID_ARG, TAG, "pointer of cmd is invalid");
     ESP_RETURN_ON_FALSE(cmd->lang == g_sr_data->lang, ESP_ERR_INVALID_ARG, TAG, "cmd lang error");
     ESP_RETURN_ON_FALSE(ESP_MN_MAX_PHRASE_NUM >= g_sr_data->cmd_num, ESP_ERR_INVALID_STATE, TAG, "cmd is full");
 
@@ -551,7 +551,7 @@ esp_err_t app_sr_add_cmd(const sr_cmd_t *cmd)
 esp_err_t app_sr_modify_cmd(uint32_t id, const sr_cmd_t *cmd)
 {
     ESP_RETURN_ON_FALSE(NULL != g_sr_data, ESP_ERR_INVALID_STATE, TAG, "SR is not running");
-    ESP_RETURN_ON_FALSE(NULL != cmd, ESP_ERR_INVALID_ARG, TAG, "pointer of cmd is invaild");
+    ESP_RETURN_ON_FALSE(NULL != cmd, ESP_ERR_INVALID_ARG, TAG, "pointer of cmd is invalid");
     ESP_RETURN_ON_FALSE(id < g_sr_data->cmd_num, ESP_ERR_INVALID_ARG, TAG, "cmd id out of range");
     ESP_RETURN_ON_FALSE(cmd->lang == g_sr_data->lang, ESP_ERR_INVALID_ARG, TAG, "cmd lang error");
 

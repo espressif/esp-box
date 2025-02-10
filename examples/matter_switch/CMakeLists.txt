@@ -39,7 +39,8 @@ set(EXTRA_COMPONENT_DIRS
     "${ESP_MATTER_PATH}/components"
     "${ESP_MATTER_PATH}/device_hal/device"
     "${ESP_MATTER_PATH}/device_hal/led_driver"
-    "${ESP_MATTER_PATH}/device_hal/button_driver/iot_button"
+    # "${ESP_MATTER_PATH}/device_hal/button_driver/iot_button"
+    "./components/iot_button"
     #${extra_components_dirs_append}
     )
 

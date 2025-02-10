@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2022 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2025 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
@@ -99,11 +99,10 @@ static void audio_detect_task(void *arg)
         }
         afe_fetch_result_t *res = afe_handle->fetch(afe_data);
         if (!res || res->ret_value == ESP_FAIL) {
-            ESP_LOGW(TAG, "AFE Fetch Fail");
             continue;
         }
         if (res->wakeup_state == WAKENET_DETECTED) {
-            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "wakeword detected");
+            ESP_LOGI(TAG,  "wakeword detected");
             sr_result_t result = {
                 .wakenet_mode = WAKENET_DETECTED,
                 .state = ESP_MN_STATE_DETECTING,
@@ -123,7 +122,7 @@ static void audio_detect_task(void *arg)
             }
             frame_keep = 0;
             g_sr_data->afe_handle->disable_wakenet(afe_data);
-            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "AFE_FETCH_CHANNEL_VERIFIED, channel index: %d\n", res->trigger_channel_id);
+            ESP_LOGI(TAG,  "AFE_FETCH_CHANNEL_VERIFIED, channel index: %d\n", res->trigger_channel_id);
         }
 
         if (true == detect_flag) {

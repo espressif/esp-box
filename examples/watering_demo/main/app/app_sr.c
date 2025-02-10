@@ -1,9 +1,8 @@
 /*
- * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2025 Espressif Systems (Shanghai) CO LTD
 *
 * SPDX-License-Identifier: Unlicense OR CC0-1.0
 */
-
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -107,7 +106,7 @@ static void audio_detect_task(void *pvParam)
         }
 
         if (res->wakeup_state == WAKENET_DETECTED) {
-            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Wakeword detected");
+            ESP_LOGI(TAG,  "Wakeword detected");
             sr_result_t result = {
                 .wakenet_mode = WAKENET_DETECTED,
                 .state = ESP_MN_STATE_DETECTING,
@@ -115,7 +114,7 @@ static void audio_detect_task(void *pvParam)
             };
             xQueueSend(g_result_que, &result, 10);
         } else if (res->wakeup_state == WAKENET_CHANNEL_VERIFIED) {
-            ESP_LOGI(TAG, LOG_BOLD(LOG_COLOR_GREEN) "Channel verified");
+            ESP_LOGI(TAG, "Channel verified");
             detect_flag = true;
             afe_handle->disable_wakenet(afe_data);
         }
@@ -158,7 +157,7 @@ static void audio_detect_task(void *pvParam)
                 }
 
                 int sr_command_id = mn_result->command_id[0];
-                ESP_LOGI(TAG, "Deteted command : %d", sr_command_id);
+                ESP_LOGI(TAG, "Detected command : %d", sr_command_id);
                 sr_result_t result = {
                     .wakenet_mode = WAKENET_NO_DETECT,
                     .state = mn_state,

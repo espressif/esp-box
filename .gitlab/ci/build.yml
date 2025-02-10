@@ -51,6 +51,10 @@ build_example_matter_switch:
   image: espressif/esp-matter:latest_idf_v5.1.1
   variables:
     EXAMPLE_DIR: examples/matter_switch
+  script:
+    - pip install --upgrade "idf-component-manager~=1.2"
+    - pip install "idf_build_apps<2.0"
+    - python tools/build_apps.py ${EXAMPLE_DIR} --config ${EXAMPLE_CONFIG} -t esp32s3 -vv
 
 build_example_chatgpt_demo:
   extends:
@@ -60,6 +64,9 @@ build_example_chatgpt_demo:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/chatgpt_demo
@@ -77,6 +84,9 @@ build_example_chatgpt_demo_factory_nvs:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/chatgpt_demo/factory_nvs
@@ -89,6 +99,9 @@ build_example_factory_demo:
     matrix:
       #- IMAGE: espressif/idf:release-v5.0 don't support release-v5.0 now.
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/factory_demo
@@ -101,6 +114,9 @@ build_example_image_display:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/image_display
@@ -113,6 +129,9 @@ build_example_lv_demos:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/lv_demos
@@ -125,6 +144,9 @@ build_example_mp3_demo:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/mp3_demo
@@ -137,6 +159,9 @@ build_example_usb_camera_lcd_display:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/usb_camera_lcd_display
@@ -148,6 +173,10 @@ build_example_esp_joystick:
   parallel:
     matrix:
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
+      - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/esp_joystick
 
@@ -157,8 +186,11 @@ build_example_usb_headset:
     - .rules:build:example_usb_headset
   parallel:
     matrix:
-      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/usb_headset
@@ -171,6 +203,9 @@ build_example_watering_demo:
     matrix:
       - IMAGE: espressif/idf:release-v5.0
       - IMAGE: espressif/idf:release-v5.1
+      - IMAGE: espressif/idf:release-v5.2
+      - IMAGE: espressif/idf:release-v5.3
+      - IMAGE: espressif/idf:release-v5.4
       - IMAGE: espressif/idf:latest
   variables:
     EXAMPLE_DIR: examples/watering_demo

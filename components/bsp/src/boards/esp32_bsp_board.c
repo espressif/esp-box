@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2015-2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2015-2025 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -32,32 +32,32 @@ static const pmod_pins_t g_pmod[2] = {
 
 static const board_res_desc_t g_board_box_res = {
 
-    .FUNC_SDMMC_EN =   (1),
+    .FUNC_SDMMC_EN = (1),
     .SDMMC_BUS_WIDTH = (4),
-    .GPIO_SDMMC_CLK =  (BSP_PMOD2_IO3),
-    .GPIO_SDMMC_CMD =  (BSP_PMOD2_IO2),
-    .GPIO_SDMMC_D0 =   (BSP_PMOD2_IO8),
-    .GPIO_SDMMC_D1 =   (BSP_PMOD2_IO4),
-    .GPIO_SDMMC_D2 =   (BSP_PMOD2_IO1),
-    .GPIO_SDMMC_D3 =   (BSP_PMOD2_IO5),
-    .GPIO_SDMMC_DET =  (GPIO_NUM_NC),
+    .GPIO_SDMMC_CLK = (BSP_PMOD2_IO3),
+    .GPIO_SDMMC_CMD = (BSP_PMOD2_IO2),
+    .GPIO_SDMMC_D0 = (BSP_PMOD2_IO8),
+    .GPIO_SDMMC_D1 = (BSP_PMOD2_IO4),
+    .GPIO_SDMMC_D2 = (BSP_PMOD2_IO1),
+    .GPIO_SDMMC_D3 = (BSP_PMOD2_IO5),
+    .GPIO_SDMMC_DET = (GPIO_NUM_NC),
 
-    .FUNC_SDSPI_EN =       (0),
-    .SDSPI_HOST =          (SPI2_HOST),
-    .GPIO_SDSPI_CS =       (GPIO_NUM_NC),
-    .GPIO_SDSPI_SCLK =     (GPIO_NUM_NC),
-    .GPIO_SDSPI_MISO =     (GPIO_NUM_NC),
-    .GPIO_SDSPI_MOSI =     (GPIO_NUM_NC),
+    .FUNC_SDSPI_EN = (0),
+    .SDSPI_HOST = (SPI2_HOST),
+    .GPIO_SDSPI_CS = (GPIO_NUM_NC),
+    .GPIO_SDSPI_SCLK = (GPIO_NUM_NC),
+    .GPIO_SDSPI_MISO = (GPIO_NUM_NC),
+    .GPIO_SDSPI_MOSI = (GPIO_NUM_NC),
 
-    .FUNC_SPI_EN =         (0),
-    .GPIO_SPI_CS =         (GPIO_NUM_NC),
-    .GPIO_SPI_MISO =       (GPIO_NUM_NC),
-    .GPIO_SPI_MOSI =       (GPIO_NUM_NC),
-    .GPIO_SPI_SCLK =       (GPIO_NUM_NC),
+    .FUNC_SPI_EN = (0),
+    .GPIO_SPI_CS = (GPIO_NUM_NC),
+    .GPIO_SPI_MISO = (GPIO_NUM_NC),
+    .GPIO_SPI_MOSI = (GPIO_NUM_NC),
+    .GPIO_SPI_SCLK = (GPIO_NUM_NC),
 
-    .FUNC_RMT_EN =         (0),
-    .GPIO_RMT_IR =         (GPIO_NUM_NC),
-    .GPIO_RMT_LED =        (GPIO_NUM_39),
+    .FUNC_RMT_EN = (0),
+    .GPIO_RMT_IR = (GPIO_NUM_NC),
+    .GPIO_RMT_LED = (GPIO_NUM_39),
 
     .PMOD1 = &g_pmod[0],
     .PMOD2 = &g_pmod[1],
@@ -87,7 +87,7 @@ esp_err_t bsp_btn_init(void)
     ESP_ERROR_CHECK((NULL != g_btn_handle));
 
     int btn_num = 0;
-    g_btn_handle = calloc(sizeof(button_handle_t), BSP_BUTTON_NUM);
+    g_btn_handle = calloc(BSP_BUTTON_NUM, sizeof(button_handle_t));
     assert((g_btn_handle) && "memory is insufficient for button");
     return bsp_iot_button_create(g_btn_handle, &btn_num, BSP_BUTTON_NUM);
 }

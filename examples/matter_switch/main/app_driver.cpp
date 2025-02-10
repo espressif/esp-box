@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 Espressif Systems (Shanghai) CO LTD
+ * SPDX-FileCopyrightText: 2023-2025 Espressif Systems (Shanghai) CO LTD
  *
  * SPDX-License-Identifier: CC0-1.0
  */
@@ -346,8 +346,8 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             level_control::command::send_move_to_level(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
+                                                       strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                       strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
             break;
         };
         case LevelControl::Commands::Step::Id: {
@@ -375,7 +375,7 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             level_control::command::send_move_with_on_off(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16));
+                                                          strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16));
             break;
         };
         case LevelControl::Commands::MoveToLevelWithOnOff::Id: {
@@ -384,7 +384,7 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             level_control::command::send_move_to_level_with_on_off(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16));
+                                                                   strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16));
             break;
         };
         case LevelControl::Commands::StepWithOnOff::Id: {
@@ -393,7 +393,7 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             level_control::command::send_step_with_on_off(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16));
+                                                          strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16));
             break;
         };
         case LevelControl::Commands::StopWithOnOff::Id: {
@@ -421,8 +421,8 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             color_control::command::send_move_to_hue(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
+                                                     strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                     strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
             break;
         };
         case ColorControl::Commands::StepHue::Id: {
@@ -441,8 +441,8 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             color_control::command::send_move_saturation(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
+                                                         strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                         strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
             break;
         };
         case ColorControl::Commands::MoveToSaturation::Id: {
@@ -451,8 +451,8 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             color_control::command::send_move_to_saturation(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
+                                                            strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                            strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
             break;
         };
         case ColorControl::Commands::StepSaturation::Id: {
@@ -461,8 +461,8 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             color_control::command::send_step_saturation(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
+                                                         strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                         strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
             break;
         };
         case ColorControl::Commands::MoveToHueAndSaturation::Id: {
@@ -471,8 +471,8 @@ void app_driver_client_command_callback(client::peer_device_t *peer_device, clie
                 return;
             }
             color_control::command::send_move_to_hue_and_saturation(peer_device, cmd_handle->endpoint_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
+                                                                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
             break;
         };
         default:
@@ -519,8 +519,8 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             level_control::command::group_send_move_to_level(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
+                                                             strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                             strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
             break;
         };
         case LevelControl::Commands::Step::Id: {
@@ -548,7 +548,7 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             level_control::command::group_send_move_with_on_off(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16));
+                                                                strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16));
             break;
         };
         case LevelControl::Commands::MoveToLevelWithOnOff::Id: {
@@ -557,7 +557,7 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             level_control::command::group_send_move_to_level_with_on_off(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16));
+                                                                         strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16));
             break;
         };
         case LevelControl::Commands::StepWithOnOff::Id: {
@@ -566,7 +566,7 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             level_control::command::group_send_step_with_on_off(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16));
+                                                                strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16));
             break;
         };
         case LevelControl::Commands::StopWithOnOff::Id: {
@@ -584,8 +584,8 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             color_control::command::group_send_move_hue(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
+                                                        strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                        strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
             break;
         };
         case ColorControl::Commands::MoveToHue::Id: {
@@ -594,8 +594,8 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             color_control::command::group_send_move_to_hue(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
+                                                           strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                           strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
             break;
         };
         case ColorControl::Commands::StepHue::Id: {
@@ -604,8 +604,8 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             color_control::command::group_send_step_hue(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
+                                                        strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                        strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
             break;
         };
         case ColorControl::Commands::MoveSaturation::Id: {
@@ -614,8 +614,8 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             color_control::command::group_send_move_saturation(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
+                                                               strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                               strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
             break;
         };
         case ColorControl::Commands::MoveToSaturation::Id: {
@@ -624,8 +624,8 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             color_control::command::group_send_move_to_saturation(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
+                                                                  strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                                  strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16));
             break;
         };
         case ColorControl::Commands::StepSaturation::Id: {
@@ -634,8 +634,8 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             color_control::command::group_send_step_saturation(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
+                                                               strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                               strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
             break;
         };
         case ColorControl::Commands::MoveToHueAndSaturation::Id: {
@@ -644,8 +644,8 @@ void app_driver_client_group_command_callback(uint8_t fabric_index, client::comm
                 return;
             }
             color_control::command::group_send_move_to_hue_and_saturation(fabric_index, cmd_handle->group_id, strtol((const char *)(cmd_handle->command_data) + 1, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
-                    strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
+                                                                          strtol((const char *)(cmd_handle->command_data) + 11, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 21, NULL, 16),
+                                                                          strtol((const char *)(cmd_handle->command_data) + 31, NULL, 16), strtol((const char *)(cmd_handle->command_data) + 41, NULL, 16));
             break;
         };
         default:
