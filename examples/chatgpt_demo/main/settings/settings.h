@@ -10,7 +10,7 @@
 
 #define SSID_SIZE 32
 #define PASSWORD_SIZE 64
-#define KEY_SIZE 64
+#define KEY_SIZE 165
 #define URL_SIZE 64
 
 typedef struct {
