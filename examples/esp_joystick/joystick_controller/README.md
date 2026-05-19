@@ -21,6 +21,12 @@ This guide includes the following sections:
 - Application Development
 - Related Documentation
 
+## Requirements
+
+- ESP-IDF v5.5
+- ESP32-S3-BOX-3 development board
+- JoyStick controller hardware
+
 ## Project Overview
 
 The ESP-JoyStick hardware system comprises the ESP32-S3-BOX-3 development board, JoyStick controller, and ESP32-S3-USB-Bridge receiver. The ESP32-S3-BOX-3 serves as the main controller, connecting to the JoyStick controller and ESP32-S3-USB-Bridge receiver through a PCIe interface. The system operates in "Game Mode" and "RC Remote Control Mode." In Game Mode, it supports USB-HID and BLE-HID protocols for computer gaming control, as well as an NES emulator mode. In RC Remote Control Mode, it utilizes the ESP-NOW wireless communication protocol to pair with [ESP32-S3-USB-Bridge](https://docs.espressif.com/projects/espressif-esp-dev-kits/en/latest/esp32s3/esp32-s3-usb-bridge/user_guide.html)(Purchase link: [TaoBao](https://item.taobao.com/item.htm?ft=t&id=753321694177) or [Aliexpress](https://www.aliexpress.us/item/3256806114330511.html?gatewayAdapt=glo2usa4itemAdapt)) and other Espressif development boards(where the ESP32-S3-USB-Bridge or other Espressif development boards act as the model aircraft receiver), enabling wireless control of [RC cars](../joystick_rc_receiver) and [ESP-Drone](https://docs.espressif.com/projects/espressif-esp-drone/en/latest/gettingstarted.html) quadcopters.

@@ -5,6 +5,13 @@
  */
 
 #include "app_button.h"
+#include "button_interface.h"
+
+typedef struct {
+    button_driver_t base;
+    int button_index;
+    uint8_t active_level;
+} custom_button_driver_t;
 
 button_handle_t btns[16] = {0};
 uint32_t g_pressed_button_value = 0;
@@ -441,38 +448,40 @@ static uint16_t read_74hc165d_data(void)
     return data;
 }
 
-static uint8_t get_button_value(void *btn_index)
+static uint8_t custom_button_get_key_level(button_driver_t *button_driver)
 {
-    int button_index = (int)btn_index;
+    custom_button_driver_t *custom_driver = (custom_button_driver_t *)button_driver;
     uint16_t data = read_74hc165d_data();
-    uint16_t mask = 1 << button_index;
-    uint8_t button_value = (data & mask) >> button_index;
-    return button_value;
+    uint16_t mask = 1 << custom_driver->button_index;
+    uint8_t button_value = (data & mask) >> custom_driver->button_index;
+    // Return BUTTON_ACTIVE when button value matches active_level
+    return (button_value == custom_driver->active_level) ? BUTTON_ACTIVE : BUTTON_INACTIVE;
 }
 
 void box_rc_button_init(void)
 {
     configure_74hc165_pin();
-    button_config_t button_cfg = {
-        .type = BUTTON_TYPE_CUSTOM,
+
+    static custom_button_driver_t button_drivers[16] = {0};
+
+    const button_config_t button_cfg = {
         .long_press_time = 1000,
         .short_press_time = 180,
-        .custom_button_config = {
-            .button_custom_get_key_value = get_button_value,
-        },
     };
 
     for (int i = 0; i < 16; i++) {
         if (btns[i] == NULL) {
-            button_cfg.custom_button_config.priv = (void *)i;
-            if (i == 7 || i == 15) {
-                button_cfg.custom_button_config.active_level = 1;
-            } else {
-                button_cfg.custom_button_config.active_level = 0;
-            }
-            btns[i] = iot_button_create(&button_cfg);
-            iot_button_register_cb(btns[i], BUTTON_PRESS_DOWN, button_press_down_cb[i], NULL);
-            iot_button_register_cb(btns[i], BUTTON_PRESS_UP, button_press_up_cb[i], NULL);
+            button_drivers[i].button_index = i;
+            button_drivers[i].active_level = (i == 7 || i == 15) ? 1 : 0;
+
+            button_drivers[i].base.enable_power_save = false;
+            button_drivers[i].base.get_key_level = custom_button_get_key_level;
+            button_drivers[i].base.enter_power_save = NULL;
+            button_drivers[i].base.del = NULL;
+
+            iot_button_create(&button_cfg, &button_drivers[i].base, &btns[i]);
+            iot_button_register_cb(btns[i], BUTTON_PRESS_DOWN, NULL, button_press_down_cb[i], NULL);
+            iot_button_register_cb(btns[i], BUTTON_PRESS_UP, NULL, button_press_up_cb[i], NULL);
         }
     }
 }
