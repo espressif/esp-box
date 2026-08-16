@@ -61,3 +61,19 @@ The project supports both internal storage using LittleFS and external storage v
 ### Project description
 
 The ESP32-S3-BOX-3-JoyStick hardware system comprises the ESP32-S3-BOX-3 development board, JoyStick controller, and ESP32-S3-USB-Bridge receiver. The ESP32-S3-BOX-3 serves as the main controller, connecting to the JoyStick controller and ESP32-S3-USB-Bridge receiver through a PCI-E interface. The system operates in "Game Mode" and "RC Remote Control Mode." In Game Mode, it supports USB-HID and BLE-HID protocols for computer gaming control, as well as an NES emulator mode. In RC Remote Control Mode, it utilizes the ESP-NOW wireless communication protocol to pair with ESP32-S3-USB-Bridge and other Espressif development boards, enabling wireless control of RC vehicles and ESP-Drone quadcopters.
+
+
+
+## Stu Device Deck - A Setup-Aware Browser Dashboard for ESP32-S3-BOX-3
+
+### Project Source
+
+[GitHub link](https://github.com/jas-ea/stu-device-deck)
+
+[Live dashboard](https://stu-device-deck.work-jaski.chatgpt.site)
+
+### Project description
+
+Stu Device Deck is an independent open-source browser dashboard for the ESP32-S3-BOX-3. It is organized around the main unit plus one attached base: DOCK, SENSOR, BREAD, or BRACKET. The selected setup controls which hardware capabilities, part guides, and experiments are shown.
+
+The project includes attributed hardware photos and diagrams, eleven guided checks and builds, browser-local progress, and a documented Web Serial protocol for main-unit display, microphone, speaker, and touch controls. The source is published under the Apache License 2.0.
